@@ -12,6 +12,7 @@ import { useOnboardingStore } from '@proj-airi/stage-ui/stores/onboarding'
 import { useSettings, useSettingsAudioDevice } from '@proj-airi/stage-ui/stores/settings'
 import { useTheme } from '@proj-airi/ui'
 import { StageTransitionGroup } from '@proj-airi/ui-transitions'
+import { useCssVar } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
 import { computed, onMounted, onUnmounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -40,16 +41,11 @@ const cardStore = useAiriCardStore()
 const analyticsStore = useSharedAnalyticsStore()
 const inferencePreload = useInferencePreload()
 
-const getCSSVar = (variableName: string) => getComputedStyle(document.documentElement).getPropertyValue(variableName).trim()
-
 const colors = computed(() => {
-  // required reactivity dependency.
-  // colors won't update when hue settings change if not depended upon.
-  settings.themeColorsHue.value
   return {
-    primary: getCSSVar('--primary-color'),
-    secondary: getCSSVar('--secondary-color'),
-    tertiary: getCSSVar('--tertiary-color'),
+    primary: useCssVar('--primary-color').value,
+    secondary: useCssVar('--secondary-color').value,
+    tertiary: useCssVar('--tertiary-color').value,
     background: isDark.value ? '#121212' : '#FFFFFF',
   }
 })
