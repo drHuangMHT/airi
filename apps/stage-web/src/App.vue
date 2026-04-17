@@ -46,12 +46,12 @@ const colors = computed(() => {
   // required reactivity dependency.
   // colors won't update when hue settings change if not depended upon.
   settings.themeColorsHue.value
-  return [
-    getCSSVar('--primary-color'),
-    getCSSVar('--secondary-color'),
-    getCSSVar('--tertiary-color'),
-    isDark.value ? '#121212' : '#FFFFFF',
-  ]
+  return {
+    primary: getCSSVar('--primary-color'),
+    secondary: getCSSVar('--secondary-color'),
+    tertiary: getCSSVar('--tertiary-color'),
+    background: isDark.value ? '#121212' : '#FFFFFF',
+  }
 })
 
 const onboardingExtraSteps = computed(() => {
@@ -111,7 +111,10 @@ function handleSetupSkipped() {
 
 <template>
   <StageTransitionGroup
-    :colors="colors"
+    :primary-color="colors.primary"
+    :secondary-color="colors.secondary"
+    :tertiary-color="colors.tertiary"
+    :color-sequence="Object.entries(colors).map(([_k, v]) => v).filter((v) => v != null)"
     :z-index="100"
     :disable-transitions="settings.disableTransitions.value"
     :use-page-specific-transitions="settings.usePageSpecificTransitions.value"

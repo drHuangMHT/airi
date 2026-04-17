@@ -1,20 +1,9 @@
 <script setup lang="ts">
+import type { StageTransitionCommonParams } from '.'
+
 import { computed } from 'vue'
 
 import { useCssVariables } from './useCssVar'
-
-interface TransitionParams {
-  primaryColor?: string
-  duration?: number
-  delay?: number
-  direction?: 'up' | 'down' | 'left' | 'right'
-  borderRadius?: {
-    sm?: string
-    md?: string
-    lg?: string
-  }
-  zIndex?: number
-}
 
 const {
   direction = 'up',
@@ -23,7 +12,14 @@ const {
   delay = 0,
   borderRadius = { sm: '14rem', md: '14rem', lg: '50%' },
   zIndex = 100,
-} = defineProps<TransitionParams>()
+} = defineProps<Omit<StageTransitionCommonParams, 'name'>
+& {
+  borderRadius?: {
+    sm?: string
+    md?: string
+    lg?: string
+  }
+}>()
 const directionClass = computed(() => `fantasy-fall-${direction}`)
 
 useCssVariables(() => ({

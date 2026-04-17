@@ -92,9 +92,9 @@ const secondaryColorCss = useCssVar('--secondary-color')
 const tertiaryColorCss = useCssVar('--tertiary-color')
 // Priority: direct color assignment > colors array > css variable
 const palette = computed(() => ({
-  primary: props.primaryColor || props.colors?.[0] || primaryColorCss.value,
-  secondary: props.secondaryColor || props.colors?.[1] || secondaryColorCss.value,
-  tertiary: props.tertiaryColor || props.colors?.[2] || tertiaryColorCss.value,
+  primary: props.primaryColor || props.colorSequence?.[0] || primaryColorCss.value,
+  secondary: props.secondaryColor || props.colorSequence?.[1] || secondaryColorCss.value,
+  tertiary: props.tertiaryColor || props.colorSequence?.[2] || tertiaryColorCss.value,
 }))
 
 // Hook system
@@ -273,8 +273,8 @@ router.beforeEach((to, _from, next) => {
   if (palette.value.tertiary) {
     stageTransition.tertiaryColor = tertiary
   }
-  if (props.colors !== undefined) {
-    stageTransition.colors = props.colors
+  if (props.colorSequence !== undefined) {
+    stageTransition.colorSequence = props.colorSequence
   }
   if (typeof props.zIndex !== 'undefined') {
     stageTransition.zIndex = props.zIndex

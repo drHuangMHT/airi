@@ -12,7 +12,9 @@ export interface StageTransitionCommonParams {
   secondaryColor?: string
   tertiaryColor?: string
   direction?: 'top' | 'bottom' | 'left' | 'right'
-  colors?: string[]
+  delay?: number
+  duration?: number
+  colorSequence?: string[]
   zIndex?: number
   pageSpecificAvailable?: boolean
 }

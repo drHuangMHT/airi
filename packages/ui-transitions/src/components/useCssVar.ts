@@ -4,6 +4,7 @@ import { toValue, watchEffect } from 'vue'
 
 /**
  * Composable for managing CSS custom properties (variables) with reactivity and cleanup.
+ * The binding is one-way.
  *
  * @example
  * // Basic usage - sets variables on root element

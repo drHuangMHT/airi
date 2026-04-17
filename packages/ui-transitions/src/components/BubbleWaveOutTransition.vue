@@ -1,37 +1,32 @@
 <script setup lang="ts">
+import type { StageTransitionCommonParams } from '.'
+
 import { useCssVariables } from './useCssVar'
 
-interface TransitionParams {
-  colors?: string[]
-  delay?: number
-  duration?: number
-  zIndex?: number
-}
-
 const {
-  colors = ['#eee', '#ebcb8b', '#c56370', '#3f3b52'],
+  colorSequence = ['#eee', '#ebcb8b', '#c56370', '#3f3b52'],
   delay = 0,
   duration = 0.4,
   zIndex = 100,
-} = defineProps<TransitionParams>()
+} = defineProps<StageTransitionCommonParams>()
 
-function getCssVar() {
+function getCssVarList() {
   const record: Record<string, string> = {
     delay: `${delay}s`,
     duration: `${duration}s`,
   }
-  colors.forEach((color, index) => {
+  colorSequence.forEach((color, index) => {
     record[`color-${index + 1}`] = color
   })
   return record
 }
 
-useCssVariables(getCssVar, { prefix: '--circle-expansion-' })
+useCssVariables(getCssVarList, { prefix: '--circle-expansion-' })
 </script>
 
 <template>
   <div class="circle-expansion-transition" :style="{ zIndex }">
-    <div v-for="(_, index) in colors" :key="index" />
+    <div v-for="(_, index) in colorSequence" :key="index" />
   </div>
 </template>
 

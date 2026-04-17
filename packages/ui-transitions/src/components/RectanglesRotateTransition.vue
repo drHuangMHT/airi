@@ -4,10 +4,6 @@ import type { StageTransitionCommonParams } from '.'
 import { useCssVariables } from './useCssVar'
 
 interface TransitionParams {
-  /** Duration of the rotation, in seconds. */
-  duration?: number
-  /** Delay, in seconds. */
-  delay?: number
   /** Stagger delay, in seconds. */
   staggerDelay?: number
   /** Rotation angle of the rotation, in degrees. */

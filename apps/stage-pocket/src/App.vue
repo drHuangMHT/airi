@@ -121,7 +121,7 @@ const extraSteps = computed(() => [
     :primary-color="primaryColor"
     :secondary-color="secondaryColor"
     :tertiary-color="tertiaryColor"
-    :colors="colors"
+    :color-sequence="colors"
     :z-index="100"
     :disable-transitions="settings.disableTransitions.value"
     :use-page-specific-transitions="settings.usePageSpecificTransitions.value"
