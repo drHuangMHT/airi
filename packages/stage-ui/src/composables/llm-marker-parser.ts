@@ -169,7 +169,7 @@ function createLlmMarkerStream(input: ReadableStream<string>, options?: MarkerPa
  * await parser.consume('This is some text <|tool_code|> and some more |> text.');
  * await parser.end();
  */
-export function useLlmmarkerParser(options: {
+export function useLlmMarkerParser(options: {
   onLiteral?: (literal: string) => void | Promise<void>
   onSpecial?: (special: string) => void | Promise<void>
   /**

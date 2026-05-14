@@ -4,7 +4,7 @@ import { nanoid } from 'nanoid'
 import { defineStore, storeToRefs } from 'pinia'
 import { computed, reactive, ref } from 'vue'
 
-import { useLlmmarkerParser } from '../../composables/llm-marker-parser'
+import { useLlmMarkerParser } from '../../composables/llm-marker-parser'
 import { useAiriCardStore } from '../modules'
 import { useSpeechRuntimeStore } from '../speech-runtime'
 
@@ -26,11 +26,11 @@ interface StreamingReactionState {
 }
 
 const MAX_REACTIONS = 200
-type ParserFactory = typeof useLlmmarkerParser
-let parserFactory: ParserFactory = useLlmmarkerParser
+type ParserFactory = typeof useLlmMarkerParser
+let parserFactory: ParserFactory = useLlmMarkerParser
 
 export function setCharacterLlmMarkerParserFactoryForTest(factory: ParserFactory | null) {
-  parserFactory = factory ?? useLlmmarkerParser
+  parserFactory = factory ?? useLlmMarkerParser
 }
 
 export const useCharacterStore = defineStore('character', () => {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { useLlmmarkerParser } from './llm-marker-parser'
+import { useLlmMarkerParser } from './llm-marker-parser'
 
 describe('useLlmmarkerParser', async () => {
   it('should parse pure literals', async () => {
@@ -8,7 +8,7 @@ describe('useLlmmarkerParser', async () => {
     const collectedLiterals: string[] = []
     const collectedSpecials: string[] = []
 
-    const parser = useLlmmarkerParser({
+    const parser = useLlmMarkerParser({
       onLiteral(literal) {
         collectedLiterals.push(literal)
       },
@@ -32,7 +32,7 @@ describe('useLlmmarkerParser', async () => {
     const collectedLiterals: string[] = []
     const collectedSpecials: string[] = []
 
-    const parser = useLlmmarkerParser({
+    const parser = useLlmMarkerParser({
       onLiteral(literal) {
         collectedLiterals.push(literal)
       },
@@ -56,7 +56,7 @@ describe('useLlmmarkerParser', async () => {
     const collectedLiterals: string[] = []
     const collectedSpecials: string[] = []
 
-    const parser = useLlmmarkerParser({
+    const parser = useLlmMarkerParser({
       onLiteral(literal) {
         collectedLiterals.push(literal)
       },
@@ -80,7 +80,7 @@ describe('useLlmmarkerParser', async () => {
     const collectedLiterals: string[] = []
     const collectedSpecials: string[] = []
 
-    const parser = useLlmmarkerParser({
+    const parser = useLlmMarkerParser({
       onLiteral(literal) {
         collectedLiterals.push(literal)
       },
@@ -104,7 +104,7 @@ describe('useLlmmarkerParser', async () => {
     const collectedLiterals: string[] = []
     const collectedSpecials: string[] = []
 
-    const parser = useLlmmarkerParser({
+    const parser = useLlmMarkerParser({
       onLiteral(literal) {
         collectedLiterals.push(literal)
       },
@@ -128,7 +128,7 @@ describe('useLlmmarkerParser', async () => {
     const collectedLiterals: string[] = []
     const collectedSpecials: string[] = []
 
-    const parser = useLlmmarkerParser({
+    const parser = useLlmMarkerParser({
       onLiteral(literal) {
         collectedLiterals.push(literal)
       },
@@ -152,7 +152,7 @@ describe('useLlmmarkerParser', async () => {
     const collectedLiterals: string[] = []
     const collectedSpecials: string[] = []
 
-    const parser = useLlmmarkerParser({
+    const parser = useLlmMarkerParser({
       onLiteral(literal) {
         collectedLiterals.push(literal)
       },
@@ -210,7 +210,7 @@ describe('useLlmmarkerParser', async () => {
       const collectedLiterals: string[] = []
       const collectedSpecials: string[] = []
 
-      const parser = useLlmmarkerParser({
+      const parser = useLlmMarkerParser({
         onLiteral(literal) {
           collectedLiterals.push(literal)
         },
@@ -234,7 +234,7 @@ describe('useLlmmarkerParser', async () => {
     const fullText = 'Hello, world!'
     let endText = ''
 
-    const parser = useLlmmarkerParser({
+    const parser = useLlmMarkerParser({
       onEnd(text) {
         endText = text
       },
@@ -253,7 +253,7 @@ describe('useLlmmarkerParser', async () => {
     const fullText = 'Hello <|special|> world!'
     let endText = ''
 
-    const parser = useLlmmarkerParser({
+    const parser = useLlmMarkerParser({
       onEnd(text) {
         endText = text
       },
@@ -272,7 +272,7 @@ describe('useLlmmarkerParser', async () => {
     const fullText = 'Hello <{\'|\'}special{\'|\'}> world!'
     let endText = ''
 
-    const parser = useLlmmarkerParser({
+    const parser = useLlmMarkerParser({
       onEnd(text) {
         endText = text
       },

@@ -13,7 +13,7 @@ import { defineStore, storeToRefs } from 'pinia'
 import { computed, ref, toRaw } from 'vue'
 
 import { useAnalytics } from '../composables'
-import { useLlmmarkerParser } from '../composables/llm-marker-parser'
+import { useLlmMarkerParser } from '../composables/llm-marker-parser'
 import { categorizeResponse, createStreamingCategorizer } from '../composables/response-categoriser'
 import { activeTurnSpan, startSpan } from '../composables/use-io-tracer'
 import { extractMessageText, isCloudSyncableMessage } from '../libs/chat-sync'
@@ -261,7 +261,7 @@ export const useChatOrchestratorStore = defineStore('chat-orchestrator', () => {
       const categorizer = createStreamingCategorizer(activeProvider.value)
       let streamPosition = 0
 
-      const parser = useLlmmarkerParser({
+      const parser = useLlmMarkerParser({
         onLiteral: async (literal) => {
           if (shouldAbort())
             return
