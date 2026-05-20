@@ -13,6 +13,7 @@ import {
   useElectronRelativeMouse,
 } from '@proj-airi/electron-vueuse'
 import { IS_DEV } from '@proj-airi/stage-shared'
+import { useSettingsLive2d } from '@proj-airi/stage-ui-live2d'
 import { useModelStore, useThreeSceneIsTransparentAtPoint } from '@proj-airi/stage-ui-three'
 import { HoloCoupon } from '@proj-airi/stage-ui/components'
 import {
@@ -39,7 +40,6 @@ import { modelSettingsRuntimeSnapshotChannelName } from '../../shared/model-sett
 import { useChatSyncStore } from '../stores/chat-sync'
 import { useControlsIslandStore } from '../stores/controls-island'
 import { useStageWindowLifecycleStore } from '../stores/stage-window-lifecycle'
-import { useWindowStore } from '../stores/window'
 import { shouldSampleStageTransparency } from '../utils/stage-three-transparency'
 
 const controlsIslandRef = ref<InstanceType<typeof ControlsIsland>>()
@@ -109,8 +109,6 @@ const { isNearAnyBorder: isAroundWindowBorder } = useElectronMouseAroundWindowBo
 const isAroundWindowBorderFor250Ms = refDebounced(isAroundWindowBorder, 250)
 
 const setIgnoreMouseEvents = useElectronEventaInvoke(electron.window.setIgnoreMouseEvents)
-
-const { live2dLookAtX, live2dLookAtY } = storeToRefs(useWindowStore())
 
 const { pause, resume } = watch(isTransparent, (transparent) => {
   shouldFadeOnCursorWithin.value = fadeOnHoverEnabled.value && !transparent
@@ -455,6 +453,17 @@ watch([stream, () => vadLoaded.value], async ([s, loaded]) => {
 })
 
 // Assistant caption is broadcast from Stage.vue via the same channel
+
+const { live2dEyeTrackingSource } = storeToRefs(useSettingsLive2d())
+live2dEyeTrackingSource.value = computed(() => ({
+  x: relativeMouseX.value,
+  y: relativeMouseY.value,
+}))
+const { trackingSource } = storeToRefs(useModelStore())
+trackingSource.value = computed(() => ({
+  x: relativeMouseX.value,
+  y: relativeMouseY.value,
+}))
 </script>
 
 <template>
@@ -490,7 +499,6 @@ watch([stream, () => vadLoaded.value], async ([s, loaded]) => {
           h-full w-full
           flex-1
           :paused="stagePaused"
-          :focus-at="{ x: live2dLookAtX, y: live2dLookAtY }"
         />
         <HoloCoupon />
         <ControlsIsland
