@@ -171,10 +171,10 @@ live2d:
       title: Force eye animation when idle
       description: Randomly look around when idle
     auto-blink:
-      title: Auto blink
+      title: Auto
       description: Use default blinking animation of the model
     force-auto-blink:
-      title: Force auto blink
+      title: Force
       description: Force blinking animation with external timer
     idle-motion:
       title: Idle animation
