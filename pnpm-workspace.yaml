@@ -10,6 +10,7 @@ packages:
   - engines/**
   - apps/**
   - '!**/dist/**'
+  - '!**/*.old/**'
 overrides:
   array-flatten: npm:@nolyfill/array-flatten@^1.0.44
   axios: npm:feaxios@^0.0.23
