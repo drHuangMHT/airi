@@ -6,9 +6,6 @@ settings:
 
 catalogs:
   default:
-    '@ax-llm/ax':
-      specifier: ^19.0.43
-      version: 19.0.45
     '@better-auth/oauth-provider':
       specifier: 1.5.6
       version: 1.5.6
@@ -294,9 +291,6 @@ catalogs:
     posthog-node:
       specifier: ^5.34.1
       version: 5.34.1
-    reka-ui:
-      specifier: ^2.9.2
-      version: 2.9.6
     replicate:
       specifier: ^1.4.0
       version: 1.4.0
@@ -306,9 +300,6 @@ catalogs:
     std-env:
       specifier: ^4.1.0
       version: 4.1.0
-    stockfish:
-      specifier: ^18.0.7
-      version: 18.0.7
     superjson:
       specifier: ^2.2.6
       version: 2.2.6
@@ -858,9 +849,6 @@ importers:
       '@proj-airi/ui':
         specifier: workspace:^
         version: link:../../packages/ui
-      '@proj-airi/ui-transitions':
-        specifier: workspace:^
-        version: link:../../packages/ui-transitions
       '@tresjs/cientos':
         specifier: ^5.7.0
         version: 5.7.0(@tresjs/core@5.8.0(@types/three@0.184.0)(three@0.184.0)(vue@3.5.32(typescript@5.9.3)))(@types/three@0.184.0)(react@19.2.3)(three@0.184.0)(vue@3.5.32(typescript@5.9.3))
@@ -1550,9 +1538,6 @@ importers:
       '@proj-airi/stage-shared':
         specifier: workspace:^
         version: link:../../packages/stage-shared
-      '@proj-airi/ui-transitions':
-        specifier: workspace:^
-        version: link:../../packages/ui-transitions
       '@proj-airi/unplugin-fetch':
         specifier: 'catalog:'
         version: 0.2.3(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.2)(jiti@2.6.1)(less@4.6.4)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))
@@ -1751,9 +1736,6 @@ importers:
       '@proj-airi/ui':
         specifier: workspace:^
         version: link:../../packages/ui
-      '@proj-airi/ui-transitions':
-        specifier: workspace:^
-        version: link:../../packages/ui-transitions
       '@tresjs/cientos':
         specifier: ^5.7.0
         version: 5.7.0(@tresjs/core@5.8.0(@types/three@0.184.0)(three@0.184.0)(vue@3.5.32(typescript@5.9.3)))(@types/three@0.184.0)(react@19.2.3)(three@0.184.0)(vue@3.5.32(typescript@5.9.3))
@@ -2687,25 +2669,6 @@ importers:
       unplugin-yaml:
         specifier: ^4.1.0
         version: 4.1.0(@nuxt/kit@3.20.2(magicast@0.5.2))(esbuild@0.27.2)(rolldown@1.0.0-rc.16)(rollup@4.60.1)(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.2)(jiti@2.6.1)(less@4.6.4)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))
-
-  packages/memory-pgvector:
-    dependencies:
-      '@guiiai/logg':
-        specifier: 'catalog:'
-        version: 1.2.11
-      '@proj-airi/server-sdk':
-        specifier: workspace:^
-        version: link:../server-sdk
-      drizzle-orm:
-        specifier: 'catalog:'
-        version: 0.45.2(@electric-sql/pglite@0.4.4)(@opentelemetry/api@1.9.1)(@prisma/client@5.22.0)(@types/pg@8.20.0)(better-sqlite3@12.5.0)(kysely@0.28.14)(pg@8.20.0)(postgres@3.4.9)
-      postgres:
-        specifier: ^3.4.9
-        version: 3.4.9
-    devDependencies:
-      tsx:
-        specifier: ^4.21.0
-        version: 4.21.0
 
   packages/model-driver-lipsync:
     dependencies:
@@ -3877,37 +3840,6 @@ importers:
         specifier: ^3.2.6
         version: 3.2.6(typescript@5.9.3)
 
-  packages/ui-transitions:
-    dependencies:
-      '@vueuse/core':
-        specifier: ^14.2.1
-        version: 14.2.1(vue@3.5.32(typescript@5.9.3))
-      '@vueuse/motion':
-        specifier: ^3.0.3
-        version: 3.0.3(magicast@0.5.2)(vue@3.5.32(typescript@5.9.3))
-      vue:
-        specifier: 'catalog:'
-        version: 3.5.32(typescript@5.9.3)
-    devDependencies:
-      '@unocss/reset':
-        specifier: ^66.6.8
-        version: 66.6.8
-      '@vitejs/plugin-vue':
-        specifier: ^6.0.6
-        version: 6.0.6(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.2)(jiti@2.6.1)(less@4.6.4)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))(vue@3.5.32(typescript@5.9.3))
-      vite:
-        specifier: 'catalog:'
-        version: 8.0.8(@types/node@25.6.0)(esbuild@0.27.2)(jiti@2.6.1)(less@4.6.4)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3)
-      vite-plugin-vue-devtools:
-        specifier: ^8.1.1
-        version: 8.1.1(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.2)(jiti@2.6.1)(less@4.6.4)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))(vue@3.5.32(typescript@5.9.3))
-      vue-router:
-        specifier: ^5.0.4
-        version: 5.0.4(@pinia/colada@1.2.1(pinia@3.0.4(typescript@5.9.3)(vue@3.5.32(typescript@5.9.3)))(vue@3.5.32(typescript@5.9.3)))(@vue/compiler-sfc@3.5.32)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.32(typescript@5.9.3)))(vue@3.5.32(typescript@5.9.3))
-      vue-tsc:
-        specifier: ^3.2.6
-        version: 3.2.6(typescript@5.9.3)
-
   packages/unocss-preset-fonts:
     dependencies:
       '@proj-airi/font-cjkfonts-allseto':
@@ -3974,143 +3906,6 @@ importers:
       vue-tsc:
         specifier: ^3.2.6
         version: 3.2.6(typescript@5.9.3)
-
-  plugins/airi-plugin-bilibili-laplace:
-    dependencies:
-      '@guiiai/logg':
-        specifier: 'catalog:'
-        version: 1.2.11
-      '@laplace.live/event-bridge-sdk':
-        specifier: ^1.0.22
-        version: 1.0.22(typescript@5.9.3)
-      '@laplace.live/event-types':
-        specifier: ^2.0.14
-        version: 2.0.14(typescript@5.9.3)
-      '@proj-airi/server-sdk':
-        specifier: workspace:*
-        version: link:../../packages/server-sdk
-
-  plugins/airi-plugin-claude-code:
-    dependencies:
-      '@guiiai/logg':
-        specifier: 'catalog:'
-        version: 1.2.11
-      '@proj-airi/server-sdk':
-        specifier: workspace:*
-        version: link:../../packages/server-sdk
-      cac:
-        specifier: ^7.0.0
-        version: 7.0.0
-      debug:
-        specifier: ^4.4.3
-        version: 4.4.3(supports-color@10.2.2)
-      destr:
-        specifier: ^2.0.5
-        version: 2.0.5
-      vue:
-        specifier: 'catalog:'
-        version: 3.5.32(typescript@5.9.3)
-    devDependencies:
-      '@anthropic-ai/claude-code':
-        specifier: ^2.1.114
-        version: 2.1.114
-      tsx:
-        specifier: ^4.21.0
-        version: 4.21.0
-      vue-tsc:
-        specifier: ^3.2.6
-        version: 3.2.6(typescript@5.9.3)
-
-  plugins/airi-plugin-game-chess:
-    dependencies:
-      '@moeru/eventa':
-        specifier: 'catalog:'
-        version: 1.0.0-beta.5(electron@41.2.1)(h3@2.0.1-rc.20(crossws@0.4.5(srvx@0.11.15)))
-      '@moeru/std':
-        specifier: 'catalog:'
-        version: 0.1.0-beta.17
-      '@proj-airi/plugin-protocol':
-        specifier: workspace:*
-        version: link:../../packages/plugin-protocol
-      '@proj-airi/plugin-sdk-tamagotchi':
-        specifier: workspace:*
-        version: link:../../packages/plugin-sdk-tamagotchi
-      '@proj-airi/ui':
-        specifier: workspace:^
-        version: link:../../packages/ui
-      animejs:
-        specifier: ^4.3.6
-        version: 4.3.6
-      chess.js:
-        specifier: 'catalog:'
-        version: 1.4.0
-      reka-ui:
-        specifier: 'catalog:'
-        version: 2.9.6(vue@3.5.32(typescript@5.9.3))
-      stockfish:
-        specifier: 'catalog:'
-        version: 18.0.7
-      valibot:
-        specifier: 'catalog:'
-        version: 1.2.0(typescript@5.9.3)
-      vue:
-        specifier: 'catalog:'
-        version: 3.5.32(typescript@5.9.3)
-    devDependencies:
-      '@ax-llm/ax':
-        specifier: 'catalog:'
-        version: 19.0.45(zod@4.3.6)
-      '@proj-airi/core-agent':
-        specifier: workspace:^
-        version: link:../../packages/core-agent
-      '@proj-airi/plugin-sdk':
-        specifier: workspace:*
-        version: link:../../packages/plugin-sdk
-      '@proj-airi/stage-ui':
-        specifier: workspace:^
-        version: link:../../packages/stage-ui
-      '@proj-airi/unocss-preset-chromatic':
-        specifier: ^1.0.2
-        version: 1.1.1
-      '@unocss/reset':
-        specifier: ^66.6.7
-        version: 66.6.8
-      '@vitejs/plugin-vue':
-        specifier: ^6.0.5
-        version: 6.0.6(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.2)(jiti@2.6.1)(less@4.6.4)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))(vue@3.5.32(typescript@5.9.3))
-      '@xsai-ext/providers':
-        specifier: 'catalog:'
-        version: 0.5.0-beta.2
-      '@xsai/generate-text':
-        specifier: 'catalog:'
-        version: 0.5.0-beta.2(patch_hash=306bfb723913596b334140f0d6fa48063f336e3b44024efc1d72bf60d54b15e6)
-      '@xsai/shared-chat':
-        specifier: 'catalog:'
-        version: 0.5.0-beta.2(patch_hash=26f2819b987245ec85f216b821ddf73aeb28fd7e611238a2d37250e42f838a01)
-      '@xsai/stream-text':
-        specifier: 'catalog:'
-        version: 0.5.0-beta.2(patch_hash=90dfe10d02f5946658508ec019937eab600745c93446ce7b2fdb1a0ed70e3e49)
-      pinia:
-        specifier: 'catalog:'
-        version: 3.0.4(typescript@5.9.3)(vue@3.5.32(typescript@5.9.3))
-      unocss:
-        specifier: ^66.6.7
-        version: 66.6.8(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2)(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.2)(jiti@2.6.1)(less@4.6.4)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))
-      vieval:
-        specifier: 'catalog:'
-        version: 0.0.5(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/browser-playwright@4.1.4)(@vitest/coverage-v8@4.1.4)(chokidar@5.0.0)(dotenv@17.4.2)(esbuild@0.27.2)(giget@2.0.0)(jiti@2.6.1)(jsdom@29.1.1(@noble/hashes@2.0.1)(canvas@3.2.3))(less@4.6.4)(magicast@0.5.2)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3)
-      xsschema:
-        specifier: 'catalog:'
-        version: 0.5.0-beta.2(@valibot/to-json-schema@1.0.0-rc.0(valibot@1.3.1(typescript@5.9.3)))(zod-to-json-schema@3.25.2(zod@4.3.6))(zod@4.3.6)
-
-  plugins/airi-plugin-homeassistant:
-    dependencies:
-      '@guiiai/logg':
-        specifier: 'catalog:'
-        version: 1.2.11
-      '@proj-airi/server-sdk':
-        specifier: workspace:*
-        version: link:../../packages/server-sdk
 
   plugins/airi-plugin-web-extension:
     devDependencies:
@@ -4621,55 +4416,6 @@ packages:
     engines: {node: '>=20.19.0'}
     hasBin: true
 
-  '@anthropic-ai/claude-code-darwin-arm64@2.1.114':
-    resolution: {integrity: sha512-TVvlUA3VluCWibN+U9PIbrQrdxyX6tEORawaZnBOsEXzo/fXF8C61NgUN6KlZedgGZATrRflv3w+Im2vw+kfcg==}
-    cpu: [arm64]
-    os: [darwin]
-
-  '@anthropic-ai/claude-code-darwin-x64@2.1.114':
-    resolution: {integrity: sha512-1k3shOIjp1ra/URMbGiqUxJ/prbwfQdjg1Ms2SPlX2Mxo/NCNg+S5K0d4BfC/xUB3fYOe1OuoE3qbY4WKZPkiQ==}
-    cpu: [x64]
-    os: [darwin]
-
-  '@anthropic-ai/claude-code-linux-arm64-musl@2.1.114':
-    resolution: {integrity: sha512-rEyufGIlBYIjHWBF0E+vL0nMO5kh/nT9pftOvDW8wDRS7GN67dBWQvWRVZ9q5PTSNh1urCi1ZWDL/Rc6HSzxcg==}
-    cpu: [arm64]
-    os: [linux]
-    libc: [musl]
-
-  '@anthropic-ai/claude-code-linux-arm64@2.1.114':
-    resolution: {integrity: sha512-eIJaynRIzbWSmspLvrPZDXlKp+Jd3omi94sLdHznrzqRrU98eNEXNaBlcQQx1A5hbOEo2cx0QXOZV3idpeirPQ==}
-    cpu: [arm64]
-    os: [linux]
-    libc: [glibc]
-
-  '@anthropic-ai/claude-code-linux-x64-musl@2.1.114':
-    resolution: {integrity: sha512-kq7LDpUFzn/X4Iom3u5whbmtZmDjKI7cOPCo9UhGwivU8zKYGiIemkNlwManz01i6Ct4/kSZH8sWNAHvDm0pTQ==}
-    cpu: [x64]
-    os: [linux]
-    libc: [musl]
-
-  '@anthropic-ai/claude-code-linux-x64@2.1.114':
-    resolution: {integrity: sha512-4YX0ataEGqtgmXoYf97YQnbzh0xwegH4ZFP5d5LXBlJIXAB26cSIBNBPE+Eln8evguGJ9QzmHQBhSTdOl0DQAw==}
-    cpu: [x64]
-    os: [linux]
-    libc: [glibc]
-
-  '@anthropic-ai/claude-code-win32-arm64@2.1.114':
-    resolution: {integrity: sha512-QtaFjXNLWWWzZ9Bm/p970KxDDlUsyhFHKtXeSZLEche88n7XC87TLNH8RaCkXJzyFP16JU7CrsYrYKCXtspyXA==}
-    cpu: [arm64]
-    os: [win32]
-
-  '@anthropic-ai/claude-code-win32-x64@2.1.114':
-    resolution: {integrity: sha512-/BeCvzMFmOB/KmA6J6z6z3n6N0wHS20ViRYiai+joB7sKuOMQSVZzyLu115RNoLAaUt5b7MFRMLKgmsH3m+BHg==}
-    cpu: [x64]
-    os: [win32]
-
-  '@anthropic-ai/claude-code@2.1.114':
-    resolution: {integrity: sha512-RPhw1ClFxzOESQdI+bXYp35IXlhS/bi75VIajQgrg11qH10k5jiYZ+ivz1dTN6rbeii+zaCuhjpMzKfdtN/JTw==}
-    engines: {node: '>=18.0.0'}
-    hasBin: true
-
   '@apideck/better-ajv-errors@0.3.7':
     resolution: {integrity: sha512-TajUJwGWbDwkCx/CZi7tRE8PVB7simCvKJfHUsSdvps+aTM/PDPP4gkLmKnc+x3CE//y9i/nj74GqdL/hwk7Iw==}
     engines: {node: '>=10'}
@@ -4700,15 +4446,6 @@ packages:
 
   '@asamuzakjp/nwsapi@2.3.9':
     resolution: {integrity: sha512-n8GuYSrI9bF7FFZ/SjhwevlHc8xaVlb/7HmHelnc/PZXBD2ZR49NnN9sMMuDdEGPeeRQ5d0hqlSlEpgCX3Wl0Q==}
-
-  '@ax-llm/ax@19.0.45':
-    resolution: {integrity: sha512-zC/OqUutTV0omOuAxBgeCihmxP3e1eUcbA78FCaMF3pPXZ3/FgQDZf0R04LH/lVIxm5BH4/qDdNNYcIVGwii8Q==}
-    hasBin: true
-    peerDependencies:
-      zod: ^3.24.0 || ^4.0.0
-    peerDependenciesMeta:
-      zod:
-        optional: true
 
   '@azure/msal-common@14.16.1':
     resolution: {integrity: sha512-nyxsA6NA4SVKh5YyRpbSXiMr7oQbwark7JU9LMeg6tJYTSPyAGkdx61wPT4gyxZfxlSxMMEyAsWaubBlNyIa1w==}
@@ -5433,9 +5170,6 @@ packages:
   '@bramus/specificity@2.4.2':
     resolution: {integrity: sha512-ctxtJ/eA+t+6q2++vj5j7FYX3nRu311q1wfYH3xjlLOsczhlhxAg2FWNUXhpGvAw3BWo1xBcvOV6/YLc2r5FJw==}
     hasBin: true
-
-  '@bufbuild/protobuf@2.10.2':
-    resolution: {integrity: sha512-uFsRXwIGyu+r6AMdz+XijIIZJYpoWeYzILt5yZ2d3mCjQrWUTVpVD9WL/jZAbvp+Ed04rOhrsk7FiTcEDseB5A==}
 
   '@capacitor/android@8.3.1':
     resolution: {integrity: sha512-hjskIG8YcBEh3X4yaTXvE9gcqpdcxunTgFruSKnuPxtMxAUzEK4Oq25x0Z1g3cz+MQPc+lRG09R7Ovc+ydKsNw==}
@@ -6890,19 +6624,6 @@ packages:
 
   '@kwsites/promise-deferred@1.1.1':
     resolution: {integrity: sha512-GaHYm+c0O9MjZRu0ongGBRbinu8gVAMd2UZjji6jVmqKtZluZnptXGWhz1E8j8D2HJ3f/yMxKAUC0b+57wncIw==}
-
-  '@laplace.live/event-bridge-sdk@1.0.22':
-    resolution: {integrity: sha512-15A668PA1vWyS8coj5lI/IA9zqDKPGJO2v+J2YROBpOWuDXFhLCaMS0mNd3IYGT8NkmgU3l9GXg2y333r8VY2g==}
-
-  '@laplace.live/event-types@2.0.14':
-    resolution: {integrity: sha512-8Z2rtcjluSG5pnNW9FSIANaxvK68vgHYqruhDGw6UQPZ3aWiCPiqYO+UT4xIMf1QOrtrEL0an6xFhJ8GWuPm5g==}
-    peerDependencies:
-      typescript: ^5.9.2
-
-  '@laplace.live/internal@1.3.4':
-    resolution: {integrity: sha512-j3OvwTbVO0qU8BOToSWQKrOmnAWzNIA3oKAt1eypllQdYWubYvXAGvxRdY1gtX0JliZAYXE0Ce1XvLCngBPhJA==}
-    peerDependencies:
-      typescript: ^5.9.3
 
   '@lemonneko/crop-empty-pixels@0.1.1':
     resolution: {integrity: sha512-4Mp6gBN3XbXw5OXyN0rF5bhWWISmrU4DRCGUWDnyWWFCERE2SZwvv2w4hoPhg804BcI0wXLPk5lHf/v15AFXSA==}
@@ -12000,9 +11721,6 @@ packages:
   date-fns@4.1.0:
     resolution: {integrity: sha512-Ukq0owbQXxa/U3EGtsdVBkR1w7KOQ5gIBqdH2hkvknzZPYvBxb/aa6E8L7tmjFtkwZBu3UXBbjIgPo/Ez4xaNg==}
 
-  dayjs@1.11.20:
-    resolution: {integrity: sha512-YbwwqR/uYpeoP4pu043q+LTDLFBLApUP6VxRihdfNTqu4ubqMlGDLd6ErXhEgsyvY0K6nCs7nggYumAN+9uEuQ==}
-
   de-indent@1.0.2:
     resolution: {integrity: sha512-e/1zu3xH5MQryN2zdVaF0OrdNLUbvWxzMbi+iNA6Bky7l1RoP8a2fIbRocyHclXt/arDrrR6lL3TqFD9pMQTsg==}
 
@@ -16677,10 +16395,6 @@ packages:
   std-env@4.1.0:
     resolution: {integrity: sha512-Rq7ybcX2RuC55r9oaPVEW7/xu3tj8u4GeBYHBWCychFtzMIr86A7e3PPEBPT37sHStKX3+TiX/Fr/ACmJLVlLQ==}
 
-  stockfish@18.0.7:
-    resolution: {integrity: sha512-tJ+bfMAHs4fV7QYiLcHUicx1RzKOQwj8twx/z0iUTauMG+SE3l1rEtRSg+WER81ke3bc5tqKBWEWntUbydkgZg==}
-    hasBin: true
-
   store2@2.14.4:
     resolution: {integrity: sha512-srTItn1GOvyvOycgxjAnPA63FZNwy0PTyUBFMHRM+hVFltAeoh0LmNBz9SZqUS9mMqGk8rfyWyXn3GH5ReJ8Zw==}
 
@@ -18563,41 +18277,6 @@ snapshots:
       tinyexec: 1.1.1
       tinyglobby: 0.2.16
 
-  '@anthropic-ai/claude-code-darwin-arm64@2.1.114':
-    optional: true
-
-  '@anthropic-ai/claude-code-darwin-x64@2.1.114':
-    optional: true
-
-  '@anthropic-ai/claude-code-linux-arm64-musl@2.1.114':
-    optional: true
-
-  '@anthropic-ai/claude-code-linux-arm64@2.1.114':
-    optional: true
-
-  '@anthropic-ai/claude-code-linux-x64-musl@2.1.114':
-    optional: true
-
-  '@anthropic-ai/claude-code-linux-x64@2.1.114':
-    optional: true
-
-  '@anthropic-ai/claude-code-win32-arm64@2.1.114':
-    optional: true
-
-  '@anthropic-ai/claude-code-win32-x64@2.1.114':
-    optional: true
-
-  '@anthropic-ai/claude-code@2.1.114':
-    optionalDependencies:
-      '@anthropic-ai/claude-code-darwin-arm64': 2.1.114
-      '@anthropic-ai/claude-code-darwin-x64': 2.1.114
-      '@anthropic-ai/claude-code-linux-arm64': 2.1.114
-      '@anthropic-ai/claude-code-linux-arm64-musl': 2.1.114
-      '@anthropic-ai/claude-code-linux-x64': 2.1.114
-      '@anthropic-ai/claude-code-linux-x64-musl': 2.1.114
-      '@anthropic-ai/claude-code-win32-arm64': 2.1.114
-      '@anthropic-ai/claude-code-win32-x64': 2.1.114
-
   '@apideck/better-ajv-errors@0.3.7(ajv@8.18.0)':
     dependencies:
       ajv: 8.18.0
@@ -18650,13 +18329,6 @@ snapshots:
   '@asamuzakjp/generational-cache@1.0.1': {}
 
   '@asamuzakjp/nwsapi@2.3.9': {}
-
-  '@ax-llm/ax@19.0.45(zod@4.3.6)':
-    dependencies:
-      '@opentelemetry/api': 1.9.1
-      dayjs: 1.11.20
-    optionalDependencies:
-      zod: 4.3.6
 
   '@azure/msal-common@14.16.1': {}
 
@@ -19615,8 +19287,6 @@ snapshots:
   '@bramus/specificity@2.4.2':
     dependencies:
       css-tree: 3.2.1
-
-  '@bufbuild/protobuf@2.10.2': {}
 
   '@capacitor/android@8.3.1(@capacitor/core@8.3.1)':
     dependencies:
@@ -21086,22 +20756,6 @@ snapshots:
       - supports-color
 
   '@kwsites/promise-deferred@1.1.1': {}
-
-  '@laplace.live/event-bridge-sdk@1.0.22(typescript@5.9.3)':
-    dependencies:
-      '@laplace.live/event-types': 2.0.14(typescript@5.9.3)
-    transitivePeerDependencies:
-      - typescript
-
-  '@laplace.live/event-types@2.0.14(typescript@5.9.3)':
-    dependencies:
-      '@bufbuild/protobuf': 2.10.2
-      '@laplace.live/internal': 1.3.4(typescript@5.9.3)
-      typescript: 5.9.3
-
-  '@laplace.live/internal@1.3.4(typescript@5.9.3)':
-    dependencies:
-      typescript: 5.9.3
 
   '@lemonneko/crop-empty-pixels@0.1.1': {}
 
@@ -26504,8 +26158,6 @@ snapshots:
 
   date-fns@4.1.0: {}
 
-  dayjs@1.11.20: {}
-
   de-indent@1.0.2: {}
 
   debounce@1.2.1: {}
@@ -30915,7 +30567,8 @@ snapshots:
     dependencies:
       xtend: 4.0.2
 
-  postgres@3.4.9: {}
+  postgres@3.4.9:
+    optional: true
 
   posthog-js@1.306.1:
     dependencies:
@@ -32191,8 +31844,6 @@ snapshots:
   statuses@2.0.2: {}
 
   std-env@4.1.0: {}
-
-  stockfish@18.0.7: {}
 
   store2@2.14.4: {}
 

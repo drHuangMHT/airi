@@ -27,6 +27,7 @@ export type MotionManagerPluginContext = MotionManagerUpdateContext & {
   internalModel: PixiLive2DInternalModel
   motionManager: PixiLive2DInternalModel['motionManager']
   modelParameters: Ref<any>
+  live2dEyeTrackingEnabled: Ref<boolean>
   live2dIdleAnimationEnabled: Ref<boolean>
   live2dForceIdleEyeAnimation: Ref<boolean>
   live2dAutoBlinkEnabled: Ref<boolean>
@@ -42,6 +43,7 @@ export interface UseLive2DMotionManagerUpdateOptions {
   internalModel: PixiLive2DInternalModel
   motionManager: PixiLive2DInternalModel['motionManager']
   modelParameters: Ref<any>
+  live2dEyeTrackingEnabled: Ref<boolean>
   live2dIdleAnimationEnabled: Ref<boolean>
   live2dForceIdleEyeAnimation: Ref<boolean>
   live2dAutoBlinkEnabled: Ref<boolean>
@@ -54,6 +56,7 @@ export function useLive2DMotionManagerUpdate(options: UseLive2DMotionManagerUpda
     internalModel,
     motionManager,
     modelParameters,
+    live2dEyeTrackingEnabled,
     live2dIdleAnimationEnabled,
     live2dForceIdleEyeAnimation,
     live2dAutoBlinkEnabled,
@@ -97,6 +100,7 @@ export function useLive2DMotionManagerUpdate(options: UseLive2DMotionManagerUpda
       internalModel,
       motionManager,
       modelParameters,
+      live2dEyeTrackingEnabled,
       live2dIdleAnimationEnabled,
       live2dForceIdleEyeAnimation,
       live2dAutoBlinkEnabled,

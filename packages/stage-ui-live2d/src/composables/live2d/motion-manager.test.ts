@@ -51,7 +51,6 @@ function createContext(overrides: Partial<MotionManagerPluginContext> = {}): Mot
       rightEyeOpen: 1,
     }),
     live2dEyeTrackingEnabled: ref(false),
-    live2dEyeFocusSourceActive: ref(false),
     live2dIdleAnimationEnabled: ref(true),
     live2dForceIdleEyeAnimation: ref(false),
     live2dAutoBlinkEnabled: ref(true),
@@ -91,7 +90,6 @@ describe('live2d motion manager plugins', () => {
     const idleEyeFocus = { update: vi.fn() }
     const context = createContext({
       live2dEyeTrackingEnabled: ref(true),
-      live2dEyeFocusSourceActive: ref(true),
       live2dIdleAnimationEnabled: ref(false),
       live2dForceIdleEyeAnimation: ref(true),
     })

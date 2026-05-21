@@ -167,7 +167,6 @@
     "@proj-airi/plugin-sdk": "workspace:^",
     "@proj-airi/server-runtime": "workspace:^",
     "@proj-airi/stage-shared": "workspace:^",
-    "@proj-airi/ui-transitions": "workspace:^",
     "@proj-airi/unplugin-fetch": "catalog:",
     "@proj-airi/unplugin-live2d-sdk": "^0.1.7",
     "@types/audioworklet": "catalog:",

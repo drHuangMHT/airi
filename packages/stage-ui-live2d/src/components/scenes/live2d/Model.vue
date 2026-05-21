@@ -165,6 +165,7 @@ const {
 
 const themeColorsHue = toRef(() => props.themeColorsHue)
 const themeColorsHueDynamic = toRef(() => props.themeColorsHueDynamic)
+const eyeTrackingEnabled = toRef(() => props.eyeTracking)
 const live2dIdleAnimationEnabled = toRef(() => props.live2dIdleAnimationEnabled)
 const live2dForceIdleEyeAnimation = toRef(() => props.live2dForceIdleEyeAnimation)
 const live2dAutoBlinkEnabled = toRef(() => props.live2dAutoBlinkEnabled)
@@ -338,6 +339,7 @@ async function loadModel() {
       internalModel,
       motionManager,
       modelParameters,
+      live2dEyeTrackingEnabled: eyeTrackingEnabled,
       live2dIdleAnimationEnabled,
       live2dForceIdleEyeAnimation,
       live2dAutoBlinkEnabled,

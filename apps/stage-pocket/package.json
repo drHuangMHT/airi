@@ -47,7 +47,6 @@
     "@proj-airi/stage-ui-three": "workspace:^",
     "@proj-airi/stream-kit": "workspace:^",
     "@proj-airi/ui": "workspace:^",
-    "@proj-airi/ui-transitions": "workspace:^",
     "@tresjs/cientos": "^5.7.0",
     "@tresjs/core": "^5.8.0",
     "@valibot/to-json-schema": "1.0.0-rc.0",
