@@ -11,8 +11,6 @@ import { generateTranscription } from '@xsai/generate-transcription'
 import { defineStore, storeToRefs } from 'pinia'
 import { computed, ref, shallowRef, watch } from 'vue'
 
-import vadWorkletUrl from '../../workers/vad/process.worklet?worker&url'
-
 import { useAnalytics } from '../../composables/use-analytics'
 import { activeTurnSpan, startSpan } from '../../composables/use-io-tracer'
 import { useProvidersStore } from '../providers'
@@ -378,7 +376,7 @@ export const useHearingSpeechInputPipeline = defineStore('modules:hearing:speech
 
   async function createAudioStreamFromMediaStream(stream: MediaStream, sampleRate = DEFAULT_SAMPLE_RATE, onActivity?: () => void) {
     const audioContext = new AudioContext({ sampleRate, latencyHint: 'interactive' })
-    await audioContext.audioWorklet.addModule(vadWorkletUrl)
+    await audioContext.audioWorklet.addModule(new URL('inference-transformers/workers/vad', import.meta.url).toString())
     const workletNode = new AudioWorkletNode(audioContext, 'vad-audio-worklet-processor')
 
     let audioStreamController: ReadableStreamDefaultController<ArrayBuffer> | undefined

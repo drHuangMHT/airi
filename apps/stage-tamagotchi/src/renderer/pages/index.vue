@@ -3,8 +3,6 @@ import type { ModelSettingsRuntimeSnapshot } from '@proj-airi/stage-ui/component
 
 import type { ModelSettingsRuntimeChannelEvent } from '../../shared/model-settings-runtime'
 
-import workletUrl from '@proj-airi/stage-ui/workers/vad/process.worklet?worker&url'
-
 import { tryCatch } from '@moeru/std'
 import { electron } from '@proj-airi/electron-eventa'
 import {
@@ -246,7 +244,7 @@ const { supportsStreamInput } = storeToRefs(hearingPipeline)
 const chatSyncStore = useChatSyncStore()
 const shouldUseStreamInput = computed(() => supportsStreamInput.value && !!stream.value)
 
-const { init: initVAD, dispose: disposeVAD, start: startVAD, loaded: vadLoaded } = useVAD(workletUrl, {
+const { init: initVAD, dispose: disposeVAD, start: startVAD, loaded: vadLoaded } = useVAD(new URL('inference-transformers/workers/vad', import.meta.url).toString(), {
   threshold: ref(0.6),
   onSpeechStart: () => {
     void handleSpeechStart()

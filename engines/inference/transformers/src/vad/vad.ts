@@ -1,5 +1,5 @@
 import type { PreTrainedModel } from '@huggingface/transformers'
-import type { BaseVAD, BaseVADConfig, VADEventCallback, VADEvents } from '@proj-airi/stage-ui/libs/audio/vad'
+import type { BaseVAD, BaseVADConfig, VADEventCallback, VADEvents } from 'proj-airi-multimodal-core'
 
 import { AutoModel, Tensor } from '@huggingface/transformers'
 
@@ -47,12 +47,10 @@ export class VAD implements BaseVAD {
     try {
       this.emit('status', { type: 'info', message: 'Loading VAD model...' })
 
-      this.model = await AutoModel.from_pretrained('onnx-community/silero-vad', {
-        config: { model_type: 'custom' } as any,
-        dtype: 'fp32', // Full-precision
-      })
-
+      // Full-precision
+      this.model = await AutoModel.from_pretrained('onnx-community/silero-vad', { config: { model_type: 'custom' } as any, dtype: 'fp32' })
       this.isReady = true
+
       this.emit('status', { type: 'info', message: 'VAD model loaded successfully' })
     }
     catch (error) {
@@ -117,7 +115,9 @@ export class VAD implements BaseVAD {
       if (this.prevBuffers.length >= maxPrevBuffers) {
         this.prevBuffers.shift()
       }
+
       this.prevBuffers.push(inputBuffer.slice(0))
+
       return
     }
 
@@ -131,6 +131,7 @@ export class VAD implements BaseVAD {
       // Process and reset with overflow
       const overflow = inputBuffer.subarray(remaining)
       this.processSpeechSegment(overflow)
+
       return
     }
     else {
@@ -150,6 +151,7 @@ export class VAD implements BaseVAD {
       // Update state
       this.isRecording = true
       this.postSpeechSamples = 0
+
       return
     }
 
@@ -162,6 +164,7 @@ export class VAD implements BaseVAD {
       if (this.bufferPointer < minSpeechDurationSamples) {
         // Too short, reset without processing
         this.reset()
+
         return
       }
 

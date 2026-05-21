@@ -10,10 +10,10 @@
  */
 
 import { detectWebGPU, getCachedWebGPUCapabilities } from '@proj-airi/stage-shared/webgpu'
+import { getDefaultKokoroModel, KOKORO_MODELS } from 'inference-transformers/kokoro'
 
 import { getKokoroAdapter } from '../libs/inference/adapters/kokoro'
 import { useProvidersStore } from '../stores/providers'
-import { getDefaultKokoroModel, KOKORO_MODELS } from '../workers/kokoro/constants'
 import { useModelPreload } from './use-model-preload'
 
 export interface UseInferencePreloadOptions {

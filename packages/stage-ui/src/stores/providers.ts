@@ -36,6 +36,11 @@ import {
 } from '@xsai-ext/providers/utils'
 import { listModels } from '@xsai/model'
 import { uniqBy } from 'es-toolkit'
+import {
+  getDefaultKokoroModel,
+  KOKORO_MODELS,
+  kokoroModelsToModelInfo,
+} from 'inference-transformers'
 import { defineStore } from 'pinia'
 import {
   createUnAlibabaCloud,
@@ -50,7 +55,6 @@ import { useI18n } from 'vue-i18n'
 
 import { getKokoroAdapter } from '../libs/inference/adapters/kokoro'
 import { getProviderValidationIntervalMs, listProviders as listDefinedProviders, ProviderValidationCheck } from '../libs/providers'
-import { getDefaultKokoroModel, KOKORO_MODELS, kokoroModelsToModelInfo } from '../workers/kokoro/constants'
 import { useAuthStore } from './auth'
 import { createAliyunNLSProvider as createAliyunNlsStreamProvider } from './providers/aliyun/stream-transcription'
 import { convertProviderDefinitionsToMetadata } from './providers/converters'

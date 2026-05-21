@@ -3,9 +3,8 @@ import type { MaybeRefOrGetter } from 'vue'
 import type { BaseVADConfig } from '../../../libs/audio/vad'
 
 import { merge } from '@moeru/std'
+import { createVAD, createVADStates } from 'inference-transformers/vad'
 import { ref, toRef, watch } from 'vue'
-
-import { createVAD, createVADStates } from '../../../workers/vad'
 
 interface UseVADOptions {
   threshold?: MaybeRefOrGetter<number>

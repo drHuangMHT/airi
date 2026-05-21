@@ -6,7 +6,6 @@
  */
 
 import type { PreTrainedModel, Processor } from '@huggingface/transformers'
-
 import type {
   ErrorResponse,
   InferenceResultResponse,
@@ -15,12 +14,10 @@ import type {
   ProgressResponse,
   RunInferenceRequest,
   WorkerInboundMessage,
-} from '../../libs/inference/protocol'
+} from 'proj-airi-inference-core'
 
 import { AutoModel, AutoProcessor, env, RawImage } from '@huggingface/transformers'
-
-import { MODEL_IDS, MODEL_NAMES } from '../../libs/inference/constants'
-import { classifyError, isRecoverable } from '../../libs/inference/protocol'
+import { classifyError, isRecoverable, MODEL_IDS, MODEL_NAMES } from 'proj-airi-inference-core'
 
 // ---------------------------------------------------------------------------
 // Inference-specific input/output types

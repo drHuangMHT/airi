@@ -13,7 +13,6 @@ import type {
   ProgressCallback,
   Tensor,
 } from '@huggingface/transformers'
-
 import type {
   ErrorResponse,
   InferenceResultResponse,
@@ -22,7 +21,7 @@ import type {
   ProgressResponse,
   RunInferenceRequest,
   WorkerInboundMessage,
-} from '../inference/protocol'
+} from 'inference-core'
 
 import {
   AutoProcessor,
@@ -31,9 +30,8 @@ import {
   TextStreamer,
   WhisperForConditionalGeneration,
 } from '@huggingface/transformers'
-
-import { MODEL_IDS, MODEL_NAMES } from '../inference/constants'
-import { classifyError, isRecoverable } from '../inference/protocol'
+import { classifyError, isRecoverable } from 'inference-core'
+import { MODEL_IDS, MODEL_NAMES } from 'inference-core/constants'
 
 // ---------------------------------------------------------------------------
 // Inference-specific input/output types

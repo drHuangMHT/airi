@@ -1,0 +1,27 @@
+{
+  "name": "proj-airi-inference-transformers",
+  "type": "module",
+  "version": "1.0.0",
+  "private": true,
+  "packageManager": "pnpm@10.33.0",
+  "description": "",
+  "author": "",
+  "license": "ISC",
+  "keywords": [],
+  "exports": {
+    ".": "./src/index.ts",
+    "./kokoro": "./src/kokoro/index.ts",
+    "./vad": "./src/vad/index.ts",
+    "./workers/vad": "./src/vad/worker/process.worklet.ts"
+  },
+  "main": "index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@huggingface/transformers": "^3.8.1",
+    "kokoro-js": "^1.2.1",
+    "proj-airi-inference-core": "file:../core",
+    "proj-airi-multimodal-core": "file:../../../packages/multimodal-core"
+  }
+}

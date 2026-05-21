@@ -9,9 +9,7 @@
 import type { GPUResourceCoordinator } from './gpu-resource-coordinator'
 import type { LoadQueue } from './load-queue'
 
-import { getCachedWebGPUCapabilities } from '@proj-airi/stage-shared/webgpu'
-
-import { MODEL_NAMES } from './constants'
+import { getCachedWebGPUCapabilities } from '../webgpu'
 import { createGPUResourceCoordinator } from './gpu-resource-coordinator'
 import { createLoadQueue } from './load-queue'
 
@@ -52,22 +50,4 @@ export function getLoadQueue(): LoadQueue {
     loadQueue = createLoadQueue()
   }
   return loadQueue
-}
-
-// Rough VRAM estimates per model (in bytes) for allocation tracking
-export const MODEL_VRAM_ESTIMATES: Record<string, number> = {
-  // Kokoro 82M — varies by quantization
-  'kokoro-fp32-webgpu': 330 * 1024 * 1024, // ~330 MB
-  'kokoro-fp16-webgpu': 165 * 1024 * 1024, // ~165 MB
-  'kokoro-fp32': 330 * 1024 * 1024,
-  'kokoro-fp16': 165 * 1024 * 1024,
-  'kokoro-q8': 82 * 1024 * 1024,
-  'kokoro-q4': 41 * 1024 * 1024,
-  'kokoro-q4f16': 41 * 1024 * 1024,
-
-  // Whisper large v3 turbo — encoder fp16 + decoder q4
-  [MODEL_NAMES.WHISPER]: 800 * 1024 * 1024, // ~800 MB
-
-  // Xenova/modnet — small model
-  [MODEL_NAMES.BG_REMOVAL]: 25 * 1024 * 1024, // ~25 MB
 }

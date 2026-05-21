@@ -7,17 +7,18 @@ export {
 } from './cache-utils'
 // Constants
 export {
+  DEVICE_LOSS_WASM_THRESHOLD,
   MAX_RESTARTS,
   MODEL_IDS,
   MODEL_NAMES,
   RESTART_DELAY_MS,
   TIMEOUTS,
+
 } from './constants'
 // Coordinator singleton
 export {
   getGPUCoordinator,
   getLoadQueue,
-  MODEL_VRAM_ESTIMATES,
 } from './coordinator'
 // Resource management
 export {
@@ -31,16 +32,20 @@ export type {
 } from './gpu-resource-coordinator'
 export {
   createLoadQueue,
-  LOAD_PRIORITY,
 } from './load-queue'
 
 export type {
   LoadQueue,
 } from './load-queue'
 export {
+  classifyDeviceLossReason,
   classifyError,
   createRequestId,
+  InferenceAbortError,
+  isRecoverable,
+  throwIfAborted,
 } from './protocol'
+export type { ErrorResponse } from './protocol'
 export type {
   ErrorPayload,
   InferenceErrorCode,

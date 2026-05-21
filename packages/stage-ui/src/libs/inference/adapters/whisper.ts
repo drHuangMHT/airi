@@ -6,17 +6,30 @@
  * unified protocol messages to subscribers.
  */
 
-import type { AllocationToken } from '../gpu-resource-coordinator'
-import type { ProgressPayload } from '../protocol'
+import type { AllocationToken, ProgressPayload } from 'inference-core'
 
 import { defaultPerfTracer } from '@proj-airi/stage-shared'
 import { Mutex } from 'async-mutex'
+import {
+  classifyDeviceLossReason,
+  classifyError,
+  createRequestId,
+  getGPUCoordinator,
+  getLoadQueue,
+  InferenceAbortError,
+  throwIfAborted,
+} from 'inference-core'
+import {
+  DEVICE_LOSS_WASM_THRESHOLD,
+  LOAD_PRIORITY,
+  MAX_RESTARTS,
+  MODEL_NAMES,
+  MODEL_VRAM_ESTIMATES,
+  RESTART_DELAY_MS,
+  TIMEOUTS,
+} from 'inference-core/constants'
 
 import { removeInferenceStatus, updateInferenceStatus } from '../../../composables/use-inference-status'
-import { DEVICE_LOSS_WASM_THRESHOLD, MAX_RESTARTS, MODEL_NAMES, RESTART_DELAY_MS, TIMEOUTS } from '../constants'
-import { getGPUCoordinator, getLoadQueue, MODEL_VRAM_ESTIMATES } from '../coordinator'
-import { LOAD_PRIORITY } from '../load-queue'
-import { classifyDeviceLossReason, classifyError, createRequestId, InferenceAbortError, throwIfAborted } from '../protocol'
 
 // ---------------------------------------------------------------------------
 // Types

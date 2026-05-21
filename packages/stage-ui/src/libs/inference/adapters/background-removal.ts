@@ -6,17 +6,14 @@
  * Uses the unified inference protocol from protocol.ts.
  */
 
-import type { AllocationToken } from '../gpu-resource-coordinator'
-import type { ProgressPayload } from '../protocol'
+import type { AllocationToken, ProgressPayload } from 'inference-core'
 
 import { defaultPerfTracer } from '@proj-airi/stage-shared'
 import { Mutex } from 'async-mutex'
+import { createRequestId, getGPUCoordinator, getLoadQueue, InferenceAbortError, throwIfAborted } from 'inference-core'
+import { LOAD_PRIORITY, MODEL_IDS, MODEL_NAMES, MODEL_VRAM_ESTIMATES, TIMEOUTS } from 'inference-core/constants'
 
 import { removeInferenceStatus, updateInferenceStatus } from '../../../composables/use-inference-status'
-import { MODEL_IDS, MODEL_NAMES, TIMEOUTS } from '../constants'
-import { getGPUCoordinator, getLoadQueue, MODEL_VRAM_ESTIMATES } from '../coordinator'
-import { LOAD_PRIORITY } from '../load-queue'
-import { createRequestId, InferenceAbortError, throwIfAborted } from '../protocol'
 
 // ---------------------------------------------------------------------------
 // Types

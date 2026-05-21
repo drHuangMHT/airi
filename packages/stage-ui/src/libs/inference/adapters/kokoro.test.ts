@@ -99,12 +99,12 @@ describe('kokoro adapter - singleton recovery', () => {
 
 describe('classifyError phase integration', () => {
   it('should produce LOAD_FAILED for load-phase errors', async () => {
-    const { classifyError } = await import('../protocol')
+    const { classifyError } = await import('inference-core')
     expect(classifyError(new Error('shader compilation failed'), 'load')).toBe('LOAD_FAILED')
   })
 
   it('should produce INFERENCE_FAILED for inference-phase errors', async () => {
-    const { classifyError } = await import('../protocol')
+    const { classifyError } = await import('inference-core')
     expect(classifyError(new Error('tensor shape mismatch'), 'inference')).toBe('INFERENCE_FAILED')
   })
 })

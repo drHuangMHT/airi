@@ -155,13 +155,3 @@ export function createLoadQueue(): LoadQueue {
     get active() { return active },
   }
 }
-
-// ---------------------------------------------------------------------------
-// Default priorities
-// ---------------------------------------------------------------------------
-
-export const LOAD_PRIORITY = {
-  TTS: 10,
-  ASR: 5,
-  BACKGROUND_REMOVAL: 1,
-} as const

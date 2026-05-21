@@ -104,6 +104,7 @@
     "electron-click-drag-plugin": "^2.0.2",
     "embla-carousel-vue": "catalog:",
     "es-toolkit": "^1.45.1",
+    "inference-transformers": "file:../../engines/inference/transformers",
     "injeca": "catalog:",
     "jszip": "^3.10.1",
     "localforage": "^1.10.0",
