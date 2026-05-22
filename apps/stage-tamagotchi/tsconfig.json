@@ -29,7 +29,6 @@
       "@types/audioworklet",
       "vitest",
       "vite/client",
-      "vite-plugin-vue-layouts/client",
       "vue-macros/macros-global",
       "electron-vite/node",
       "unplugin-info/client",
@@ -41,10 +40,6 @@
     "skipLibCheck": true
   },
   "vueCompilerOptions": {
-    "plugins": [
-      "@vue-macros/volar/define-models",
-      "@vue-macros/volar/define-slots"
-    ]
   },
   "include": [
     "src/main/**/*.ts",

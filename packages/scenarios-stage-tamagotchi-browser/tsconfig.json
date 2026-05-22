@@ -11,8 +11,7 @@
     "moduleResolution": "Bundler",
     "resolveJsonModule": true,
     "types": [
-      "vite/client",
-      "unplugin-vue-router/client"
+      "vite/client"
     ],
     "allowJs": true,
     "strict": true,

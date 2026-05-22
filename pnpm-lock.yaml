@@ -219,6 +219,9 @@ catalogs:
     electron:
       specifier: ^41.2.1
       version: 41.2.1
+    electron-vite:
+      specifier: ^5.0.0
+      version: 5.0.0
     embla-carousel-vue:
       specifier: 9.0.0-rc02
       version: 9.0.0-rc02
@@ -604,10 +607,10 @@ importers:
     dependencies:
       '@better-auth/drizzle-adapter':
         specifier: ^1.6.5
-        version: 1.6.5(@better-auth/core@1.6.5(@better-auth/utils@0.4.0)(@better-fetch/fetch@1.1.21)(@opentelemetry/api@1.9.1)(better-call@1.3.5(zod@4.3.6))(jose@6.2.2)(kysely@0.28.14)(nanostores@1.1.1))(@better-auth/utils@0.4.0)(drizzle-orm@0.45.2(@electric-sql/pglite@0.4.4)(@opentelemetry/api@1.9.1)(@prisma/client@5.22.0)(@types/pg@8.20.0)(better-sqlite3@12.5.0)(kysely@0.28.14)(pg@8.20.0)(postgres@3.4.9))
+        version: 1.6.5(@better-auth/core@1.4.21(@better-auth/utils@0.3.0)(@better-fetch/fetch@1.1.21)(better-call@1.1.8(zod@4.3.6))(jose@6.2.2)(kysely@0.28.14)(nanostores@1.1.1))(@better-auth/utils@0.3.0)(drizzle-orm@0.45.2(@electric-sql/pglite@0.4.4)(@opentelemetry/api@1.9.1)(@prisma/client@5.22.0)(@types/pg@8.20.0)(better-sqlite3@12.5.0)(kysely@0.28.14)(pg@8.20.0)(postgres@3.4.9))
       '@better-auth/oauth-provider':
         specifier: 'catalog:'
-        version: 1.5.6(@better-auth/core@1.6.5(@better-auth/utils@0.4.0)(@better-fetch/fetch@1.1.21)(@opentelemetry/api@1.9.1)(better-call@1.3.5(zod@4.3.6))(jose@6.2.2)(kysely@0.28.14)(nanostores@1.1.1))(@better-auth/utils@0.4.0)(@better-fetch/fetch@1.1.21)(better-auth@1.6.5(@opentelemetry/api@1.9.1)(@prisma/client@5.22.0)(better-sqlite3@12.5.0)(drizzle-kit@0.31.10)(drizzle-orm@0.45.2(@electric-sql/pglite@0.4.4)(@opentelemetry/api@1.9.1)(@prisma/client@5.22.0)(@types/pg@8.20.0)(better-sqlite3@12.5.0)(kysely@0.28.14)(pg@8.20.0)(postgres@3.4.9))(pg@8.20.0)(react@19.2.3)(vitest@4.1.4)(vue@3.5.32(typescript@5.9.3)))(better-call@1.3.5(zod@4.3.6))
+        version: 1.5.6(@better-auth/core@1.4.21(@better-auth/utils@0.3.0)(@better-fetch/fetch@1.1.21)(better-call@1.1.8(zod@4.3.6))(jose@6.2.2)(kysely@0.28.14)(nanostores@1.1.1))(@better-auth/utils@0.3.0)(@better-fetch/fetch@1.1.21)(better-auth@1.6.5(@opentelemetry/api@1.9.1)(@prisma/client@5.22.0)(better-sqlite3@12.5.0)(drizzle-kit@0.31.10)(drizzle-orm@0.45.2(@electric-sql/pglite@0.4.4)(@opentelemetry/api@1.9.1)(@prisma/client@5.22.0)(@types/pg@8.20.0)(better-sqlite3@12.5.0)(kysely@0.28.14)(pg@8.20.0)(postgres@3.4.9))(pg@8.20.0)(react@19.2.3)(vitest@4.1.4)(vue@3.5.32(typescript@5.9.3)))(better-call@1.1.8(zod@4.3.6))
       '@dotenvx/dotenvx':
         specifier: ^1.61.1
         version: 1.61.1
@@ -740,7 +743,7 @@ importers:
     devDependencies:
       '@better-auth/cli':
         specifier: ^1.4.21
-        version: 1.4.21(@better-fetch/fetch@1.1.21)(@electric-sql/pglite@0.4.4)(@opentelemetry/api@1.9.1)(better-call@1.3.5(zod@4.3.6))(drizzle-kit@0.31.10)(jose@6.2.2)(kysely@0.28.14)(magicast@0.5.2)(nanostores@1.1.1)(postgres@3.4.9)(react@19.2.3)(vitest@4.1.4)(vue@3.5.32(typescript@5.9.3))
+        version: 1.4.21(@better-fetch/fetch@1.1.21)(@electric-sql/pglite@0.4.4)(@opentelemetry/api@1.9.1)(better-call@1.1.8(zod@4.3.6))(drizzle-kit@0.31.10)(jose@6.2.2)(kysely@0.28.14)(magicast@0.5.2)(nanostores@1.1.1)(postgres@3.4.9)(react@19.2.3)(vitest@4.1.4)(vue@3.5.32(typescript@5.9.3))
       '@types/pg':
         specifier: ^8.20.0
         version: 8.20.0
@@ -801,15 +804,6 @@ importers:
       '@proj-airi/drizzle-duckdb-wasm':
         specifier: 'catalog:'
         version: 0.5.0(drizzle-orm@0.45.2(@electric-sql/pglite@0.4.4)(@opentelemetry/api@1.9.1)(@prisma/client@5.22.0)(@types/pg@8.20.0)(better-sqlite3@12.5.0)(kysely@0.28.14)(pg@8.20.0)(postgres@3.4.9))
-      '@proj-airi/font-chillroundm':
-        specifier: workspace:^
-        version: link:../../packages/font-chillroundm
-      '@proj-airi/font-cjkfonts-allseto':
-        specifier: workspace:^
-        version: link:../../packages/font-cjkfonts-allseto
-      '@proj-airi/font-xiaolai':
-        specifier: workspace:^
-        version: link:../../packages/font-xiaolai
       '@proj-airi/i18n':
         specifier: workspace:^
         version: link:../../packages/i18n
@@ -1087,9 +1081,6 @@ importers:
       '@vitejs/plugin-vue':
         specifier: ^6.0.6
         version: 6.0.6(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.2)(jiti@2.6.1)(less@4.6.4)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))(vue@3.5.32(typescript@5.9.3))
-      '@vue-macros/volar':
-        specifier: ^3.1.2
-        version: 3.1.2(typescript@5.9.3)(vue-tsc@3.2.6(typescript@5.9.3))(vue@3.5.32(typescript@5.9.3))
       '@vueuse/motion':
         specifier: ^3.0.3
         version: 3.0.3(magicast@0.5.2)(vue@3.5.32(typescript@5.9.3))
@@ -1204,15 +1195,6 @@ importers:
       '@proj-airi/drizzle-duckdb-wasm':
         specifier: 'catalog:'
         version: 0.5.0(drizzle-orm@0.45.2(@electric-sql/pglite@0.4.4)(@opentelemetry/api@1.9.1)(@prisma/client@5.22.0)(@types/pg@8.20.0)(better-sqlite3@12.5.0)(kysely@0.28.14)(pg@8.20.0)(postgres@3.4.9))
-      '@proj-airi/font-chillroundm':
-        specifier: workspace:^
-        version: link:../../packages/font-chillroundm
-      '@proj-airi/font-cjkfonts-allseto':
-        specifier: workspace:^
-        version: link:../../packages/font-cjkfonts-allseto
-      '@proj-airi/font-xiaolai':
-        specifier: workspace:^
-        version: link:../../packages/font-xiaolai
       '@proj-airi/i18n':
         specifier: workspace:^
         version: link:../../packages/i18n
@@ -1333,6 +1315,9 @@ importers:
       dompurify:
         specifier: ^3.4.0
         version: 3.4.0
+      electron:
+        specifier: 'catalog:'
+        version: 41.2.1
       electron-click-drag-plugin:
         specifier: ^2.0.2
         version: 2.0.2
@@ -1559,9 +1544,6 @@ importers:
       '@vitejs/plugin-vue':
         specifier: ^6.0.6
         version: 6.0.6(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.2)(jiti@2.6.1)(less@4.6.4)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))(vue@3.5.32(typescript@5.9.3))
-      '@vue-macros/volar':
-        specifier: ^3.1.2
-        version: 3.1.2(typescript@5.9.3)(vue-tsc@3.2.6(typescript@5.9.3))(vue@3.5.32(typescript@5.9.3))
       '@webgpu/types':
         specifier: 'catalog:'
         version: 0.1.69
@@ -1580,9 +1562,6 @@ importers:
       drizzle-orm:
         specifier: 'catalog:'
         version: 0.45.2(@electric-sql/pglite@0.4.4)(@opentelemetry/api@1.9.1)(@prisma/client@5.22.0)(@types/pg@8.20.0)(better-sqlite3@12.5.0)(kysely@0.28.14)(pg@8.20.0)(postgres@3.4.9)
-      electron:
-        specifier: 'catalog:'
-        version: 41.2.1
       electron-builder:
         specifier: ^26.8.1
         version: 26.8.1(electron-builder-squirrel-windows@26.8.1)
@@ -1590,7 +1569,7 @@ importers:
         specifier: ^6.8.3
         version: 6.8.3
       electron-vite:
-        specifier: ^5.0.0
+        specifier: 'catalog:'
         version: 5.0.0(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.2)(jiti@2.6.1)(less@4.6.4)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))
       get-port-please:
         specifier: 'catalog:'
@@ -1679,15 +1658,6 @@ importers:
       '@proj-airi/drizzle-duckdb-wasm':
         specifier: 'catalog:'
         version: 0.5.0(drizzle-orm@0.45.2(@electric-sql/pglite@0.4.4)(@opentelemetry/api@1.9.1)(@prisma/client@5.22.0)(@types/pg@8.20.0)(better-sqlite3@12.5.0)(kysely@0.28.14)(pg@8.20.0)(postgres@3.4.9))
-      '@proj-airi/font-chillroundm':
-        specifier: workspace:^
-        version: link:../../packages/font-chillroundm
-      '@proj-airi/font-cjkfonts-allseto':
-        specifier: workspace:^
-        version: link:../../packages/font-cjkfonts-allseto
-      '@proj-airi/font-xiaolai':
-        specifier: workspace:^
-        version: link:../../packages/font-xiaolai
       '@proj-airi/i18n':
         specifier: workspace:^
         version: link:../../packages/i18n
@@ -1977,9 +1947,6 @@ importers:
       '@vitejs/plugin-vue':
         specifier: ^6.0.6
         version: 6.0.6(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.2)(jiti@2.6.1)(less@4.6.4)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))(vue@3.5.32(typescript@5.9.3))
-      '@vue-macros/volar':
-        specifier: ^3.1.2
-        version: 3.1.2(typescript@5.9.3)(vue-tsc@3.2.6(typescript@5.9.3))(vue@3.5.32(typescript@5.9.3))
       '@vueuse/motion':
         specifier: ^3.0.3
         version: 3.0.3(magicast@0.5.2)(vue@3.5.32(typescript@5.9.3))
@@ -2049,15 +2016,6 @@ importers:
       '@moeru/std':
         specifier: 'catalog:'
         version: 0.1.0-beta.17
-      '@proj-airi/font-chillroundm':
-        specifier: workspace:^
-        version: link:../../packages/font-chillroundm
-      '@proj-airi/font-cjkfonts-allseto':
-        specifier: workspace:^
-        version: link:../../packages/font-cjkfonts-allseto
-      '@proj-airi/font-xiaolai':
-        specifier: workspace:^
-        version: link:../../packages/font-xiaolai
       '@proj-airi/i18n':
         specifier: workspace:^
         version: link:../../packages/i18n
@@ -2185,9 +2143,6 @@ importers:
       '@vitejs/plugin-vue':
         specifier: ^6.0.6
         version: 6.0.6(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.2)(jiti@2.6.1)(less@4.6.4)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))(vue@3.5.32(typescript@5.9.3))
-      '@vue-macros/volar':
-        specifier: ^3.1.2
-        version: 3.1.2(typescript@5.9.3)(vue-tsc@3.2.6(typescript@5.9.3))(vue@3.5.32(typescript@5.9.3))
       '@vueuse/motion':
         specifier: ^3.0.3
         version: 3.0.3(magicast@0.5.2)(vue@3.5.32(typescript@5.9.3))
@@ -2644,14 +2599,6 @@ importers:
         specifier: workspace:^
         version: link:../electron-eventa
 
-  packages/font-chillroundm: {}
-
-  packages/font-cjkfonts-allseto: {}
-
-  packages/font-departure-mono: {}
-
-  packages/font-xiaolai: {}
-
   packages/i18n:
     devDependencies:
       unplugin-yaml:
@@ -2803,9 +2750,6 @@ importers:
       '@vitejs/plugin-vue':
         specifier: ^6.0.6
         version: 6.0.6(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.2)(jiti@2.6.1)(less@4.6.4)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))(vue@3.5.32(typescript@5.9.3))
-      unplugin-vue-router:
-        specifier: ^0.19.2
-        version: 0.19.2(@vue/compiler-sfc@3.5.32)(vue-router@5.0.4(@pinia/colada@1.2.1(pinia@3.0.4(typescript@5.9.3)(vue@3.5.32(typescript@5.9.3)))(vue@3.5.32(typescript@5.9.3)))(@vue/compiler-sfc@3.5.32)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.32(typescript@5.9.3)))(vue@3.5.32(typescript@5.9.3)))(vue@3.5.32(typescript@5.9.3))
       vue-tsc:
         specifier: ^3.2.6
         version: 3.2.6(typescript@5.9.3)
@@ -3205,15 +3149,6 @@ importers:
       '@proj-airi/drizzle-duckdb-wasm':
         specifier: 'catalog:'
         version: 0.5.0(drizzle-orm@0.45.2(@electric-sql/pglite@0.4.4)(@opentelemetry/api@1.9.1)(@prisma/client@5.22.0)(@types/pg@8.20.0)(better-sqlite3@12.5.0)(kysely@0.28.14)(pg@8.20.0)(postgres@3.4.9))
-      '@proj-airi/font-chillroundm':
-        specifier: workspace:^
-        version: link:../font-chillroundm
-      '@proj-airi/font-cjkfonts-allseto':
-        specifier: workspace:^
-        version: link:../font-cjkfonts-allseto
-      '@proj-airi/font-xiaolai':
-        specifier: workspace:^
-        version: link:../font-xiaolai
       '@proj-airi/i18n':
         specifier: workspace:^
         version: link:../i18n
@@ -3821,30 +3756,9 @@ importers:
         specifier: 'catalog:'
         version: 3.5.32(typescript@5.9.3)
     devDependencies:
-      '@vue-macros/volar':
-        specifier: 3.0.0-beta.8
-        version: 3.0.0-beta.8(typescript@5.9.3)(vue-tsc@3.2.6(typescript@5.9.3))(vue@3.5.32(typescript@5.9.3))
       vue-tsc:
         specifier: ^3.2.6
         version: 3.2.6(typescript@5.9.3)
-
-  packages/unocss-preset-fonts:
-    dependencies:
-      '@proj-airi/font-cjkfonts-allseto':
-        specifier: workspace:^
-        version: link:../font-cjkfonts-allseto
-      '@proj-airi/font-departure-mono':
-        specifier: workspace:^
-        version: link:../font-departure-mono
-      '@proj-airi/font-xiaolai':
-        specifier: workspace:^
-        version: link:../font-xiaolai
-      '@unocss/core':
-        specifier: '>=66'
-        version: 66.6.8
-      '@unocss/preset-web-fonts':
-        specifier: '>=66'
-        version: 66.6.8
 
   packages/vishot-runner-browser:
     devDependencies:
@@ -9867,10 +9781,6 @@ packages:
     resolution: {integrity: sha512-aPPsArp8IxkmS7A9lid0b8wUx5o5ZrSNgjQA2FuYMwkv5s5hroBZyL678dah1gwT5JahK2BQCFD719X7n2Z8EQ==}
     engines: {node: '>=20.19.0'}
 
-  '@vue-macros/boolean-prop@3.0.0-beta.8':
-    resolution: {integrity: sha512-lBWjjE8DSZINIoC/Bbylqc0Lm6vGW7713XksRhY1lBYGfcatA8J9sh41ghp6sFYbls7EL6PAKA04EE0O/YpCsg==}
-    engines: {node: '>=20.18.0'}
-
   '@vue-macros/boolean-prop@3.1.2':
     resolution: {integrity: sha512-qdH5SqASJ1HI0hdJpGMq6uTugIxrBQp8+06iLQ6TzG1rhlxZTfJbVFtRQzzpYrl/f+nBRQj/RBSTmJKZbsihGg==}
     engines: {node: '>=20.19.0'}
@@ -9878,15 +9788,6 @@ packages:
   '@vue-macros/chain-call@3.1.2':
     resolution: {integrity: sha512-XUNiBGhSWquSDxL6ZEeig8r/hK33wuyJdI2WO8pI4pLEr8hygj+4nIZ2hhHdA84lIKJGeGIhlpZS1BYPBkdZdw==}
     engines: {node: '>=20.19.0'}
-
-  '@vue-macros/common@3.0.0-beta.8':
-    resolution: {integrity: sha512-fPb66TmAs7vVmz9qaW/d6bFbBNk/vsOx1o4EaurYmMwysubfWwh9Lgp4BPQzz5Dw8f8Yh9HfhmGbt6TYkb8qXg==}
-    engines: {node: '>=20.18.0'}
-    peerDependencies:
-      vue: ^2.7.0 || ^3.2.25
-    peerDependenciesMeta:
-      vue:
-        optional: true
 
   '@vue-macros/common@3.1.2':
     resolution: {integrity: sha512-h9t4ArDdniO9ekYHAD95t9AZcAbb19lEGK+26iAjUODOIJKmObDNBSe4+6ELQAA3vtYiFPPBtHh7+cQCKi3Dng==}
@@ -9896,10 +9797,6 @@ packages:
     peerDependenciesMeta:
       vue:
         optional: true
-
-  '@vue-macros/config@3.0.0-beta.8':
-    resolution: {integrity: sha512-oMqjXtTjXO3ciMmtuIMti177OL1beS5sL+39kPMQAzxspetYuR5K5DM3cgAe5DYmRBkjg6dXH/6pJXLmYHyV1g==}
-    engines: {node: '>=20.18.0'}
 
   '@vue-macros/config@3.1.2':
     resolution: {integrity: sha512-LEkbj73JVIbjm/Zpfr0vmo2mIbMgRpA3rdR1JOGEqRv7LVMgIGxYH0+m/tVgqxRVdrAc7iK8Rb4eLIBFL7heiw==}
@@ -10018,10 +9915,6 @@ packages:
     resolution: {integrity: sha512-RT7ORjbBfnHKAYgfAISDxqfiixV/jlJNyd7wbMqsiMrrWBacwSbWhDKUk3ZeHWAfdQ0AL8sryC4bh8++8XyePg==}
     engines: {node: '>=20.19.0'}
 
-  '@vue-macros/short-bind@3.0.0-beta.8':
-    resolution: {integrity: sha512-44VimyVaEKDXrhq1ESWkxsLjBz5C1axhxqOB16ho47jCuH0OiId7BWwg8F6uX/3Lv7GLjzDiWrtR+VDQHoAbWQ==}
-    engines: {node: '>=20.18.0'}
-
   '@vue-macros/short-bind@3.1.2':
     resolution: {integrity: sha512-3bakd2+xuetq8fkRQNqfPGYD1jPp0WcMX6ySXvOPJm8i6wwPbtmxs34ldr7EzlPrUEfMdt0cwn3kOdNl8cE95g==}
     engines: {node: '>=20.19.0'}
@@ -10030,22 +9923,9 @@ packages:
     resolution: {integrity: sha512-2bshh+O2zp0dafWPUOT7iJHDLU05F5L69TKjBDLAnHVhQyNJZI4BKzYl7xcq6JfGl4HsYwtGLoT7CUpMbAkslA==}
     engines: {node: '>=20.19.0'}
 
-  '@vue-macros/short-vmodel@3.0.0-beta.8':
-    resolution: {integrity: sha512-NCgOBNBu1OdUjQmu53KkhFtUbXt+MkmNlOEYe41tJ5wBIQETiyYstWiq3nL+2aErwssKLP1oq/IrVJWz8gTvzA==}
-    engines: {node: '>=20.18.0'}
-
   '@vue-macros/short-vmodel@3.1.2':
     resolution: {integrity: sha512-4qiui9hm/XzO5n6qBzHI7800Etlf6qaeXHauTUsNSZEFiFF78n0qwxxqwNhHMZGqrf4UHQRF42T8icxXZu8CmQ==}
     engines: {node: '>=20.19.0'}
-
-  '@vue-macros/volar@3.0.0-beta.8':
-    resolution: {integrity: sha512-3+fSjrzGtDSuG7n06cukwHzDeleNCIX3fXBEHWaYqgwpHUG8t0aTDcebjNYjDRC4fjsubxKaSbAgr7RPawh1wg==}
-    engines: {node: '>=20.18.0'}
-    peerDependencies:
-      vue-tsc: 2.2.8
-    peerDependenciesMeta:
-      vue-tsc:
-        optional: true
 
   '@vue-macros/volar@3.1.2':
     resolution: {integrity: sha512-34XpLQvm0d5gCwqFjUEx7Y0uerVt7sti9Q2tF89BsTXUwd/JFBcT2XFFP1WGQqm1b5P5wHXj8t1/pWnxDKXszA==}
@@ -10115,14 +9995,6 @@ packages:
 
   '@vue/devtools-shared@8.1.1':
     resolution: {integrity: sha512-+h4ttmJYl/txpxHKaoZcaKpC+pvckgLzIDiSQlaQ7kKthKh8KuwoLW2D8hPJEnqKzXOvu15UHEoGyngAXCz0EQ==}
-
-  '@vue/language-core@2.2.8':
-    resolution: {integrity: sha512-rrzB0wPGBvcwaSNRriVWdNAbHQWSf0NlGqgKHK5mEkXpefjUlVRP62u03KvwZpvKVjRnBIQ/Lwre+Mx9N6juUQ==}
-    peerDependencies:
-      typescript: '*'
-    peerDependenciesMeta:
-      typescript:
-        optional: true
 
   '@vue/language-core@3.0.8':
     resolution: {integrity: sha512-eYs6PF7bxoPYvek9qxceo1BCwFbJZYqJll+WaYC8o8ec60exqj+n+QRGGiJHSeUfYp0hDxARbMdxMq/fbPgU5g==}
@@ -10421,9 +10293,6 @@ packages:
   ajv@8.18.0:
     resolution: {integrity: sha512-PlXPeEWMXMZ7sPYOHqmDyCJzcfNrUr3fGNKtezX14ykXOEIvyK81d+qydx89KY5O71FKMPaQ2vBfBFI5NHR63A==}
 
-  alien-signals@1.0.13:
-    resolution: {integrity: sha512-OGj9yyTnJEttvzhTUWuscOvtqxq5vrhF7vL9oS0xJ2mK0ItPYP1/y+vCFebfxoEyAz0++1AIwJ5CMr+Fk3nDmg==}
-
   alien-signals@2.0.8:
     resolution: {integrity: sha512-844G1VLkk0Pe2SJjY0J8vp8ADI73IM4KliNu2OGlYzWpO28NexEUvjHTcFjFX3VXoiUtwTbHxLNI9ImkcoBqzA==}
 
@@ -10551,10 +10420,6 @@ packages:
   assertion-error@2.0.1:
     resolution: {integrity: sha512-Izi8RQcffqCeNVgFigKli1ssklIbpHnCYc6AknXGYoB6grJqyeby7jv12JUQgmTAnIDnbck1uxksT4dzN3PWBA==}
     engines: {node: '>=12'}
-
-  ast-kit@1.4.3:
-    resolution: {integrity: sha512-MdJqjpodkS5J149zN0Po+HPshkTdUyrvF7CKTafUgv69vBSPtncrj+3IiUgqdd7ElIEkbeXCsEouBUwLrw9Ilg==}
-    engines: {node: '>=16.14.0'}
 
   ast-kit@2.2.0:
     resolution: {integrity: sha512-m1Q/RaVOnTp9JxPX+F+Zn7IcLYMzM8kZofDImfsKZd8MbR+ikdOzTeztStWqfrqIxZnYWryyI9ePm3NGjnZgGw==}
@@ -14003,10 +13868,6 @@ packages:
   magic-regexp@0.10.0:
     resolution: {integrity: sha512-Uly1Bu4lO1hwHUW0CQeSWuRtzCMNO00CmXtS8N6fyvB3B979GOEEeAkiTUDsmbYLAbvpUS/Kt5c4ibosAzVyVg==}
 
-  magic-string-ast@0.9.1:
-    resolution: {integrity: sha512-18dv2ZlSSgJ/jDWlZGKfnDJx56ilNlYq9F7NnwuWTErsmYmqJ2TWE4l1o2zlUHBYUGBy3tIhPCC1gxq8M5HkMA==}
-    engines: {node: '>=20.18.0'}
-
   magic-string-ast@1.0.3:
     resolution: {integrity: sha512-CvkkH1i81zl7mmb94DsRiFeG9V2fR2JeuK8yDgS8oiZSFa++wWLEgZ5ufEOyLHbvSbD1gTRKv9NdX69Rnvr9JA==}
     engines: {node: '>=20.19.0'}
@@ -16294,9 +16155,6 @@ packages:
   ts-interface-checker@0.1.13:
     resolution: {integrity: sha512-Y/arvbn+rrz3JCKl9C4kVNfTfSm2/mEp5FSz5EsZSANGPSlQrpRI5M4PKF+mJnE52jOO90PnPSc3Ur3bTQw0gA==}
 
-  ts-macro@0.1.35:
-    resolution: {integrity: sha512-cMPJUCH8VsH9s9FANjL1r/SrkV2T6CKBjgWqgP2XGiS+y/zBBwmw0C3C31M4LqrLEjb8djgUMDV18vQ4Dr+/mg==}
-
   ts-macro@0.3.6:
     resolution: {integrity: sha512-0buxBZweJjozSPA+77X7ntznNouLOtGDJA8nQJgoAQBduKAltF3YLABLbDLp5N7KsDA0ssldX+L/WwI1SloJmg==}
 
@@ -16645,10 +16503,6 @@ packages:
     resolution: {integrity: sha512-quvqrHs6mPhk1hjbGwMoypXfagveue+/22dtgDrEzc2K9485ZAsnVfq7iYIgv7FwooiRa6+HDaLWgK2IavN+2g==}
     engines: {node: '>=20.19.0'}
 
-  unplugin-utils@0.2.5:
-    resolution: {integrity: sha512-gwXJnPRewT4rT7sBi/IvxKTjsms7jX7QIDLOClApuZwR49SXbrB1z2NLUZ+vDHyqCj/n58OzRRqaW+B8OZi8vg==}
-    engines: {node: '>=18.12.0'}
-
   unplugin-utils@0.3.1:
     resolution: {integrity: sha512-5lWVjgi6vuHhJ526bI4nlCOmkCIF3nnfXkCMDeMJrtdvxTs6ZFCM8oNufGTsDbKv/tJ/xj8RpvXjRuPBZJuJog==}
     engines: {node: '>=20.19.0'}
@@ -16656,16 +16510,6 @@ packages:
   unplugin-vue-define-options@3.1.2:
     resolution: {integrity: sha512-0pp2PpkDwqo1fjpSEG+UPaBNv/NW6u8pY8z2Fx67y/X2V+4CfjGHyA/G1jrcnABl8kZbz1Ycdqfd/7XwGLDNZw==}
     engines: {node: '>=20.19.0'}
-
-  unplugin-vue-router@0.19.2:
-    resolution: {integrity: sha512-u5dgLBarxE5cyDK/hzJGfpCTLIAyiTXGlo85COuD4Nssj6G7NxS+i9mhCWz/1p/ud1eMwdcUbTXehQe41jYZUA==}
-    deprecated: 'Merged into vuejs/router. Migrate: https://router.vuejs.org/guide/migration/v4-to-v5.html'
-    peerDependencies:
-      '@vue/compiler-sfc': ^3.5.17
-      vue-router: ^4.6.0
-    peerDependenciesMeta:
-      vue-router:
-        optional: true
 
   unplugin-yaml@4.1.0:
     resolution: {integrity: sha512-NEcZs2qeFUjSGnkOyVMbjBc6syIFz56nQn3M+H38VlqKtfr4TEYyxJV8WXA8S4c97f0d1kCESAfnMHmKevSWxw==}
@@ -18576,13 +18420,13 @@ snapshots:
 
   '@bcoe/v8-coverage@1.0.2': {}
 
-  '@better-auth/cli@1.4.21(@better-fetch/fetch@1.1.21)(@electric-sql/pglite@0.4.4)(@opentelemetry/api@1.9.1)(better-call@1.3.5(zod@4.3.6))(drizzle-kit@0.31.10)(jose@6.2.2)(kysely@0.28.14)(magicast@0.5.2)(nanostores@1.1.1)(postgres@3.4.9)(react@19.2.3)(vitest@4.1.4)(vue@3.5.32(typescript@5.9.3))':
+  '@better-auth/cli@1.4.21(@better-fetch/fetch@1.1.21)(@electric-sql/pglite@0.4.4)(@opentelemetry/api@1.9.1)(better-call@1.1.8(zod@4.3.6))(drizzle-kit@0.31.10)(jose@6.2.2)(kysely@0.28.14)(magicast@0.5.2)(nanostores@1.1.1)(postgres@3.4.9)(react@19.2.3)(vitest@4.1.4)(vue@3.5.32(typescript@5.9.3))':
     dependencies:
       '@babel/core': 7.29.0
       '@babel/preset-react': 7.28.5(@babel/core@7.29.0)
       '@babel/preset-typescript': 7.28.5(@babel/core@7.29.0)
-      '@better-auth/core': 1.4.21(@better-auth/utils@0.3.0)(@better-fetch/fetch@1.1.21)(better-call@1.3.5(zod@4.3.6))(jose@6.2.2)(kysely@0.28.14)(nanostores@1.1.1)
-      '@better-auth/telemetry': 1.4.21(@better-auth/core@1.4.21(@better-auth/utils@0.3.0)(@better-fetch/fetch@1.1.21)(better-call@1.3.5(zod@4.3.6))(jose@6.2.2)(kysely@0.28.14)(nanostores@1.1.1))
+      '@better-auth/core': 1.4.21(@better-auth/utils@0.3.0)(@better-fetch/fetch@1.1.21)(better-call@1.1.8(zod@4.3.6))(jose@6.2.2)(kysely@0.28.14)(nanostores@1.1.1)
+      '@better-auth/telemetry': 1.4.21(@better-auth/core@1.4.21(@better-auth/utils@0.3.0)(@better-fetch/fetch@1.1.21)(better-call@1.1.8(zod@4.3.6))(jose@6.2.2)(kysely@0.28.14)(nanostores@1.1.1))
       '@better-auth/utils': 0.3.0
       '@clack/prompts': 0.11.0
       '@mrleebo/prisma-ast': 0.13.1
@@ -18659,17 +18503,6 @@ snapshots:
       nanostores: 1.1.1
       zod: 4.3.6
 
-  '@better-auth/core@1.4.21(@better-auth/utils@0.3.0)(@better-fetch/fetch@1.1.21)(better-call@1.3.5(zod@4.3.6))(jose@6.2.2)(kysely@0.28.14)(nanostores@1.1.1)':
-    dependencies:
-      '@better-auth/utils': 0.3.0
-      '@better-fetch/fetch': 1.1.21
-      '@standard-schema/spec': 1.1.0
-      better-call: 1.3.5(zod@4.3.6)
-      jose: 6.2.2
-      kysely: 0.28.14
-      nanostores: 1.1.1
-      zod: 4.3.6
-
   '@better-auth/core@1.6.5(@better-auth/utils@0.4.0)(@better-fetch/fetch@1.1.21)(@opentelemetry/api@1.9.1)(better-call@1.3.5(zod@4.3.6))(jose@6.2.2)(kysely@0.28.14)(nanostores@1.1.1)':
     dependencies:
       '@better-auth/utils': 0.4.0
@@ -18682,6 +18515,13 @@ snapshots:
       kysely: 0.28.14
       nanostores: 1.1.1
       zod: 4.3.6
+
+  '@better-auth/drizzle-adapter@1.6.5(@better-auth/core@1.4.21(@better-auth/utils@0.3.0)(@better-fetch/fetch@1.1.21)(better-call@1.1.8(zod@4.3.6))(jose@6.2.2)(kysely@0.28.14)(nanostores@1.1.1))(@better-auth/utils@0.3.0)(drizzle-orm@0.45.2(@electric-sql/pglite@0.4.4)(@opentelemetry/api@1.9.1)(@prisma/client@5.22.0)(@types/pg@8.20.0)(better-sqlite3@12.5.0)(kysely@0.28.14)(pg@8.20.0)(postgres@3.4.9))':
+    dependencies:
+      '@better-auth/core': 1.4.21(@better-auth/utils@0.3.0)(@better-fetch/fetch@1.1.21)(better-call@1.1.8(zod@4.3.6))(jose@6.2.2)(kysely@0.28.14)(nanostores@1.1.1)
+      '@better-auth/utils': 0.3.0
+    optionalDependencies:
+      drizzle-orm: 0.45.2(@electric-sql/pglite@0.4.4)(@opentelemetry/api@1.9.1)(@prisma/client@5.22.0)(@types/pg@8.20.0)(better-sqlite3@12.5.0)(kysely@0.28.14)(pg@8.20.0)(postgres@3.4.9)
 
   '@better-auth/drizzle-adapter@1.6.5(@better-auth/core@1.6.5(@better-auth/utils@0.4.0)(@better-fetch/fetch@1.1.21)(@opentelemetry/api@1.9.1)(better-call@1.3.5(zod@4.3.6))(jose@6.2.2)(kysely@0.28.14)(nanostores@1.1.1))(@better-auth/utils@0.4.0)(drizzle-orm@0.45.2(@electric-sql/pglite@0.4.4)(@opentelemetry/api@1.9.1)(@prisma/client@5.22.0)(@types/pg@8.20.0)(better-sqlite3@12.5.0)(kysely@0.28.14)(pg@8.20.0)(postgres@3.4.9))':
     dependencies:
@@ -18707,13 +18547,13 @@ snapshots:
       '@better-auth/core': 1.6.5(@better-auth/utils@0.4.0)(@better-fetch/fetch@1.1.21)(@opentelemetry/api@1.9.1)(better-call@1.3.5(zod@4.3.6))(jose@6.2.2)(kysely@0.28.14)(nanostores@1.1.1)
       '@better-auth/utils': 0.4.0
 
-  '@better-auth/oauth-provider@1.5.6(@better-auth/core@1.6.5(@better-auth/utils@0.4.0)(@better-fetch/fetch@1.1.21)(@opentelemetry/api@1.9.1)(better-call@1.3.5(zod@4.3.6))(jose@6.2.2)(kysely@0.28.14)(nanostores@1.1.1))(@better-auth/utils@0.4.0)(@better-fetch/fetch@1.1.21)(better-auth@1.6.5(@opentelemetry/api@1.9.1)(@prisma/client@5.22.0)(better-sqlite3@12.5.0)(drizzle-kit@0.31.10)(drizzle-orm@0.45.2(@electric-sql/pglite@0.4.4)(@opentelemetry/api@1.9.1)(@prisma/client@5.22.0)(@types/pg@8.20.0)(better-sqlite3@12.5.0)(kysely@0.28.14)(pg@8.20.0)(postgres@3.4.9))(pg@8.20.0)(react@19.2.3)(vitest@4.1.4)(vue@3.5.32(typescript@5.9.3)))(better-call@1.3.5(zod@4.3.6))':
+  '@better-auth/oauth-provider@1.5.6(@better-auth/core@1.4.21(@better-auth/utils@0.3.0)(@better-fetch/fetch@1.1.21)(better-call@1.1.8(zod@4.3.6))(jose@6.2.2)(kysely@0.28.14)(nanostores@1.1.1))(@better-auth/utils@0.3.0)(@better-fetch/fetch@1.1.21)(better-auth@1.6.5(@opentelemetry/api@1.9.1)(@prisma/client@5.22.0)(better-sqlite3@12.5.0)(drizzle-kit@0.31.10)(drizzle-orm@0.45.2(@electric-sql/pglite@0.4.4)(@opentelemetry/api@1.9.1)(@prisma/client@5.22.0)(@types/pg@8.20.0)(better-sqlite3@12.5.0)(kysely@0.28.14)(pg@8.20.0)(postgres@3.4.9))(pg@8.20.0)(react@19.2.3)(vitest@4.1.4)(vue@3.5.32(typescript@5.9.3)))(better-call@1.1.8(zod@4.3.6))':
     dependencies:
-      '@better-auth/core': 1.6.5(@better-auth/utils@0.4.0)(@better-fetch/fetch@1.1.21)(@opentelemetry/api@1.9.1)(better-call@1.3.5(zod@4.3.6))(jose@6.2.2)(kysely@0.28.14)(nanostores@1.1.1)
-      '@better-auth/utils': 0.4.0
+      '@better-auth/core': 1.4.21(@better-auth/utils@0.3.0)(@better-fetch/fetch@1.1.21)(better-call@1.1.8(zod@4.3.6))(jose@6.2.2)(kysely@0.28.14)(nanostores@1.1.1)
+      '@better-auth/utils': 0.3.0
       '@better-fetch/fetch': 1.1.21
       better-auth: 1.6.5(@opentelemetry/api@1.9.1)(@prisma/client@5.22.0)(better-sqlite3@12.5.0)(drizzle-kit@0.31.10)(drizzle-orm@0.45.2(@electric-sql/pglite@0.4.4)(@opentelemetry/api@1.9.1)(@prisma/client@5.22.0)(@types/pg@8.20.0)(better-sqlite3@12.5.0)(kysely@0.28.14)(pg@8.20.0)(postgres@3.4.9))(pg@8.20.0)(react@19.2.3)(vitest@4.1.4)(vue@3.5.32(typescript@5.9.3))
-      better-call: 1.3.5(zod@4.3.6)
+      better-call: 1.1.8(zod@4.3.6)
       jose: 6.2.2
       zod: 4.3.6
 
@@ -18724,9 +18564,9 @@ snapshots:
     optionalDependencies:
       '@prisma/client': 5.22.0
 
-  '@better-auth/telemetry@1.4.21(@better-auth/core@1.4.21(@better-auth/utils@0.3.0)(@better-fetch/fetch@1.1.21)(better-call@1.3.5(zod@4.3.6))(jose@6.2.2)(kysely@0.28.14)(nanostores@1.1.1))':
+  '@better-auth/telemetry@1.4.21(@better-auth/core@1.4.21(@better-auth/utils@0.3.0)(@better-fetch/fetch@1.1.21)(better-call@1.1.8(zod@4.3.6))(jose@6.2.2)(kysely@0.28.14)(nanostores@1.1.1))':
     dependencies:
-      '@better-auth/core': 1.4.21(@better-auth/utils@0.3.0)(@better-fetch/fetch@1.1.21)(better-call@1.3.5(zod@4.3.6))(jose@6.2.2)(kysely@0.28.14)(nanostores@1.1.1)
+      '@better-auth/core': 1.4.21(@better-auth/utils@0.3.0)(@better-fetch/fetch@1.1.21)(better-call@1.1.8(zod@4.3.6))(jose@6.2.2)(kysely@0.28.14)(nanostores@1.1.1)
       '@better-auth/utils': 0.3.0
       '@better-fetch/fetch': 1.1.21
 
@@ -22871,7 +22711,7 @@ snapshots:
 
   '@types/pg@8.20.0':
     dependencies:
-      '@types/node': 24.12.2
+      '@types/node': 25.6.0
       pg-protocol: 1.13.0
       pg-types: 2.2.0
 
@@ -23693,13 +23533,6 @@ snapshots:
       - '@emnapi/runtime'
       - vue
 
-  '@vue-macros/boolean-prop@3.0.0-beta.8(vue@3.5.32(typescript@5.9.3))':
-    dependencies:
-      '@vue-macros/common': 3.0.0-beta.8(vue@3.5.32(typescript@5.9.3))
-      '@vue/compiler-core': 3.5.32
-    transitivePeerDependencies:
-      - vue
-
   '@vue-macros/boolean-prop@3.1.2(vue@3.5.32(typescript@5.9.3))':
     dependencies:
       '@vue-macros/common': 3.1.2(vue@3.5.32(typescript@5.9.3))
@@ -23714,16 +23547,6 @@ snapshots:
     transitivePeerDependencies:
       - vue
 
-  '@vue-macros/common@3.0.0-beta.8(vue@3.5.32(typescript@5.9.3))':
-    dependencies:
-      '@vue/compiler-sfc': 3.5.32
-      ast-kit: 1.4.3
-      local-pkg: 1.1.2
-      magic-string-ast: 0.9.1
-      unplugin-utils: 0.2.5
-    optionalDependencies:
-      vue: 3.5.32(typescript@5.9.3)
-
   '@vue-macros/common@3.1.2(vue@3.5.32(typescript@5.9.3))':
     dependencies:
       '@vue/compiler-sfc': 3.5.32
@@ -23733,14 +23556,6 @@ snapshots:
       unplugin-utils: 0.3.1
     optionalDependencies:
       vue: 3.5.32(typescript@5.9.3)
-
-  '@vue-macros/config@3.0.0-beta.8(vue@3.5.32(typescript@5.9.3))':
-    dependencies:
-      '@vue-macros/common': 3.0.0-beta.8(vue@3.5.32(typescript@5.9.3))
-      quansync: 0.2.11
-      unconfig: 7.5.0
-    transitivePeerDependencies:
-      - vue
 
   '@vue-macros/config@3.1.2(vue@3.5.32(typescript@5.9.3))':
     dependencies:
@@ -23898,13 +23713,6 @@ snapshots:
     transitivePeerDependencies:
       - vue
 
-  '@vue-macros/short-bind@3.0.0-beta.8(vue@3.5.32(typescript@5.9.3))':
-    dependencies:
-      '@vue-macros/common': 3.0.0-beta.8(vue@3.5.32(typescript@5.9.3))
-      '@vue/compiler-core': 3.5.32
-    transitivePeerDependencies:
-      - vue
-
   '@vue-macros/short-bind@3.1.2(vue@3.5.32(typescript@5.9.3))':
     dependencies:
       '@vue-macros/common': 3.1.2(vue@3.5.32(typescript@5.9.3))
@@ -23919,35 +23727,11 @@ snapshots:
     transitivePeerDependencies:
       - vue
 
-  '@vue-macros/short-vmodel@3.0.0-beta.8(vue@3.5.32(typescript@5.9.3))':
-    dependencies:
-      '@vue-macros/common': 3.0.0-beta.8(vue@3.5.32(typescript@5.9.3))
-      '@vue/compiler-core': 3.5.32
-    transitivePeerDependencies:
-      - vue
-
   '@vue-macros/short-vmodel@3.1.2(vue@3.5.32(typescript@5.9.3))':
     dependencies:
       '@vue-macros/common': 3.1.2(vue@3.5.32(typescript@5.9.3))
       '@vue/compiler-core': 3.5.32
     transitivePeerDependencies:
-      - vue
-
-  '@vue-macros/volar@3.0.0-beta.8(typescript@5.9.3)(vue-tsc@3.2.6(typescript@5.9.3))(vue@3.5.32(typescript@5.9.3))':
-    dependencies:
-      '@vue-macros/boolean-prop': 3.0.0-beta.8(vue@3.5.32(typescript@5.9.3))
-      '@vue-macros/common': 3.0.0-beta.8(vue@3.5.32(typescript@5.9.3))
-      '@vue-macros/config': 3.0.0-beta.8(vue@3.5.32(typescript@5.9.3))
-      '@vue-macros/short-bind': 3.0.0-beta.8(vue@3.5.32(typescript@5.9.3))
-      '@vue-macros/short-vmodel': 3.0.0-beta.8(vue@3.5.32(typescript@5.9.3))
-      '@vue/language-core': 2.2.8(typescript@5.9.3)
-      jiti: 2.6.1
-      muggle-string: 0.4.1
-      ts-macro: 0.1.35
-    optionalDependencies:
-      vue-tsc: 3.2.6(typescript@5.9.3)
-    transitivePeerDependencies:
-      - typescript
       - vue
 
   '@vue-macros/volar@3.1.2(typescript@5.9.3)(vue-tsc@3.2.6(typescript@5.9.3))(vue@3.5.32(typescript@5.9.3))':
@@ -24077,19 +23861,6 @@ snapshots:
       rfdc: 1.4.1
 
   '@vue/devtools-shared@8.1.1': {}
-
-  '@vue/language-core@2.2.8(typescript@5.9.3)':
-    dependencies:
-      '@volar/language-core': 2.4.28
-      '@vue/compiler-dom': 3.5.32
-      '@vue/compiler-vue2': 2.7.16
-      '@vue/shared': 3.5.32
-      alien-signals: 1.0.13
-      minimatch: 9.0.5
-      muggle-string: 0.4.1
-      path-browserify: 1.0.1
-    optionalDependencies:
-      typescript: 5.9.3
 
   '@vue/language-core@3.0.8(typescript@5.9.3)':
     dependencies:
@@ -24437,8 +24208,6 @@ snapshots:
       json-schema-traverse: 1.0.0
       require-from-string: 2.0.2
 
-  alien-signals@1.0.13: {}
-
   alien-signals@2.0.8: {}
 
   alien-signals@3.1.2: {}
@@ -24589,11 +24358,6 @@ snapshots:
 
   assertion-error@2.0.1: {}
 
-  ast-kit@1.4.3:
-    dependencies:
-      '@babel/parser': 7.29.2
-      pathe: 2.0.3
-
   ast-kit@2.2.0:
     dependencies:
       '@babel/parser': 7.29.2
@@ -24701,7 +24465,7 @@ snapshots:
   better-auth@1.4.21(@prisma/client@5.22.0)(better-sqlite3@12.5.0)(drizzle-kit@0.31.10)(drizzle-orm@0.41.0(@electric-sql/pglite@0.4.4)(@opentelemetry/api@1.9.1)(@prisma/client@5.22.0)(@types/pg@8.20.0)(better-sqlite3@12.5.0)(kysely@0.28.14)(pg@8.20.0)(postgres@3.4.9))(pg@8.20.0)(react@19.2.3)(vitest@4.1.4)(vue@3.5.32(typescript@5.9.3)):
     dependencies:
       '@better-auth/core': 1.4.21(@better-auth/utils@0.3.0)(@better-fetch/fetch@1.1.21)(better-call@1.1.8(zod@4.3.6))(jose@6.2.2)(kysely@0.28.14)(nanostores@1.1.1)
-      '@better-auth/telemetry': 1.4.21(@better-auth/core@1.4.21(@better-auth/utils@0.3.0)(@better-fetch/fetch@1.1.21)(better-call@1.3.5(zod@4.3.6))(jose@6.2.2)(kysely@0.28.14)(nanostores@1.1.1))
+      '@better-auth/telemetry': 1.4.21(@better-auth/core@1.4.21(@better-auth/utils@0.3.0)(@better-fetch/fetch@1.1.21)(better-call@1.1.8(zod@4.3.6))(jose@6.2.2)(kysely@0.28.14)(nanostores@1.1.1))
       '@better-auth/utils': 0.3.0
       '@better-fetch/fetch': 1.1.21
       '@noble/ciphers': 2.1.1
@@ -28244,10 +28008,6 @@ snapshots:
       ufo: 1.6.3
       unplugin: 2.3.11
 
-  magic-string-ast@0.9.1:
-    dependencies:
-      magic-string: 0.30.21
-
   magic-string-ast@1.0.3:
     dependencies:
       magic-string: 0.30.21
@@ -31091,10 +30851,6 @@ snapshots:
 
   ts-interface-checker@0.1.13: {}
 
-  ts-macro@0.1.35:
-    dependencies:
-      muggle-string: 0.4.1
-
   ts-macro@0.3.6:
     dependencies:
       muggle-string: 0.4.1
@@ -31526,11 +31282,6 @@ snapshots:
       js-tokens: 10.0.0
       unplugin: 3.0.0
 
-  unplugin-utils@0.2.5:
-    dependencies:
-      pathe: 2.0.3
-      picomatch: 4.0.4
-
   unplugin-utils@0.3.1:
     dependencies:
       pathe: 2.0.3
@@ -31541,31 +31292,6 @@ snapshots:
       '@vue-macros/common': 3.1.2(vue@3.5.32(typescript@5.9.3))
       ast-walker-scope: 0.8.3
       unplugin: 2.3.11
-    transitivePeerDependencies:
-      - vue
-
-  unplugin-vue-router@0.19.2(@vue/compiler-sfc@3.5.32)(vue-router@5.0.4(@pinia/colada@1.2.1(pinia@3.0.4(typescript@5.9.3)(vue@3.5.32(typescript@5.9.3)))(vue@3.5.32(typescript@5.9.3)))(@vue/compiler-sfc@3.5.32)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.32(typescript@5.9.3)))(vue@3.5.32(typescript@5.9.3)))(vue@3.5.32(typescript@5.9.3)):
-    dependencies:
-      '@babel/generator': 7.29.1
-      '@vue-macros/common': 3.1.2(vue@3.5.32(typescript@5.9.3))
-      '@vue/compiler-sfc': 3.5.32
-      '@vue/language-core': 3.2.6
-      ast-walker-scope: 0.8.3
-      chokidar: 5.0.0
-      json5: 2.2.3
-      local-pkg: 1.1.2
-      magic-string: 0.30.21
-      mlly: 1.8.0
-      muggle-string: 0.4.1
-      pathe: 2.0.3
-      picomatch: 4.0.4
-      scule: 1.3.0
-      tinyglobby: 0.2.16
-      unplugin: 2.3.11
-      unplugin-utils: 0.3.1
-      yaml: 2.8.3
-    optionalDependencies:
-      vue-router: 5.0.4(@pinia/colada@1.2.1(pinia@3.0.4(typescript@5.9.3)(vue@3.5.32(typescript@5.9.3)))(vue@3.5.32(typescript@5.9.3)))(@vue/compiler-sfc@3.5.32)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.32(typescript@5.9.3)))(vue@3.5.32(typescript@5.9.3))
     transitivePeerDependencies:
       - vue
 

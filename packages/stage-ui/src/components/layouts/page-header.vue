@@ -75,7 +75,7 @@ watch([() => props.title, () => props.subtitle, route], async () => {
       right: 'env(safe-area-inset-right, 0px)',
       left: 'env(safe-area-inset-left, 0px)',
     }"
-    sticky inset-x-0 top-0 z-99 w-full pb-6 pt-10
+    sticky top-32 z-99 w-full p-6
     flex="~ row items-center gap-2"
     bg="$bg-color"
   >
@@ -86,7 +86,7 @@ watch([() => props.title, () => props.subtitle, route], async () => {
         :class="{ 'pointer-events-none op-0': !showBackButton }"
       />
     </button>
-    <h1 relative>
+    <h1>
       <div v-if="subtitle" absolute left-0 top-0 translate-y="[-80%]">
         <span text="neutral-300 dark:neutral-500" text-nowrap>{{ subtitle }}</span>
       </div>

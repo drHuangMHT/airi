@@ -13,7 +13,7 @@ const { platform } = useAppRuntime()
   <div
     bg="neutral-100 dark:neutral-900" w="100dvw"
     top="0"
-    fixed z-100 w-full select-none py-2 pr-4 drag-region
+    z-100 w-full select-none py-2 pr-4 drag-region
     :class="[
       platform === 'macos' ? 'pl-20' : 'pl-4',
     ]"

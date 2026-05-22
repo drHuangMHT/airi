@@ -38,9 +38,8 @@ const settings = computed(() => {
 </script>
 
 <template>
-  <div flex="~ col gap-4" font-normal>
-    <div />
-    <div flex="~ col gap-4" pb-12>
+  <div flex="~ col gap-4" p-4 font-normal>
+    <ul flex="~ col gap-4" select-none pb-12>
       <IconItem
         v-for="(setting, index) in settings"
         :key="setting.to"
@@ -56,7 +55,7 @@ const settings = computed(() => {
         :icon="setting.icon"
         :to="setting.to"
       />
-    </div>
+    </ul>
     <div
       v-motion
       text="neutral-200/50 dark:neutral-600/20" pointer-events-none

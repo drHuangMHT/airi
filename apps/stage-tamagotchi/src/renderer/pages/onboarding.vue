@@ -47,17 +47,14 @@ async function handleConfigured() {
 </script>
 
 <template>
-  <!-- Same flex/min-h-0 chain as OnboardingDialog so model step grid scrolls inside the viewport (not the whole page). -->
   <div
-    class="onboarding-root h-full min-h-0 w-full flex flex-col overflow-hidden overscroll-none"
+    onboarding-root h-screen w-screen
     :class="bgClass"
   >
-    <div class="min-h-8 w-full flex-shrink-0 select-none drag-region" :class="bgClass" />
-    <div class="onboarding-scroll min-h-0 w-full flex flex-1 flex-col overflow-hidden px-10">
-      <div class="onboarding-content min-h-0 flex flex-1 flex-col overflow-hidden">
-        <OnboardingScreen :extra-steps="extraSteps" @skipped="handleSkipped" @configured="handleConfigured" />
-      </div>
-    </div>
+    <div class="h-8 w-full flex-shrink-0 select-none drag-region" :class="bgClass" />
+    <main flex p-10 style="height: calc(100vh - 2rem);">
+      <OnboardingScreen :extra-steps="extraSteps" @skipped="handleSkipped" @configured="handleConfigured" />
+    </main>
   </div>
 </template>
 
