@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { useElementHover, useKeyModifier } from '@vueuse/core'
 import { computed, onMounted, ref, watch } from 'vue'
+
+import { useWheelAdjust } from '../../../composables/useWheelAdjust'
 
 const props = withDefaults(defineProps<{
   min?: number
@@ -24,8 +25,6 @@ const sliderRef = ref<HTMLInputElement>()
 const scaledMin = computed(() => props.min * smoothingFactor)
 const scaledMax = computed(() => props.max * smoothingFactor)
 const scaledStep = computed(() => props.step * smoothingFactor)
-const shiftPressed = useKeyModifier('Shift')
-const isHovered = useElementHover(sliderRef)
 
 const sliderValue = computed({
   get: () => modelValue.value * smoothingFactor,
@@ -38,15 +37,6 @@ const sliderValue = computed({
 onMounted(() => updateTrackColor())
 watch(sliderValue, () => updateTrackColor(), { immediate: true })
 watch([scaledMin, scaledMax, scaledStep], () => updateTrackColor(), { immediate: true })
-watch(isHovered, (hovered: boolean) => {
-  if (!props.handleWheel)
-    return
-  if (hovered) {
-    sliderRef.value?.addEventListener('wheel', onWheelInput)
-    return
-  }
-  sliderRef.value?.removeEventListener('wheel', onWheelInput)
-})
 
 function updateTrackColor() {
   if (!sliderRef.value) {
@@ -63,16 +53,7 @@ function handleInput(e: Event) {
   target.style.setProperty('--value', target.value)
 }
 
-function onWheelInput(ev: WheelEvent) {
-  if (ev.deltaY === 0)
-    return
-  let valueAfter = modelValue.value
-  if (ev.deltaY < 0)
-    valueAfter += props.step * (shiftPressed.value ? 50 : 1)
-  if (ev.deltaY > 0)
-    valueAfter -= props.step * (shiftPressed.value ? 50 : 1)
-  modelValue.value = Math.min(Math.max(valueAfter, props.min), props.max)
-}
+useWheelAdjust(props, modelValue, sliderRef)
 </script>
 
 <template>

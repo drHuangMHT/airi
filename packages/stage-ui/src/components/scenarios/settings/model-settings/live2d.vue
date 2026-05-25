@@ -87,6 +87,7 @@ const fpsOptions = computed(() => [
   { value: 60, label: '60' },
   { value: 0, label: t('settings.live2d.parameters.fps.options.unlimited') },
 ])
+const formatDecimal1 = (val: number) => val.toFixed(1)
 
 watch(() => live2d.availableMotions, (motions) => {
   runtimeMotions.value = motions.map(m => ({
@@ -214,7 +215,7 @@ function handleMotionSelect(selectedMotionPath: string | number | undefined) {
     size="sm"
     :expand="true"
   >
-    <FieldRange v-model="scale" as="div" :min="0.1" :max="3" :step="0.01" :label="t('settings.live2d.scale-and-position.scale')">
+    <FieldRange v-model="scale" as="div" :min="0.1" :max="3" :step="0.01" :format-value="v => v.toFixed(2)" handle-wheel>
       <template #label>
         <div flex items-center>
           <div>{{ t('settings.live2d.scale-and-position.scale') }}</div>
@@ -224,7 +225,7 @@ function handleMotionSelect(selectedMotionPath: string | number | undefined) {
         </div>
       </template>
     </FieldRange>
-    <FieldRange v-model="position.x" as="div" :min="-3000" :max="3000" :step="1" :label="t('settings.live2d.scale-and-position.x')">
+    <FieldRange v-model="position.x" as="div" :min="-300" :max="300" :step="0.1" :format-value="formatDecimal1" handle-wheel>
       <template #label>
         <div flex items-center>
           <div>{{ t('settings.live2d.scale-and-position.x') }}</div>
@@ -234,7 +235,7 @@ function handleMotionSelect(selectedMotionPath: string | number | undefined) {
         </div>
       </template>
     </FieldRange>
-    <FieldRange v-model="position.y" as="div" :min="-3000" :max="3000" :step="1" :label="t('settings.live2d.scale-and-position.y')">
+    <FieldRange v-model="position.y" as="div" :min="-300" :max="300" :step="0.1" :format-value="formatDecimal1" handle-wheel>
       <template #label>
         <div flex items-center>
           <div>{{ t('settings.live2d.scale-and-position.y') }}</div>
