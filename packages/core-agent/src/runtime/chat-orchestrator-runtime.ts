@@ -385,7 +385,10 @@ export function createChatOrchestratorRuntime(deps: ChatOrchestratorRuntimeDeps)
       },
     })
 
-    const isStaleGeneration = () => deps.session.getSessionGeneration(sessionId) !== generation
+    const isStaleGeneration = () => {
+      const curGen = deps.session.getSessionGeneration(sessionId)
+      return curGen !== generation
+    }
     const shouldAbort = () => isStaleGeneration()
     if (shouldAbort())
       return

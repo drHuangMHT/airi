@@ -1,21 +1,14 @@
 <script setup lang="ts">
-import { defineInvokeHandler } from '@moeru/eventa'
 import { useElectronEventaContext, useElectronEventaInvoke } from '@proj-airi/electron-vueuse'
 import { themeColorFromValue, useThemeColor } from '@proj-airi/stage-layouts/composables/theme-color'
 import { artistrySyncConfig } from '@proj-airi/stage-shared'
 import { ToasterRoot } from '@proj-airi/stage-ui/components'
 import { useInferencePreload } from '@proj-airi/stage-ui/composables'
 import { useSharedAnalyticsStore } from '@proj-airi/stage-ui/stores/analytics'
-import { useCharacterOrchestratorStore } from '@proj-airi/stage-ui/stores/character'
-import { useChatSessionStore } from '@proj-airi/stage-ui/stores/chat/session-store'
-import { usePluginHostInspectorStore } from '@proj-airi/stage-ui/stores/devtools/plugin-host-debug'
 import { useDisplayModelsStore } from '@proj-airi/stage-ui/stores/display-models'
-import { useModsServerChannelStore } from '@proj-airi/stage-ui/stores/mods/api/channel-server'
 import { useContextBridgeStore } from '@proj-airi/stage-ui/stores/mods/api/context-bridge'
-import { useAiriCardStore } from '@proj-airi/stage-ui/stores/modules/airi-card'
 import { useArtistryStore } from '@proj-airi/stage-ui/stores/modules/artistry'
 import { usePerfTracerBridgeStore } from '@proj-airi/stage-ui/stores/perf-tracer-bridge'
-import { listProvidersForPluginHost, shouldPublishPluginHostCapabilities } from '@proj-airi/stage-ui/stores/plugin-host-capabilities'
 import { useSettings, useSettingsAudioDevice } from '@proj-airi/stage-ui/stores/settings'
 import { useTheme } from '@proj-airi/ui'
 import { storeToRefs } from 'pinia'
@@ -30,26 +23,12 @@ import {
   electronGodotStageGetStatus,
   electronGodotStageStatusChanged,
   electronSettingsNavigate,
-  electronStartTrackMousePosition,
   i18nGetLocale,
   i18nSetLocale,
 } from '../shared/eventa'
-import {
-  electronPluginUpdateCapability,
-  pluginProtocolListProviders,
-  pluginProtocolListProvidersEventName,
-} from '../shared/eventa/plugin/capabilities'
-import {
-  electronPluginInspect,
-  electronPluginList,
-  electronPluginLoad,
-  electronPluginLoadEnabled,
-  electronPluginSetAutoReload,
-  electronPluginSetEnabled,
-  electronPluginUnload,
-} from '../shared/eventa/plugin/host'
 import { initializeElectronAuthCallbackBridge } from './bridges/electron-auth-callback'
 import { initializeStageThreeRuntimeTraceBridge } from './bridges/stage-three-runtime-trace'
+import { useSetupPluginHost } from './composables/setup-plugin-host'
 import { useLanguage } from './composables/use-language'
 import { createChatSyncWindowLifecycle } from './stores/chat-sync-lifecycle'
 import { useTamagotchiMcpToolsStore } from './stores/mcp-tools'
@@ -65,13 +44,8 @@ const { language, themeColorsHue, themeColorsHueDynamic } = storeToRefs(settings
 const serverChannelSettingsStore = useServerChannelSettingsStore()
 const router = useRouter()
 const route = useRoute()
-const cardStore = useAiriCardStore()
-const chatSessionStore = useChatSessionStore()
-const serverChannelStore = useModsServerChannelStore()
-const characterOrchestratorStore = useCharacterOrchestratorStore()
 const analyticsStore = useSharedAnalyticsStore()
 const inferencePreload = useInferencePreload()
-const pluginHostInspectorStore = usePluginHostInspectorStore()
 const mcpToolsStore = useTamagotchiMcpToolsStore()
 const pluginToolsStore = useTamagotchiPluginToolsStore()
 const stageWindowLifecycleStore = useStageWindowLifecycleStore()
@@ -84,15 +58,6 @@ initializeStageThreeRuntimeTraceBridge()
 initializeElectronAuthCallbackBridge()
 void stageWindowLifecycleStore.initializeWindowLifecycleBridge()
 const getServerChannelConfig = useElectronEventaInvoke(electronGetServerChannelConfig)
-const listPlugins = useElectronEventaInvoke(electronPluginList)
-const setPluginEnabled = useElectronEventaInvoke(electronPluginSetEnabled)
-const setPluginAutoReload = useElectronEventaInvoke(electronPluginSetAutoReload)
-const loadEnabledPlugins = useElectronEventaInvoke(electronPluginLoadEnabled)
-const loadPlugin = useElectronEventaInvoke(electronPluginLoad)
-const unloadPlugin = useElectronEventaInvoke(electronPluginUnload)
-const inspectPluginHost = useElectronEventaInvoke(electronPluginInspect)
-const startTrackingCursorPoint = useElectronEventaInvoke(electronStartTrackMousePosition)
-const reportPluginCapability = useElectronEventaInvoke(electronPluginUpdateCapability)
 const getMainLocale = useElectronEventaInvoke(i18nGetLocale)
 const setLocale = useElectronEventaInvoke(i18nSetLocale)
 const getGodotStageStatus = useElectronEventaInvoke(electronGodotStageGetStatus)
@@ -101,6 +66,7 @@ const chatSyncLifecycle = createChatSyncWindowLifecycle(route.path)
 const isChatWindowRoute = () => route.path === '/chat'
 const isGodotStageRoute = () => route.path === '/' || route.path.startsWith('/settings')
 const isWidgetsWindowRoute = () => route.path === '/widgets'
+const { onMountedHooks: pluginHostMountedHooks } = useSetupPluginHost()
 
 function syncGodotStageRenderer(state: { state: 'stopped' | 'starting' | 'running' | 'stopping' | 'error' }) {
   if (state.state === 'running') {
@@ -112,52 +78,15 @@ function syncGodotStageRenderer(state: { state: 'stopped' | 'starting' | 'runnin
     settingsStore.restoreBuiltInStageModelRenderer()
 }
 
-async function refreshPluginRuntimeTools() {
-  try {
-    await pluginToolsStore.refresh()
-  }
-  catch (error) {
-    console.warn('[App] Failed to refresh plugin runtime tools:', error)
-  }
-}
-
 watch(() => route.path, () => {
   contextBridgeStore.setSparkNotifyHostRole(isWidgetsWindowRoute() ? 'client' : 'main')
 }, { immediate: true })
-
-// NOTICE: register plugin host bridge during setup to avoid race with pages using it in immediate watchers.
-pluginHostInspectorStore.setBridge({
-  list: () => listPlugins(),
-  setEnabled: async (payload) => {
-    const result = await setPluginEnabled(payload)
-    await refreshPluginRuntimeTools()
-    return result
-  },
-  setAutoReload: payload => setPluginAutoReload(payload),
-  loadEnabled: async () => {
-    const result = await loadEnabledPlugins()
-    await refreshPluginRuntimeTools()
-    return result
-  },
-  load: async (payload) => {
-    const result = await loadPlugin(payload)
-    await refreshPluginRuntimeTools()
-    return result
-  },
-  unload: async (payload) => {
-    const result = await unloadPlugin(payload)
-    await refreshPluginRuntimeTools()
-    return result
-  },
-  inspect: () => inspectPluginHost(),
-})
 
 // NOTICE: Runtime tool stores must register during setup so renderer consumers can see them
 // before `onMounted()` finishes the rest of the startup flow.
 void mcpToolsStore.refresh().catch((error) => {
   console.warn('[App] Failed to refresh MCP runtime tools:', error)
 })
-void refreshPluginRuntimeTools()
 
 const { restore: restoreLocale } = useLanguage(language, getMainLocale, setLocale)
 
@@ -210,9 +139,8 @@ onMounted(async () => {
 
   analyticsStore.initialize()
   await displayModelsStore.initialize()
-  cardStore.initialize()
 
-  await chatSessionStore.initialize()
+  // await chatSessionStore.initialize()
   await displayModelsStore.loadDisplayModelsFromIndexedDB()
   await settingsStore.initializeStageModel()
   await settingsAudioDeviceStore.initialize()
@@ -225,36 +153,11 @@ onMounted(async () => {
       console.warn('[App] Failed to fetch Godot stage status:', error)
     }
   }
-
+  pluginHostMountedHooks(context)
   const serverChannelConfig = await getServerChannelConfig()
   serverChannelSettingsStore.tlsConfig = serverChannelConfig.tlsConfig ?? null
   serverChannelSettingsStore.hostname = serverChannelConfig.hostname
   serverChannelSettingsStore.authToken = serverChannelConfig.authToken
-
-  await serverChannelStore.initialize({
-    token: serverChannelConfig.authToken || undefined,
-    possibleEvents: ['ui:configure'],
-  }).catch(err => console.error('Failed to initialize Mods Server Channel in App.vue:', err))
-  if (!isChatWindowRoute()) {
-    contextBridgeStore.initialize()
-    if (!isWidgetsWindowRoute()) {
-      characterOrchestratorStore.initialize()
-      await startTrackingCursorPoint()
-    }
-  }
-
-  // Expose stage provider definitions to plugin host APIs.
-  defineInvokeHandler(context.value, pluginProtocolListProviders, async () => listProvidersForPluginHost())
-
-  if (shouldPublishPluginHostCapabilities()) {
-    await reportPluginCapability({
-      key: pluginProtocolListProvidersEventName,
-      state: 'ready',
-      metadata: {
-        source: 'stage-ui',
-      },
-    })
-  }
 
   // Preload local inference models (Kokoro TTS, etc.) in background after a delay
   inferencePreload.triggerPreload()

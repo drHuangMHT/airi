@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import type { ChatToolCallRendererRegistry } from '@proj-airi/stage-ui/components'
-import type { ChatHistoryItem } from '@proj-airi/stage-ui/types/chat'
 
-import { errorMessageFrom } from '@moeru/std'
 import { ChatHistory, JournalPreviewModal } from '@proj-airi/stage-ui/components'
+import { useConsciousnessStore, useProvidersStore } from '@proj-airi/stage-ui/stores'
 import { useBackgroundStore } from '@proj-airi/stage-ui/stores/background'
-import { useChatOrchestratorStore } from '@proj-airi/stage-ui/stores/chat'
-import { useChatSessionStore } from '@proj-airi/stage-ui/stores/chat/session-store'
+import { useChatOrchestratorStore } from '@proj-airi/stage-ui/stores/chat-minimized'
+import { useChatSessionStore } from '@proj-airi/stage-ui/stores/chat/session-store-minimized'
 import { useChatStreamStore } from '@proj-airi/stage-ui/stores/chat/stream-store'
 import { useJournalPreviewStore } from '@proj-airi/stage-ui/stores/journal-preview'
 import { useAiriCardStore } from '@proj-airi/stage-ui/stores/modules/airi-card'
@@ -20,24 +19,22 @@ import { useRouter } from 'vue-router'
 
 import JournalToolCallBlock from './chat-tool-renderers/journal-tool-call-block.vue'
 
-import { useChatSyncStore } from '../stores/chat-sync'
-
 const router = useRouter()
 const messageInput = ref('')
 const lastEnterTime = ref(0)
 const attachments = ref<{ type: 'image', data: string, mimeType: string, url: string }[]>([])
 
+const providersStore = useProvidersStore()
+const { activeProvider, activeModel } = storeToRefs(useConsciousnessStore())
 const chatOrchestrator = useChatOrchestratorStore()
 const chatSession = useChatSessionStore()
 const chatStream = useChatStreamStore()
-const chatSyncStore = useChatSyncStore()
 const backgroundStore = useBackgroundStore()
 const journalPreviewStore = useJournalPreviewStore()
 const airiCardStore = useAiriCardStore()
-
-const { messages } = storeToRefs(chatSession)
+const { ingest } = chatOrchestrator
+const { activeSession } = chatSession
 const { streamingMessage } = storeToRefs(chatStream)
-const { sending } = storeToRefs(chatOrchestrator)
 const { activeCardId } = storeToRefs(airiCardStore)
 const { t } = useI18n()
 const { openImagePreview } = journalPreviewStore
@@ -86,25 +83,19 @@ async function handleSend() {
   attachments.value = []
 
   try {
-    await chatSyncStore.requestIngest({
-      text: textToSend,
-      attachments: attachmentsToSend,
-      toolset: 'artistry',
-    })
+    const providerConfig = providersStore.getProviderConfig(activeProvider.value)
+    await ingest(
+      textToSend,
+      { chatProvider: await providersStore.getProviderInstance(activeProvider.value), model: activeModel.value, providerConfig },
+    )
 
     attachmentsToSend.forEach(att => URL.revokeObjectURL(att.url))
   }
-  catch (error) {
+  catch (e) {
     // restore on failure
     messageInput.value = textToSend
     attachments.value = attachmentsToSend
-    chatSession.setSessionMessages(chatSession.activeSessionId, [
-      ...messages.value,
-      {
-        role: 'error',
-        content: errorMessageFrom(error) ?? 'Failed to send message',
-      },
-    ])
+    console.error(e)
   }
 }
 
@@ -193,22 +184,11 @@ watch(sendMode, () => {
   lastEnterTime.value = 0
 })
 
-const historyMessages = computed(() => messages.value as unknown as ChatHistoryItem[])
-
-async function handleDeleteMessage(index: number) {
-  await chatSyncStore.requestDeleteMessage({ index })
-}
+const historyMessages = computed(() => activeSession.value?.[1].messages ?? [])
 
 onMounted(() => {
   backgroundStore.initializeStore()
 })
-
-async function handleRetryMessage(index: number) {
-  await chatSyncStore.requestRetry({
-    sessionId: chatSession.activeSessionId,
-    index,
-  })
-}
 </script>
 
 <template>
@@ -216,11 +196,8 @@ async function handleRetryMessage(index: number) {
     <div w-full flex-1 overflow-hidden>
       <ChatHistory
         :messages="historyMessages"
-        :sending="sending"
         :streaming-message="streamingMessage"
         :tool-call-renderers="toolCallRenderers"
-        @delete-message="handleDeleteMessage($event.index)"
-        @retry-message="handleRetryMessage($event.index)"
       />
     </div>
 
@@ -331,7 +308,6 @@ async function handleRetryMessage(index: number) {
         hover:text="red-500 dark:red-400"
         flex items-center justify-center rounded-md p-2 outline-none
         transition-colors transition-transform active:scale-95
-        @click="() => chatSyncStore.requestCleanup()"
       >
         <div class="i-solar:trash-bin-2-bold-duotone" />
       </button>

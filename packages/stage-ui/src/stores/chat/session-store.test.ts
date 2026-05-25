@@ -1,4 +1,4 @@
-import type { ChatSessionMeta, ChatSessionRecord, ChatSessionsIndex } from '../../types/chat-session'
+import type { SessionMeta, SessionRecord, UserSessionIndex } from '../../types/chat-session'
 
 import { createPinia, setActivePinia } from 'pinia'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -10,10 +10,10 @@ const userIdRef = ref<string>('local')
 const activeCardIdRef = ref<string>('default')
 const systemPromptRef = ref<string>('')
 
-const getIndexMock = vi.fn<(uid: string) => Promise<ChatSessionsIndex | null>>()
-const saveIndexMock = vi.fn<(idx: ChatSessionsIndex) => Promise<void>>()
-const getSessionMock = vi.fn<(id: string) => Promise<ChatSessionRecord | null>>()
-const saveSessionMock = vi.fn<(id: string, rec: ChatSessionRecord) => Promise<void>>()
+const getIndexMock = vi.fn<(uid: string) => Promise<UserSessionIndex | null>>()
+const saveIndexMock = vi.fn<(idx: UserSessionIndex) => Promise<void>>()
+const getSessionMock = vi.fn<(id: string) => Promise<SessionRecord | null>>()
+const saveSessionMock = vi.fn<(id: string, rec: SessionRecord) => Promise<void>>()
 const deleteSessionRepoMock = vi.fn<(id: string) => Promise<void>>()
 const getOutboxMock = vi.fn<(uid: string) => Promise<any[]>>()
 const dropOutboxForSessionMock = vi.fn<(uid: string, id: string) => Promise<void>>()
@@ -42,9 +42,9 @@ vi.mock('../modules/airi-card', () => ({
 vi.mock('../../database/repos/chat-sessions.repo', () => ({
   chatSessionsRepo: {
     getIndex: (uid: string) => getIndexMock(uid),
-    saveIndex: (idx: ChatSessionsIndex) => saveIndexMock(idx),
+    saveIndex: (idx: UserSessionIndex) => saveIndexMock(idx),
     getSession: (id: string) => getSessionMock(id),
-    saveSession: (id: string, rec: ChatSessionRecord) => saveSessionMock(id, rec),
+    saveSession: (id: string, rec: SessionRecord) => saveSessionMock(id, rec),
     deleteSession: (id: string) => deleteSessionRepoMock(id),
     getOutbox: (uid: string) => getOutboxMock(uid),
     enqueueOutbox: vi.fn().mockResolvedValue(undefined),
@@ -141,14 +141,14 @@ describe('chat-session-store · user swap during in-flight ensureActiveSessionFo
   //   - triggering a fresh hydrate from the userId watcher itself so the new
   //     user actually loads.
   it('runs a fresh hydrate for the new user and discards the stale write from the old user', async () => {
-    const aSessionMeta: ChatSessionMeta = {
+    const aSessionMeta: SessionMeta = {
       sessionId: 'sess-A',
       userId: 'A',
       characterId: 'default',
       createdAt: 1,
       updatedAt: 1,
     }
-    const aIndex: ChatSessionsIndex = {
+    const aIndex: UserSessionIndex = {
       userId: 'A',
       characters: {
         default: {
@@ -157,14 +157,14 @@ describe('chat-session-store · user swap during in-flight ensureActiveSessionFo
         },
       },
     }
-    const bSessionMeta: ChatSessionMeta = {
+    const bSessionMeta: SessionMeta = {
       sessionId: 'sess-B',
       userId: 'B',
       characterId: 'default',
       createdAt: 2,
       updatedAt: 2,
     }
-    const bIndex: ChatSessionsIndex = {
+    const bIndex: UserSessionIndex = {
       userId: 'B',
       characters: {
         default: {
@@ -174,7 +174,7 @@ describe('chat-session-store · user swap during in-flight ensureActiveSessionFo
       },
     }
 
-    let resolveASessionGet: ((rec: ChatSessionRecord | null) => void) | undefined
+    let resolveASessionGet: ((rec: SessionRecord | null) => void) | undefined
     getIndexMock.mockImplementation((uid: string) => {
       if (uid === 'A')
         return Promise.resolve(aIndex)
@@ -186,7 +186,7 @@ describe('chat-session-store · user swap during in-flight ensureActiveSessionFo
       // A's session getSession is the slow await we use to hold the IIFE open
       // until after the user swap fires.
       if (id === 'sess-A') {
-        return new Promise<ChatSessionRecord | null>((resolve) => {
+        return new Promise<SessionRecord | null>((resolve) => {
           resolveASessionGet = resolve
         })
       }
@@ -245,7 +245,7 @@ describe('chat-session-store · loadSession vs concurrent deleteSession', () => 
   // loadSession after the await; if the session is gone, skip the write-back
   // and skip `loadedSessions.add` so a subsequent (legitimate) load can retry.
   it('does not resurrect a session deleted while loadSession was awaiting IDB', async () => {
-    const meta: ChatSessionMeta = {
+    const meta: SessionMeta = {
       sessionId: 'sess-1',
       userId: 'local',
       characterId: 'default',
@@ -253,10 +253,10 @@ describe('chat-session-store · loadSession vs concurrent deleteSession', () => 
       updatedAt: 1,
     }
 
-    let resolveGet: ((rec: ChatSessionRecord | null) => void) | undefined
+    let resolveGet: ((rec: SessionRecord | null) => void) | undefined
     getSessionMock.mockImplementation((id: string) => {
       if (id === 'sess-1') {
-        return new Promise<ChatSessionRecord | null>((resolve) => {
+        return new Promise<SessionRecord | null>((resolve) => {
           resolveGet = resolve
         })
       }

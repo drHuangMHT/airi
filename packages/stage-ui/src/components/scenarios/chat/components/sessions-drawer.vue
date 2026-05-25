@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ChatSessionMeta } from '../../../../types/chat-session'
+import type { SessionMeta } from '../../../../types/chat-session'
 
 import { useResizeObserver, useScreenSafeArea } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
@@ -61,7 +61,7 @@ useResizeObserver(document.documentElement, () => screenSafeArea.update())
 onMounted(() => screenSafeArea.update())
 
 interface SessionRow {
-  meta: ChatSessionMeta
+  meta: SessionMeta
   preview: string
   isActive: boolean
   updatedAtLabel: string
@@ -92,7 +92,7 @@ const ownedSessions = computed(() => {
  * After:
  * - "Tell me about the moon today"
  */
-function previewFor(meta: ChatSessionMeta): string {
+function previewFor(meta: SessionMeta): string {
   if (meta.title)
     return meta.title
 

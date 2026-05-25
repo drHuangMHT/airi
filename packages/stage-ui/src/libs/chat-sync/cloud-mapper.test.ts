@@ -1,11 +1,11 @@
-import type { ChatSessionMeta } from '../../types/chat-session'
+import type { SessionMeta } from '../../types/chat-session'
 import type { CloudChatMapper, RemoteChat } from './cloud-mapper'
 
 import { describe, expect, it, vi } from 'vitest'
 
 import { applyCreateActions, createCloudChatMapper, reconcileLocalAndRemote } from './cloud-mapper'
 
-function makeMeta(partial: Partial<ChatSessionMeta>): ChatSessionMeta {
+function makeMeta(partial: Partial<SessionMeta>): SessionMeta {
   return {
     sessionId: partial.sessionId ?? 'session-x',
     userId: partial.userId ?? 'user-1',

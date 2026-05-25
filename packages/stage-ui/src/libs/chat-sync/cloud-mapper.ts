@@ -1,4 +1,4 @@
-import type { ChatSessionMeta } from '../../types/chat-session'
+import type { SessionMeta } from '../../types/chat-session'
 
 import { errorMessageFrom } from '@moeru/std'
 
@@ -223,14 +223,14 @@ export interface ReconcilePlan {
  *   actions need the network, `claim` / `adopt` are pure store mutations.
  */
 export function reconcileLocalAndRemote(
-  localSessions: ChatSessionMeta[],
+  localSessions: SessionMeta[],
   remoteChats: RemoteChat[],
 ): ReconcilePlan {
   const remoteById = new Map<string, RemoteChat>()
   for (const chat of remoteChats)
     remoteById.set(chat.id, chat)
 
-  const localByCloudId = new Map<string, ChatSessionMeta>()
+  const localByCloudId = new Map<string, SessionMeta>()
   for (const meta of localSessions) {
     if (meta.cloudChatId)
       localByCloudId.set(meta.cloudChatId, meta)

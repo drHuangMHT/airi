@@ -4,11 +4,11 @@ import WindowTitleBar from '../components/Window/TitleBar.vue'
 </script>
 
 <template>
-  <div h-full w-full pt="44px" overflow-y-scroll>
-    <WindowTitleBar
-      title="Chat"
-      icon="i-solar:chat-line-bold"
-    />
+  <WindowTitleBar
+    title="Chat"
+    icon="i-solar:chat-line-bold"
+  />
+  <div w-full style="height: calc(100vh - 3rem)">
     <InteractiveArea
       class="interaction-area block"
       h-full w-full p-4 transition="opacity duration-250"

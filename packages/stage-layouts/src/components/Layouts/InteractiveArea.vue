@@ -1,9 +1,7 @@
 <script setup lang="ts">
-import type { ChatHistoryItem } from '@proj-airi/stage-ui/types/chat'
-
 import { ChatHistory } from '@proj-airi/stage-ui/components'
-import { useChatOrchestratorStore } from '@proj-airi/stage-ui/stores/chat'
-import { useChatSessionStore } from '@proj-airi/stage-ui/stores/chat/session-store'
+import { useChatOrchestratorStore } from '@proj-airi/stage-ui/stores/chat-minimized'
+import { useChatSessionStore } from '@proj-airi/stage-ui/stores/chat/session-store-minimized'
 import { useChatStreamStore } from '@proj-airi/stage-ui/stores/chat/stream-store'
 import { useDeferredMount } from '@proj-airi/ui'
 import { storeToRefs } from 'pinia'
@@ -14,16 +12,12 @@ import ChatArea from '../Widgets/ChatArea.vue'
 import ChatContainer from '../Widgets/ChatContainer.vue'
 
 const { isReady } = useDeferredMount()
-const { sending } = storeToRefs(useChatOrchestratorStore())
-const { messages } = storeToRefs(useChatSessionStore())
+const { sending } = useChatOrchestratorStore()
+const { activeSession } = useChatSessionStore()
 const { streamingMessage } = storeToRefs(useChatStreamStore())
 
 const isLoading = ref(true)
-const historyMessages = computed(() => messages.value as unknown as ChatHistoryItem[])
-
-function handleDeleteMessage(index: number) {
-  messages.value = messages.value.filter((_, messageIndex) => messageIndex !== index)
-}
+const historyMessages = computed(() => activeSession?.value?.[1].messages ?? [])
 </script>
 
 <template>
@@ -45,7 +39,6 @@ function handleDeleteMessage(index: number) {
             :streaming-message="streamingMessage"
             h-full
             variant="desktop"
-            @delete-message="handleDeleteMessage($event.index)"
             @vue:mounted="isLoading = false"
           />
         </div>

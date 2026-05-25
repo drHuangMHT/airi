@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { ChatHistoryItem } from '@proj-airi/stage-ui/types/chat'
 import type { ChatProvider } from '@xsai-ext/providers/utils'
 
 import { isStageTamagotchi } from '@proj-airi/stage-shared'
@@ -8,9 +7,9 @@ import { ChatHistory, HearingConfigDialog } from '@proj-airi/stage-ui/components
 import { ChatSessionsDrawer } from '@proj-airi/stage-ui/components/scenarios/chat'
 import { useAudioAnalyzer } from '@proj-airi/stage-ui/composables'
 import { useAudioContext } from '@proj-airi/stage-ui/stores/audio'
-import { useChatOrchestratorStore } from '@proj-airi/stage-ui/stores/chat'
+import { useChatOrchestratorStore } from '@proj-airi/stage-ui/stores/chat-minimized'
 import { useChatMaintenanceStore } from '@proj-airi/stage-ui/stores/chat/maintenance'
-import { useChatSessionStore } from '@proj-airi/stage-ui/stores/chat/session-store'
+import { useChatSessionStore } from '@proj-airi/stage-ui/stores/chat/session-store-minimized'
 import { useChatStreamStore } from '@proj-airi/stage-ui/stores/chat/stream-store'
 import { useL2dViewControl } from '@proj-airi/stage-ui/stores/live2d'
 import { useConsciousnessStore } from '@proj-airi/stage-ui/stores/modules/consciousness'
@@ -35,14 +34,10 @@ const chatOrchestrator = useChatOrchestratorStore()
 const chatSession = useChatSessionStore()
 const chatStream = useChatStreamStore()
 const { cleanupMessages } = useChatMaintenanceStore()
-const { messages } = storeToRefs(chatSession)
+const { activeSession } = chatSession
 const { streamingMessage } = storeToRefs(chatStream)
-const { sending } = storeToRefs(chatOrchestrator)
-const historyMessages = computed(() => messages.value as unknown as ChatHistoryItem[])
-
-function handleDeleteMessage(index: number) {
-  messages.value = messages.value.filter((_, messageIndex) => messageIndex !== index)
-}
+const { sending } = chatOrchestrator
+const historyMessages = computed(() => activeSession?.value?.messages ?? [])
 
 const messageInput = ref('')
 const isComposing = ref(false)
@@ -101,13 +96,10 @@ async function handleSend() {
       providerConfig,
     })
   }
-  catch (error) {
+  catch (e) {
+    console.error(e)
     messageInput.value = textToSend
-    messages.value.pop()
-    messages.value.push({
-      role: 'error',
-      content: (error as Error).message,
-    })
+    historyMessages.value?.pop()
   }
 }
 
@@ -166,7 +158,6 @@ onMounted(() => {
           :class="[
             'relative z-20',
           ]"
-          @delete-message="handleDeleteMessage($event.index)"
         />
       </Transition>
     </KeepAlive>

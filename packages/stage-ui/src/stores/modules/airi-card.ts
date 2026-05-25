@@ -1,5 +1,7 @@
 import type { Card, ccv3 } from '@proj-airi/ccc'
 
+import type { SessionMeta } from '../../types/chat-session-minimized'
+
 import { useLocalStorageManualReset } from '@proj-airi/stage-shared/composables'
 import { watchDebounced } from '@vueuse/core'
 import { nanoid } from 'nanoid'
@@ -74,6 +76,7 @@ export interface AiriExtension {
 }
 
 export interface AiriCard extends Card {
+  chatSessionIds: Record<string, SessionMeta>
   extensions: {
     airi: AiriExtension
   } & Card['extensions']
@@ -102,6 +105,22 @@ export const useAiriCardStore = defineStore('airi-card', () => {
     activeSpeechVoiceId,
     activeSpeechModel,
   } = storeToRefs(speechStore)
+
+  function initialize() {
+    if (cards.value.has('default'))
+      return
+    cards.value.set('default', newAiriCard({
+      name: 'ReLU',
+      version: '1.0.0',
+      description: SystemPromptV2(
+        t('base.prompt.prefix'),
+        t('base.prompt.suffix'),
+      ).content,
+    }))
+    if (!activeCardId.value)
+      activeCardId.value = 'default'
+  }
+  initialize()
 
   const addCard = (card: AiriCard | Card | ccv3.CharacterCardV3) => {
     const newCardId = nanoid()
@@ -241,6 +260,7 @@ export const useAiriCardStore = defineStore('airi-card', () => {
     if ('data' in card) {
       const ccv3Card = card as ccv3.CharacterCardV3
       return {
+        chatSessionIds: {},
         name: ccv3Card.data.name,
         version: ccv3Card.data.character_version ?? '1.0.0',
         description: ccv3Card.data.description ?? '',
@@ -277,26 +297,12 @@ export const useAiriCardStore = defineStore('airi-card', () => {
 
     return {
       ...card,
+      chatSessionIds: {},
       extensions: {
         airi: resolveAiriExtension(card),
         ...card.extensions,
       },
     }
-  }
-
-  function initialize() {
-    if (cards.value.has('default'))
-      return
-    cards.value.set('default', newAiriCard({
-      name: 'ReLU',
-      version: '1.0.0',
-      description: SystemPromptV2(
-        t('base.prompt.prefix'),
-        t('base.prompt.suffix'),
-      ).content,
-    }))
-    if (!activeCardId.value)
-      activeCardId.value = 'default'
   }
 
   watchDebounced(activeCard, (newCard: AiriCard | undefined) => {
