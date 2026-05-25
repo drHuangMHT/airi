@@ -37,7 +37,7 @@ const { cleanupMessages } = useChatMaintenanceStore()
 const { activeSession } = chatSession
 const { streamingMessage } = storeToRefs(chatStream)
 const { sending } = chatOrchestrator
-const historyMessages = computed(() => activeSession?.value?.messages ?? [])
+const historyMessages = computed(() => activeSession?.value?.[1].messages ?? [])
 
 const messageInput = ref('')
 const isComposing = ref(false)

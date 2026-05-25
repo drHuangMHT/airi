@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { SessionMeta } from '../../../../types/chat-session'
+import type { SessionMeta } from '../../../../types/chat-session-minimized'
 
 import { useResizeObserver, useScreenSafeArea } from '@vueuse/core'
 import { storeToRefs } from 'pinia'

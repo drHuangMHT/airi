@@ -10,18 +10,17 @@ import type { ModelSettingsRuntimeSnapshot } from './runtime'
 
 import { Button, Callout } from '@proj-airi/ui'
 import { storeToRefs } from 'pinia'
-import { computed, ref } from 'vue'
+import { inject, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import Godot from './godot.vue'
-import Live2D from './live2d.vue'
-import Spine from './spine.vue'
-import VRM from './vrm.vue'
+import GodotSettings from './godot.vue'
+import Live2DSettings from './live2d.vue'
+import SpineSettings from './spine.vue'
+import VRMSettings from './vrm.vue'
 
 import { useAiriCardStore } from '../../../../stores/modules/airi-card'
 import { useSettings } from '../../../../stores/settings'
 import { ModelSelectorDialog } from '../../dialogs/model-selector'
-import { resolveModelSettingsPanelRenderer } from './runtime'
 
 interface ModelSettingsPanelProps {
   palette: string[]
@@ -38,7 +37,7 @@ interface ModelSettingsPanelEmits {
   patchGodotViewState: [patch: StageViewPatch]
 }
 
-const props = withDefaults(defineProps<ModelSettingsPanelProps>(), {
+const _props = withDefaults(defineProps<ModelSettingsPanelProps>(), {
   allowExtractColors: true,
   godotViewControlsLocked: true,
   godotViewSnapshot: null,
@@ -47,15 +46,11 @@ const props = withDefaults(defineProps<ModelSettingsPanelProps>(), {
 const emit = defineEmits<ModelSettingsPanelEmits>()
 
 const { t } = useI18n()
+const { localRenderer } = inject<{ localRenderer: string | undefined }>('local-renderer', { localRenderer: undefined })
 const modelSelectorOpen = ref(false)
 const settingsStore = useSettings()
 const airiCardStore = useAiriCardStore()
-const { stageModelRenderer, stageModelSelected, stageModelSelectedDisplayModel } = storeToRefs(settingsStore)
-
-const effectiveRenderer = computed(() => resolveModelSettingsPanelRenderer({
-  settingsRenderer: stageModelRenderer.value,
-  runtimeRenderer: props.runtimeSnapshot.renderer,
-}))
+const { stageModelSelectedDisplayModel, stageModelSelected } = storeToRefs(settingsStore)
 
 async function handleModelPick(selectedModel: DisplayModel | undefined) {
   stageModelSelected.value = selectedModel?.id ?? ''
@@ -96,29 +91,29 @@ async function handleModelPick(selectedModel: DisplayModel | undefined) {
       </ModelSelectorDialog>
       <slot name="actions" />
     </div>
-    <Live2D
-      v-if="effectiveRenderer === 'live2d'"
+    <Live2DSettings
+      v-if="localRenderer === 'live2d'"
       :allow-extract-colors="allowExtractColors"
       :palette="palette"
       :runtime-snapshot="runtimeSnapshot"
       @extract-colors-from-model="emit('extractColorsFromModel')"
     />
-    <VRM
-      v-if="effectiveRenderer === 'vrm'"
+    <VRMSettings
+      v-if="localRenderer === 'vrm'"
       :allow-extract-colors="allowExtractColors"
       :palette="palette"
       :runtime-snapshot="runtimeSnapshot"
       @extract-colors-from-model="emit('extractColorsFromModel')"
     />
-    <Spine
-      v-if="effectiveRenderer === 'spine'"
+    <SpineSettings
+      v-if="localRenderer === 'spine'"
       :allow-extract-colors="allowExtractColors"
       :palette="palette"
       :runtime-snapshot="runtimeSnapshot"
       @extract-colors-from-model="$emit('extractColorsFromModel')"
     />
-    <Godot
-      v-if="effectiveRenderer === 'godot'"
+    <GodotSettings
+      v-if="localRenderer === 'godot'"
       :runtime-snapshot="runtimeSnapshot"
       :view-snapshot="godotViewSnapshot"
       :view-error="godotViewError"

@@ -65,7 +65,6 @@ const {
   stageModelSelected,
   themeColorsHue,
   themeColorsHueDynamic,
-
 } = storeToRefs(settingsStore)
 const {
   live2dShadowEnabled,

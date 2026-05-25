@@ -1,13 +1,26 @@
 <script setup lang="ts">
-import { ModelSettings } from '@proj-airi/stage-ui/components/scenarios/settings/model-settings'
-import { Vibrant } from 'node-vibrant/browser'
-import { ref } from 'vue'
+import type { ModelSettingsRuntimeSnapshot } from '@proj-airi/stage-ui/components/scenarios/settings/model-settings'
+import type { StageModelRenderer } from '@proj-airi/stage-ui/stores'
 
-const modelSettingsRef = ref<{ capturePreviewFrame: () => Promise<Blob | undefined> }>()
+import ModelSettingsPanel from '@proj-airi/stage-ui/components/scenarios/settings/model-settings/panel.vue'
+import ModelSettingsPreviewStage from '@proj-airi/stage-ui/components/scenarios/settings/model-settings/preview-stage.vue'
+
+import { isStageTamagotchi } from '@proj-airi/stage-shared'
+import { createEmptyModelSettingsRuntimeSnapshot } from '@proj-airi/stage-ui/components/scenarios/settings/model-settings/runtime'
+import { useSettings } from '@proj-airi/stage-ui/stores'
+import { Vibrant } from 'node-vibrant/browser'
+import { storeToRefs } from 'pinia'
+import { provide, ref, useTemplateRef, watch } from 'vue'
+
 const palette = ref<string[]>([])
 
+const previewStageRef = useTemplateRef('previewStageRef')
+const runtimeSnapshot = ref<ModelSettingsRuntimeSnapshot>(createEmptyModelSettingsRuntimeSnapshot())
+const renderCanvas = ref(!isStageTamagotchi())
+
 async function extractColorsFromModel() {
-  const frame = await modelSettingsRef.value?.capturePreviewFrame()
+  renderCanvas.value = true
+  const frame = await previewStageRef.value?.capturePreviewFrame()
   if (!frame) {
     console.error('No frame captured')
     return
@@ -16,7 +29,6 @@ async function extractColorsFromModel() {
   const frameUrl = URL.createObjectURL(frame)
   try {
     const vibrant = new Vibrant(frameUrl)
-
     const paletteFromVibrant = await vibrant.getPalette()
     palette.value = Object.values(paletteFromVibrant).map(color => color?.hex).filter(it => typeof it === 'string')
   }
@@ -24,18 +36,39 @@ async function extractColorsFromModel() {
     URL.revokeObjectURL(frameUrl)
   }
 }
+
+const { stageModelRenderer } = storeToRefs(useSettings())
+const localRenderer = ref(stageModelRenderer.value)
+const globalRendererWatcher = watch(stageModelRenderer, n => localRenderer.value = n)
+function updateLocation(val: StageModelRenderer) {
+  localRenderer.value = val; globalRendererWatcher.stop()
+}
+
+provide('local-renderer', {
+  localRenderer,
+  updateLocation,
+})
+
+function handleRuntimeSnapshotChanged(nextSnapshot: ModelSettingsRuntimeSnapshot) {
+  runtimeSnapshot.value = nextSnapshot
+}
 </script>
 
 <template>
-  <div flex class="relative h-full flex-col-reverse md:flex-row">
-    <ModelSettings
-      ref="modelSettingsRef"
-      settings-class="w-100% md:w-40% lg:w-40% xl:w-25% 2xl:w-30% h-fit sm:max-h-80dvh overflow-y-scroll relative"
-      live-2d-scene-class="absolute max-h-[calc(100dvh-100px-56px)] w-full h-full"
-      vrm-scene-class="absolute max-h-[calc(100dvh-100px-56px)] w-full h-full"
-      :palette="palette" @extract-colors-from-model="extractColorsFromModel"
+  <section p-4 style="height: calc(100vh - 3rem)">
+    <ModelSettingsPanel
+      :palette="palette"
+      :runtime-snapshot="runtimeSnapshot"
+      settings-class="w-100% md:w-40% lg:w-40% xl:w-25% 2xl:w-30% h-full overflow-y-scroll relative"
+      @extract-colors-from-model="extractColorsFromModel"
     />
-  </div>
+    <div v-if="renderCanvas">
+      <ModelSettingsPreviewStage
+        ref="previewStageRef"
+        @runtime-snapshot-changed="handleRuntimeSnapshotChanged"
+      />
+    </div>
+  </section>
 
   <div
     v-motion

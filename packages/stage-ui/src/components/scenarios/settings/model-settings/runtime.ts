@@ -1,7 +1,5 @@
 import type { StageAvatarBoundsPayload, StageViewState } from '@proj-airi/stage-shared/godot-stage'
 
-import type { StageModelRenderer } from '../../../../stores/settings/stage-model'
-
 export type ModelSettingsRuntimeRenderer = 'disabled' | 'live2d' | 'vrm' | 'spine' | 'godot'
 export type ModelSettingsRuntimePhase = 'pending' | 'loading' | 'binding' | 'mounted' | 'no-model' | 'error'
 
@@ -72,17 +70,6 @@ export function resolveGodotCameraPositionRange(options: {
     : 0
 
   return Math.max(4, avatarRange, loadTimeCameraRange)
-}
-
-/** Resolves which settings component the model settings panel should mount. */
-export function resolveModelSettingsPanelRenderer(options: {
-  settingsRenderer: StageModelRenderer
-  runtimeRenderer: ModelSettingsRuntimeRenderer
-}): ModelSettingsRuntimeRenderer {
-  if (options.settingsRenderer === 'godot')
-    return 'godot'
-
-  return options.runtimeRenderer
 }
 
 /** Maps component load state into the shared model settings runtime phase. */

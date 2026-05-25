@@ -288,22 +288,20 @@ trackingSource.value = computed(() => ({
       </div>
     </div>
     <!-- Loading overlay sits on top, does not hide the stage -->
-    <div v-show="isLoading" class="absolute left-0 top-0 z-99 h-full w-full flex cursor-grab items-center justify-center overflow-hidden">
+    <div
+      v-show="isLoading" class="absolute z-99 w-screen select-none backdrop-blur-md drag-region hover:cursor-grab"
+      style="top: calc(50vh - 4rem)"
+    >
       <div
         :class="[
-          'absolute h-24 w-full overflow-hidden rounded-xl',
-          'flex items-center justify-center',
+          'h-24 w-full rounded-xl',
+          'flex flex-col items-center justify-center',
           'bg-white/80 dark:bg-neutral-950/80',
-          'backdrop-blur-md',
         ]"
       >
         <div
           :class="[
-            'drag-region',
-            'absolute left-0 top-0',
-            'h-full w-full flex items-center justify-center',
             'text-1.5rem text-primary-600 dark:text-primary-400 font-normal',
-            'select-none',
             'animate-flash animate-duration-5s animate-count-infinite',
           ]"
         >

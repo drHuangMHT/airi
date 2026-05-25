@@ -8,7 +8,7 @@ const { lastClickedIndex, setLastClickedIndex } = useRippleGridState()
 </script>
 
 <template>
-  <div>
+  <div p-4>
     <RippleGrid
       :items="modulesList"
       :columns="{ default: 1, sm: 2 }"

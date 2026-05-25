@@ -6,7 +6,7 @@ import { SpineScene } from '@proj-airi/stage-ui-spine'
 import { ThreeScene, useModelStore } from '@proj-airi/stage-ui-three'
 import { useMouse } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
-import { computed, provide, ref, watch } from 'vue'
+import { computed, provide, ref, useTemplateRef, watch } from 'vue'
 
 import { useSettings } from '../../../../stores/settings'
 import {
@@ -14,19 +14,13 @@ import {
   resolveComponentStateToRuntimePhase,
 } from './runtime'
 
-const props = defineProps<{
-  live2dSceneClass?: string | string[]
-  vrmSceneClass?: string | string[]
-  spineSceneClass?: string | string[]
-}>()
-
 const emit = defineEmits<{
   (e: 'runtimeSnapshotChanged', value: ModelSettingsRuntimeSnapshot): void
 }>()
 
 const settingsStore = useSettings()
 const modelStore = useModelStore()
-const live2dSceneRef = ref<{ canvasElement: () => HTMLCanvasElement | undefined }>()
+const live2dSceneRef = useTemplateRef('live2dSceneRef')
 const vrmSceneRef = ref<{ canvasElement: () => HTMLCanvasElement | undefined }>()
 const spineSceneRef = ref<{ canvasElement: () => HTMLCanvasElement | undefined }>()
 const live2dComponentState = ref<'pending' | 'loading' | 'mounted'>('pending')
@@ -52,17 +46,6 @@ const {
 } = storeToRefs(settingsStore)
 const { sceneMutationLocked, scenePhase } = storeToRefs(modelStore)
 
-const live2dSceneClassList = computed(() => normalizeClassList(props.live2dSceneClass))
-const vrmSceneClassList = computed(() => normalizeClassList(props.vrmSceneClass))
-const spineSceneClassList = computed(() => normalizeClassList(props.spineSceneClass))
-
-function normalizeClassList(value?: string | string[]) {
-  if (!value)
-    return []
-
-  return typeof value === 'string' ? [value] : value
-}
-
 function captureCanvasFrame(canvas?: HTMLCanvasElement) {
   return new Promise<Blob | undefined>((resolve) => {
     if (!canvas)
@@ -74,7 +57,7 @@ function captureCanvasFrame(canvas?: HTMLCanvasElement) {
 
 async function capturePreviewFrame() {
   if (stageModelRenderer.value === 'live2d')
-    return captureCanvasFrame(live2dSceneRef.value?.canvasElement())
+    return live2dSceneRef.value?.captureFrame()
 
   if (stageModelRenderer.value === 'vrm')
     return captureCanvasFrame(vrmSceneRef.value?.canvasElement())
@@ -167,35 +150,29 @@ trackingSource.value = computed(() => ({
 
 <template>
   <template v-if="stageModelRenderer === 'live2d'">
-    <div :class="live2dSceneClassList">
-      <Live2DScene
-        ref="live2dSceneRef"
-        v-model:state="live2dComponentState"
-        :model-src="stageModelSelectedUrl"
-        :model-id="stageModelSelected"
-        :theme-colors-hue="themeColorsHue"
-        :theme-colors-hue-dynamic="themeColorsHueDynamic"
-      />
-    </div>
+    <Live2DScene
+      ref="live2dSceneRef"
+      v-model:state="live2dComponentState"
+      :model-src="stageModelSelectedUrl"
+      :model-id="stageModelSelected"
+      :theme-colors-hue="themeColorsHue"
+      :theme-colors-hue-dynamic="themeColorsHueDynamic"
+    />
   </template>
   <template v-if="stageModelRenderer === 'vrm'">
-    <div :class="vrmSceneClassList">
-      <ThreeScene ref="vrmSceneRef" :model-src="stageModelSelectedUrl" />
-    </div>
+    <ThreeScene ref="vrmSceneRef" :model-src="stageModelSelectedUrl" />
   </template>
   <template v-if="stageModelRenderer === 'spine'">
-    <div :class="spineSceneClassList">
-      <SpineScene
-        ref="spineSceneRef"
-        v-model:state="spineComponentState"
-        :model-src="stageModelSelectedUrl"
-        :model-id="stageModelSelected"
-        :premultiplied-alpha="spinePremultipliedAlpha"
-        :default-mix-duration="spineDefaultMixDuration"
-        :idle-animation-enabled="spineIdleAnimationEnabled"
-        :max-fps="spineMaxFps"
-        :render-scale="spineRenderScale"
-      />
-    </div>
+    <SpineScene
+      ref="spineSceneRef"
+      v-model:state="spineComponentState"
+      :model-src="stageModelSelectedUrl"
+      :model-id="stageModelSelected"
+      :premultiplied-alpha="spinePremultipliedAlpha"
+      :default-mix-duration="spineDefaultMixDuration"
+      :idle-animation-enabled="spineIdleAnimationEnabled"
+      :max-fps="spineMaxFps"
+      :render-scale="spineRenderScale"
+    />
   </template>
 </template>

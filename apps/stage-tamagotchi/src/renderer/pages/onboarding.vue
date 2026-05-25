@@ -51,7 +51,7 @@ async function handleConfigured() {
     onboarding-root h-screen w-screen
     :class="bgClass"
   >
-    <div class="h-8 w-full flex-shrink-0 select-none drag-region" :class="bgClass" />
+    <div class="h-8 w-full shrink-0 select-none drag-region" :class="bgClass" />
     <main flex p-10 style="height: calc(100vh - 2rem);">
       <OnboardingScreen :extra-steps="extraSteps" @skipped="handleSkipped" @configured="handleConfigured" />
     </main>
