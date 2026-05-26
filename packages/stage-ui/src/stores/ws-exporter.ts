@@ -3,6 +3,8 @@ const WS_URL = 'ws://localhost:8467'
 let socket: WebSocket
 
 export function connectWsConnector() {
+  if (socket !== undefined)
+    return socket
   socket = new WebSocket(WS_URL)
 
   socket.addEventListener('open', () => {
