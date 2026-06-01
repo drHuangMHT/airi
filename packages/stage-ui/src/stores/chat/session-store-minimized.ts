@@ -1,7 +1,6 @@
 import type { ChatHistoryItem } from '../../types/chat'
 import type { SessionMeta, SessionRecord, UserSessionIndex } from '../../types/chat-session-minimized'
 
-import { errorMessageFrom } from '@moeru/std'
 import { cloneDeep } from 'es-toolkit'
 import { nanoid } from 'nanoid'
 import { storeToRefs } from 'pinia'
@@ -11,74 +10,43 @@ import { chatSessionsRepo } from '../../database/repos/chat-sessions.repo-minifi
 import { ChatRoom, Participant } from '../chat_room'
 import { useAiriCardStore } from '../modules/airi-card'
 
-const session = ref<ChatRoom<ChatHistoryItem> | null>(null)
-const sessionMetadata = ref<SessionMeta | null>(null)
-const loadingSessions = new Map<string, Promise<SessionRecord | void>>()
-
-let persistQueue = Promise.resolve()
-
-function enqueuePersist<T>(task: () => Promise<T>): Promise<T> {
-  const next = persistQueue.then(task)
-  persistQueue = next.then(
-    () => undefined,
-    (err) => {
-      console.warn('[chat-session] persist task failed:', errorMessageFrom(err))
-    },
-  )
-  return next
-}
-
-async function loadSessionById(sessionId: string) {
-  const loadingPromise = loadingSessions.get(sessionId)
-  if (loadingPromise) {
-    return await loadingPromise
-  }
-
-  const loadPromise
-    = chatSessionsRepo.getSession(sessionId)
-      .then(
-        (record) => {
-          if (!record)
-            throw new Error('Session not found')
-          return record
-        },
-      )
-      .catch(e => console.warn('[chat-session] loadSession failed for', sessionId, errorMessageFrom(e)))
-      .finally(() => loadingSessions.delete(sessionId))
-  loadingSessions.set(sessionId, loadPromise)
-  return await loadPromise
-}
-
 /**
- * Centralized
- *
+ * manages one session selection.
+ * TODO: sync between all that opened the same chat session.
  */
-export function useChatSessionStore() {
+export function useChatSession() {
   const { activeCard, activeCardId, systemPrompt } = storeToRefs(useAiriCardStore())
 
+  const session = ref<ChatRoom<ChatHistoryItem> | null>(null)
+  const sessionMetadata = ref<SessionMeta | null>(null)
+
   const participants = ref<Record<string, Participant<ChatHistoryItem>>>({
-  // TODO: garbage-collect offline participant
+  // TODO: garbage-collect offline participants
     user: new Participant(nanoid(), 'user'),
     assistant: new Participant(nanoid(), 'assistant'),
     system: new Participant(nanoid(), 'system'),
     error: new Participant(nanoid(), 'system'),
   })
-  const userId = 'local'
-  const activeSessionId = ref<string>('')
+  const userId = 'local' // TODO: handle user switching
+  const sessionId = ref<string>('')
 
-  watch([activeSessionId], async () => {
+  watch([sessionId], async () => {
     const index = await getOrCreateIndex(userId, activeCardId.value)
     // sync active session
     if (!index.sessions.includes(index.activeSessionId)) {
-      index.activeSessionId = index.sessions[0]
+      index.activeSessionId = index.sessions[0] // fix invalid session in index
     }
-    if (!activeSessionId.value || !index.sessions.includes(activeSessionId.value)) {
-      activeSessionId.value = index.activeSessionId
+    if (!sessionId.value || !index.sessions.includes(sessionId.value)) {
+      sessionId.value = index.activeSessionId // sync/fix invalid chat session in this session
     }
     await chatSessionsRepo.saveIndex(index)
-    const sessionRecord = await getOrCreateSession(activeSessionId.value)
+    const sessionRecord = await getOrCreateSession()
     session.value = new ChatRoom(sessionRecord.messages)
   }, { immediate: true })
+
+  watch([() => session.value?.messages], async () => {
+    await saveSession()
+  })
 
   function generateInitialMessage() {
     return {
@@ -89,57 +57,52 @@ export function useChatSessionStore() {
     } satisfies ChatHistoryItem
   }
 
-  /** Create an index if the index for the user does not exits. Populate existing index when the index contains no session. */
-  async function getOrCreateIndex(userId: string, characterId: string): Promise<UserSessionIndex> {
-    const index = await chatSessionsRepo.getIndex(userId)
-    if (index && index.sessions.length > 0)
-      return index
-    const newSession = createRawSession(userId, characterId)
-    const newIndex = {
-      userId,
-      activeSessionId: newSession.meta.sessionId,
-      sessions: [newSession.meta.sessionId],
-    }
-    // overwrite existing empty index.
-    chatSessionsRepo.saveIndex(newIndex)
-    chatSessionsRepo.saveSession(newSession.meta.sessionId, newSession)
-    return newIndex
-  }
-
-  async function getOrCreateSession(sessionId?: string): Promise<SessionRecord> {
-    const sessionRecord = await chatSessionsRepo.getSession(sessionId ?? activeSessionId.value)
+  async function getOrCreateSession(): Promise<SessionRecord> {
+    const sessionRecord = await chatSessionsRepo.getSession(sessionId.value)
     if (!sessionRecord)
-      return createSession(activeCardId.value)
-    if (sessionRecord.messages.length < 1)
-      sessionRecord.messages.push(generateInitialMessage())
+      return createSession()
+    if (sessionRecord.messages.length < 1) {
+      sessionRecord.messages.push(generateInitialMessage()) // saved automatically by watcher
+    }
     return sessionRecord
   }
 
   async function saveSession() {
     if (!sessionMetadata.value || !session.value)
       return
-    chatSessionsRepo.saveSession(activeSessionId.value, cloneDeep({ meta: sessionMetadata.value, messages: session.value.messages }))
+    await chatSessionsRepo.saveSession(sessionId.value, cloneDeep({ meta: sessionMetadata.value, messages: session.value.messages }))
   }
 
-  async function createSession(characterId: string, options?: { setActive?: boolean, messages?: ChatHistoryItem[], title?: string }): Promise<SessionRecord> {
+  /** Create a new session with the currently selected character, update and save index, save the new session. */
+  async function createSession(options?: { setActive?: boolean, messages?: ChatHistoryItem[], title?: string }): Promise<SessionRecord> {
     if (!activeCard.value)
       throw new Error('cannot create session: character card not found') // TODO: stricter check
     const initialMessages = options?.messages?.length ? cloneDeep(options.messages) : [generateInitialMessage()]
-    const record = createRawSession(userId, characterId, { messages: initialMessages, title: options?.title })
-
-    await enqueuePersist(() => chatSessionsRepo.saveSession(record.meta.sessionId, record))
-
-    if (options?.setActive)
-      activeSessionId.value = record.meta.sessionId
-
+    const record = createRawSession(userId, activeCardId.value, { messages: initialMessages, title: options?.title })
+    await chatSessionsRepo.saveSession(record.meta.sessionId, record)
+    // update index
+    const index = await getOrCreateIndex(userId, activeCardId.value)
+    if (options?.setActive) {
+      sessionId.value = record.meta.sessionId
+      index.activeSessionId = record.meta.sessionId
+    }
+    index.sessions.push(record.meta.sessionId)
+    await chatSessionsRepo.saveIndex(index)
     return record
   }
 
-  async function deleteSession(sessionId: string) {
+  async function deleteOpenedSession(createNew: boolean = true) {
     // TODO: delete session from character
-    await enqueuePersist(() => chatSessionsRepo.deleteSession(sessionId))
-
-    // TODO: select an existing session or create a new one
+    // update index
+    const index = await getOrCreateIndex(userId, activeCardId.value)
+    index.sessions = index.sessions.filter(i => i !== sessionId.value)
+    if (createNew)
+      await createSession({ setActive: true })
+    else
+      index.activeSessionId = index.sessions[0]
+    sessionId.value = index.activeSessionId
+    await chatSessionsRepo.saveIndex(index)
+    await chatSessionsRepo.deleteSession(sessionId.value)
   }
 
   function sendMessage(participant: string, message: Partial<ChatHistoryItem>) {
@@ -163,6 +126,7 @@ export function useChatSessionStore() {
       return true
     }
     maybeSession.messages = message
+    return true
   }
 
   onScopeDispose(() => {
@@ -172,13 +136,12 @@ export function useChatSessionStore() {
   })
 
   return {
-    activeSession: session,
-    activeSessionId,
+    session,
+    sessionId,
     createSession,
-    loadSession: loadSessionById,
     sendMessage,
     setMessage,
-    deleteSession,
+    deleteOpenedSession,
     saveSession,
   }
 }
@@ -198,4 +161,21 @@ function createRawSession(userId: string, characterId: string, options?: { messa
   const initialMessages = cloneDeep(options?.messages ?? [])
 
   return { meta: metadata, messages: initialMessages }
+}
+
+/** Create an index if the index for the user does not exits. Populate existing index when the index contains no session. */
+async function getOrCreateIndex(userId: string, characterId: string): Promise<UserSessionIndex> {
+  const index = await chatSessionsRepo.getIndex(userId)
+  if (index && index.sessions.length > 0)
+    return index
+  const newSession = createRawSession(userId, characterId)
+  const newIndex = {
+    userId,
+    activeSessionId: newSession.meta.sessionId,
+    sessions: [newSession.meta.sessionId],
+  }
+  // overwrite existing empty index.
+  chatSessionsRepo.saveIndex(newIndex)
+  chatSessionsRepo.saveSession(newSession.meta.sessionId, newSession)
+  return newIndex
 }

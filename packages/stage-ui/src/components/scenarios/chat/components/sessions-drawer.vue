@@ -11,8 +11,7 @@ import { useI18n } from 'vue-i18n'
 import { useAnalytics } from '../../../../composables/use-analytics'
 import { useBreakpoints } from '../../../../composables/use-breakpoints'
 import { extractMessageText } from '../../../../libs/chat-sync'
-import { useChatSessionStore } from '../../../../stores/chat/session-store-minimized'
-import { useAiriCardStore } from '../../../../stores/modules/airi-card'
+import { useChatSession } from '../../../../stores/chat/session-store-minimized'
 import { useConsciousnessStore } from '../../../../stores/modules/consciousness'
 
 /**
@@ -41,8 +40,7 @@ const { isDesktop } = useBreakpoints()
 const screenSafeArea = useScreenSafeArea()
 const { t } = useI18n()
 
-const { sessionMessages, activeSessionId, loadedSessions, createSession, deleteSession } = useChatSessionStore()
-const { activeCardId } = storeToRefs(useAiriCardStore())
+const { sessionId: activeSessionId, createSession } = useChatSession()
 const { activeModel } = storeToRefs(useConsciousnessStore())
 const { trackChatSessionStarted } = useAnalytics()
 
@@ -144,8 +142,7 @@ async function startNewSession() {
     return
   isCreatingSession.value = true
   try {
-    const characterId = activeCardId.value || 'default'
-    await createSession(characterId, { setActive: true })
+    await createSession({ setActive: true })
     // PostHog retention denominator. We pick this call site (UI new-session
     // button) rather than `createSession` in the store because the store also
     // creates sessions for cloud-reconcile / fork / restore flows that aren't

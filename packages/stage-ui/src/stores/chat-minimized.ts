@@ -5,7 +5,7 @@ import { nanoid } from 'nanoid'
 import { storeToRefs } from 'pinia'
 import { ref, toRaw } from 'vue'
 
-import { useChatSessionStore } from './chat/session-store-minimized'
+import { useChatSession } from './chat/session-store-minimized'
 import { useChatStreamStore } from './chat/stream-store'
 import { useContextObservabilityStore } from './devtools/context-observability'
 import { useLLM } from './llm'
@@ -20,10 +20,10 @@ export function useChatOrchestratorStore() {
   const consciousnessStore = useConsciousnessStore()
   const { activeProvider } = storeToRefs(consciousnessStore)
 
-  const chatSession = useChatSessionStore()
+  const chatSession = useChatSession()
   const chatStream = useChatStreamStore()
   const contextObservability = useContextObservabilityStore()
-  const { activeSession, saveAllSessions } = chatSession
+  const { session, sessionId, sendMessage, setMessage } = chatSession
   const { streamingMessage } = storeToRefs(chatStream)
 
   const sending = ref(false)
@@ -37,7 +37,7 @@ export function useChatOrchestratorStore() {
   const runtime = createChatOrchestratorRuntimeMinimized({
     session: {
       ensureSession: () => {},
-      getSessionMessages: () => activeSession.value![1].messages.map(message => toRaw(message)),
+      getSessionMessages: () => session.value?.messages.map(message => toRaw(message)) ?? [],
       appendSessionMessage: (sessionId, message) => {
         chatSession.setMessage(sessionId, [message], true)
       },

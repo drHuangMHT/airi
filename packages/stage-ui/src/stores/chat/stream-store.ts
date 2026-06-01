@@ -4,10 +4,10 @@ import { nanoid } from 'nanoid'
 import { defineStore } from 'pinia'
 import { ref, toRaw } from 'vue'
 
-import { useChatSessionStore } from './session-store-minimized'
+import { useChatSession } from './session-store-minimized'
 
 export const useChatStreamStore = defineStore('chat-stream', () => {
-  const chatSession = useChatSessionStore()
+  const chatSession = useChatSession()
   const streamingMessage = ref<StreamingAssistantMessage>({ role: 'assistant', content: '', slices: [], tool_results: [], createdAt: Date.now() })
 
   function beginStream() {

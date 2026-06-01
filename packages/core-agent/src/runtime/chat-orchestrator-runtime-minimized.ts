@@ -227,6 +227,12 @@ function defaultCreateId() {
  * Returns:
  * - A runtime with send queue APIs, hook registry, writable sending state, and queue snapshots.
  */
+
+export class ChatOrchestratorBuilder{
+  private clock: () => number = () => Date.now()
+  private monotonicClock:
+}
+
 export function createChatOrchestratorRuntimeMinimized(deps: ChatOrchestratorRuntimeDeps): ChatOrchestratorRuntime {
   const hooks = createChatHooks()
   const now = deps.now ?? (() => Date.now())
