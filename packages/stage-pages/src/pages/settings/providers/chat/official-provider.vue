@@ -3,8 +3,8 @@ import {
   ProviderSettingsContainer,
   ProviderSettingsLayout,
 } from '@proj-airi/stage-ui/components'
+import { useProvidersStore } from '@proj-airi/stage-ui/stores'
 import { useAuthStore } from '@proj-airi/stage-ui/stores/auth'
-import { useProvidersStore } from '@proj-airi/stage-ui/stores/providers'
 import { Callout } from '@proj-airi/ui'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'

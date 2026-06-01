@@ -8,9 +8,9 @@ import {
   ProviderSettingsContainer,
   ProviderSettingsLayout,
 } from '@proj-airi/stage-ui/components'
-import { useProvidersStore } from '@proj-airi/stage-ui/stores/providers'
-import { streamWebSpeechAPITranscription } from '@proj-airi/stage-ui/stores/providers/web-speech-api'
+import { useProvidersStore } from '@proj-airi/stage-ui/stores'
 import { useSettingsAudioDevice } from '@proj-airi/stage-ui/stores/settings'
+import { streamWebSpeechAPITranscription } from '@proj-airi/stage-ui/stores/web-speech-api'
 import { Button, FieldCombobox } from '@proj-airi/ui'
 import { until } from '@vueuse/core'
 import { storeToRefs } from 'pinia'

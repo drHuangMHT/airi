@@ -5,9 +5,9 @@ import {
   SpeechPlayground,
 } from '@proj-airi/stage-ui/components'
 import { streamingSynthesize } from '@proj-airi/stage-ui/libs'
+import { useProvidersStore } from '@proj-airi/stage-ui/stores'
 import { useAuthStore } from '@proj-airi/stage-ui/stores/auth'
 import { useSpeechStore } from '@proj-airi/stage-ui/stores/modules/speech'
-import { useProvidersStore } from '@proj-airi/stage-ui/stores/providers'
 import { Callout, ComboboxSelect } from '@proj-airi/ui'
 import { storeToRefs } from 'pinia'
 import { computed, onMounted, ref, watch } from 'vue'
