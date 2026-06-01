@@ -3,7 +3,7 @@ import { defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
 
 import { useAuthStore } from './auth'
-import { useProvidersStore } from './providers'
+import { useProvidersStore } from './index'
 
 const essentialProviderIds = ['openai', 'azure-openai', 'anthropic', 'google-generative-ai', 'openrouter-ai', 'ollama', 'deepseek', 'openai-compatible', 'official-provider'] as const
 const credentialBasedEssentialProviderIds = ['openai', 'azure-openai', 'anthropic', 'google-generative-ai', 'openrouter-ai', 'deepseek'] as const
@@ -25,7 +25,7 @@ export const useOnboardingStore = defineStore('onboarding', () => {
 
   // Check if any essential provider is configured
   const hasEssentialProviderConfigured = computed(() => {
-    return essentialProviderIds.some(providerId => providersStore.configuredProviders[providerId])
+    return essentialProviderIds.some(providerId => providersStore.configuredProviders.includes(providerId))
   })
 
   // Fallback for app startup timing:

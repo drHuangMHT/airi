@@ -3,10 +3,10 @@ import workletUrl from '@proj-airi/stage-ui/workers/vad/process.worklet?worker&u
 
 import { Alert, ErrorContainer, LevelMeter, RadioCardManySelect, RadioCardSimple, TestDummyMarker, ThresholdMeter, TimeSeriesChart } from '@proj-airi/stage-ui/components'
 import { useAnalytics, useAudioAnalyzer, useAudioRecorder } from '@proj-airi/stage-ui/composables'
+import { useProvidersStore } from '@proj-airi/stage-ui/stores'
 import { useVAD } from '@proj-airi/stage-ui/stores/ai/models/vad'
 import { useAudioContext } from '@proj-airi/stage-ui/stores/audio'
 import { CONFIDENCE_THRESHOLD_DISABLED, useHearingSpeechInputPipeline, useHearingStore } from '@proj-airi/stage-ui/stores/modules/hearing'
-import { useProvidersStore } from '@proj-airi/stage-ui/stores/providers'
 import { useSettingsAudioDevice } from '@proj-airi/stage-ui/stores/settings'
 import { Button, FieldCheckbox, FieldCombobox, FieldInput, FieldRange } from '@proj-airi/ui'
 import { until } from '@vueuse/core'

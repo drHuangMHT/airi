@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useProvidersStore } from '@proj-airi/stage-ui/stores/providers'
+import { useProvidersStore } from '@proj-airi/stage-ui/stores'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterView, useRoute } from 'vue-router'
@@ -32,8 +32,8 @@ const providerTitle = computed(() => {
     return undefined
 
   try {
-    const metadata = providersStore.getProviderMetadata(providerId)
-    return t(metadata.nameKey)
+    const metadata = providersStore.addedProviders[providerId]
+    return t(metadata.i18nNameKey)
   }
   catch {
     return undefined

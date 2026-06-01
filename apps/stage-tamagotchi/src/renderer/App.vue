@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import { useElectronEventaContext, useElectronEventaInvoke } from '@proj-airi/electron-vueuse'
 import { themeColorFromValue, useThemeColor } from '@proj-airi/stage-layouts/composables/theme-color'
-import { artistrySyncConfig } from '@proj-airi/stage-shared'
+import { artistrySyncConfig, IS_DEV } from '@proj-airi/stage-shared'
 import { ToasterRoot } from '@proj-airi/stage-ui/components'
 import { useInferencePreload } from '@proj-airi/stage-ui/composables'
 import { useSharedAnalyticsStore } from '@proj-airi/stage-ui/stores/analytics'
 import { useDisplayModelsStore } from '@proj-airi/stage-ui/stores/display-models'
-import { useContextBridgeStore } from '@proj-airi/stage-ui/stores/mods/api/context-bridge'
 import { useArtistryStore } from '@proj-airi/stage-ui/stores/modules/artistry'
 import { usePerfTracerBridgeStore } from '@proj-airi/stage-ui/stores/perf-tracer-bridge'
 import { useSettings, useSettingsAudioDevice } from '@proj-airi/stage-ui/stores/settings'
@@ -30,14 +29,12 @@ import { initializeElectronAuthCallbackBridge } from './bridges/electron-auth-ca
 import { initializeStageThreeRuntimeTraceBridge } from './bridges/stage-three-runtime-trace'
 import { useSetupPluginHost } from './composables/setup-plugin-host'
 import { useLanguage } from './composables/use-language'
-import { createChatSyncWindowLifecycle } from './stores/chat-sync-lifecycle'
 import { useTamagotchiMcpToolsStore } from './stores/mcp-tools'
 import { useTamagotchiPluginToolsStore } from './stores/plugin-tools'
 import { useServerChannelSettingsStore } from './stores/settings/server-channel'
 import { useStageWindowLifecycleStore } from './stores/stage-window-lifecycle'
 
 const { isDark: dark } = useTheme()
-const contextBridgeStore = useContextBridgeStore()
 const displayModelsStore = useDisplayModelsStore()
 const settingsStore = useSettings()
 const { language, themeColorsHue, themeColorsHueDynamic } = storeToRefs(settingsStore)
@@ -62,10 +59,7 @@ const getMainLocale = useElectronEventaInvoke(i18nGetLocale)
 const setLocale = useElectronEventaInvoke(i18nSetLocale)
 const getGodotStageStatus = useElectronEventaInvoke(electronGodotStageGetStatus)
 const syncArtistryConfig = useElectronEventaInvoke(artistrySyncConfig)
-const chatSyncLifecycle = createChatSyncWindowLifecycle(route.path)
-const isChatWindowRoute = () => route.path === '/chat'
 const isGodotStageRoute = () => route.path === '/' || route.path.startsWith('/settings')
-const isWidgetsWindowRoute = () => route.path === '/widgets'
 const { onMountedHooks: pluginHostMountedHooks } = useSetupPluginHost()
 
 function syncGodotStageRenderer(state: { state: 'stopped' | 'starting' | 'running' | 'stopping' | 'error' }) {
@@ -77,10 +71,6 @@ function syncGodotStageRenderer(state: { state: 'stopped' | 'starting' | 'runnin
   if ((state.state === 'stopped' || state.state === 'error') && settingsStore.stageModelRenderer === 'godot')
     settingsStore.restoreBuiltInStageModelRenderer()
 }
-
-watch(() => route.path, () => {
-  contextBridgeStore.setSparkNotifyHostRole(isWidgetsWindowRoute() ? 'client' : 'main')
-}, { immediate: true })
 
 // NOTICE: Runtime tool stores must register during setup so renderer consumers can see them
 // before `onMounted()` finishes the rest of the startup flow.
@@ -127,8 +117,6 @@ context.value.on(electronGodotStageStatusChanged, (event) => {
 })
 
 onMounted(async () => {
-  chatSyncLifecycle.initialize()
-
   // NOTICE: Issue #1658
   // When Electron restarts, renderer localStorage may not be flushed to disk.
   // The store's onMounted hook falls back to navigator.language, which triggers
@@ -137,7 +125,8 @@ onMounted(async () => {
   // https://github.com/moeru-ai/airi/issues/1658
   await restoreLocale()
 
-  analyticsStore.initialize()
+  if (!IS_DEV)
+    analyticsStore.initialize()
   await displayModelsStore.initialize()
 
   // await chatSessionStore.initialize()
@@ -163,10 +152,6 @@ onMounted(async () => {
   inferencePreload.triggerPreload()
 })
 
-onUnmounted(() => {
-  chatSyncLifecycle.dispose()
-})
-
 watch(themeColorsHue, () => {
   document.documentElement.style.setProperty('--chromatic-hue', themeColorsHue.value.toString())
 }, { immediate: true })
@@ -176,9 +161,6 @@ watch(themeColorsHueDynamic, () => {
 }, { immediate: true })
 
 onUnmounted(() => {
-  if (!isChatWindowRoute()) {
-    contextBridgeStore.dispose()
-  }
   mcpToolsStore.dispose()
   pluginToolsStore.dispose()
 })

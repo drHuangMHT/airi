@@ -185,8 +185,8 @@ export interface ProviderDefinition<TConfig extends any = any> {
   extraMethods?: ProviderExtraMethods<TConfig>
   validationRequiredWhen?: (config: TConfig) => boolean
   validators?: {
-    validateConfig?: Array<(contextOptions: { t: ComposerTranslation }) => ProviderConfigValidator<TConfig>>
-    validateProvider?: Array<(contextOptions: { t: ComposerTranslation }) => ProviderRuntimeValidator<TConfig>>
+    validateConfig?: Array<() => ProviderConfigValidator<TConfig>>
+    validateProvider?: Array<() => ProviderRuntimeValidator<TConfig>>
   }
   capabilities?: {
     transcription?: {

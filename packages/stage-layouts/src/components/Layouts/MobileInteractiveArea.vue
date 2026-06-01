@@ -6,14 +6,13 @@ import { useThreeViewControl } from '@proj-airi/stage-ui-three'
 import { ChatHistory, HearingConfigDialog } from '@proj-airi/stage-ui/components'
 import { ChatSessionsDrawer } from '@proj-airi/stage-ui/components/scenarios/chat'
 import { useAudioAnalyzer } from '@proj-airi/stage-ui/composables'
+import { useProvidersStore } from '@proj-airi/stage-ui/stores'
 import { useAudioContext } from '@proj-airi/stage-ui/stores/audio'
 import { useChatOrchestratorStore } from '@proj-airi/stage-ui/stores/chat-minimized'
-import { useChatMaintenanceStore } from '@proj-airi/stage-ui/stores/chat/maintenance'
 import { useChatSessionStore } from '@proj-airi/stage-ui/stores/chat/session-store-minimized'
 import { useChatStreamStore } from '@proj-airi/stage-ui/stores/chat/stream-store'
 import { useL2dViewControl } from '@proj-airi/stage-ui/stores/live2d'
 import { useConsciousnessStore } from '@proj-airi/stage-ui/stores/modules/consciousness'
-import { useProvidersStore } from '@proj-airi/stage-ui/stores/providers'
 import { useSettings, useSettingsAudioDevice } from '@proj-airi/stage-ui/stores/settings'
 import { BasicTextarea, useTheme } from '@proj-airi/ui'
 import { useResizeObserver, useScreenSafeArea } from '@vueuse/core'
@@ -33,11 +32,10 @@ const { isDark, toggleDark } = useTheme()
 const chatOrchestrator = useChatOrchestratorStore()
 const chatSession = useChatSessionStore()
 const chatStream = useChatStreamStore()
-const { cleanupMessages } = useChatMaintenanceStore()
-const { activeSession } = chatSession
+const { activeSession, activeSessionId } = chatSession
 const { streamingMessage } = storeToRefs(chatStream)
 const { sending } = chatOrchestrator
-const historyMessages = computed(() => activeSession?.value?.[1].messages ?? [])
+const historyMessages = computed(() => activeSession?.value?.messages ?? [])
 
 const messageInput = ref('')
 const isComposing = ref(false)
@@ -94,7 +92,7 @@ async function handleSend() {
       chatProvider: await providersStore.getProviderInstance(activeProvider.value) as ChatProvider,
       model: activeModel.value,
       providerConfig,
-    })
+    }, activeSessionId.value)
   }
   catch (e) {
     console.error(e)
@@ -221,7 +219,6 @@ onMounted(() => {
             bg="neutral-50/70 dark:neutral-800/70"
             w-fit flex items-center self-end justify-center rounded-xl p-2 backdrop-blur-md
             title="Cleanup Messages"
-            @click="cleanupMessages()"
           >
             <div class="i-solar:trash-bin-2-bold-duotone" />
           </button>

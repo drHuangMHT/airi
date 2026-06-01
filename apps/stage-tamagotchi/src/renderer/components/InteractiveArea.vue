@@ -33,7 +33,7 @@ const backgroundStore = useBackgroundStore()
 const journalPreviewStore = useJournalPreviewStore()
 const airiCardStore = useAiriCardStore()
 const { ingest } = chatOrchestrator
-const { activeSession } = chatSession
+const { activeSession, activeSessionId } = chatSession
 const { streamingMessage } = storeToRefs(chatStream)
 const { activeCardId } = storeToRefs(airiCardStore)
 const { t } = useI18n()
@@ -87,6 +87,7 @@ async function handleSend() {
     await ingest(
       textToSend,
       { chatProvider: await providersStore.getProviderInstance(activeProvider.value), model: activeModel.value, providerConfig },
+      activeSessionId.value,
     )
 
     attachmentsToSend.forEach(att => URL.revokeObjectURL(att.url))
@@ -184,7 +185,7 @@ watch(sendMode, () => {
   lastEnterTime.value = 0
 })
 
-const historyMessages = computed(() => activeSession.value?.[1].messages ?? [])
+const historyMessages = computed(() => activeSession.value?.messages ?? [])
 
 onMounted(() => {
   backgroundStore.initializeStore()
@@ -214,7 +215,7 @@ onMounted(() => {
         @click="openImagePreview(entry)"
       >
         <img :src="entry.url || ''" class="h-full w-full object-cover">
-        <div :class="['absolute inset-0 flex items-end p-1', 'bg-gradient-to-t from-black/60 to-transparent']">
+        <div :class="['absolute inset-0 flex items-end p-1', 'bg-linear-to-t from-black/60 to-transparent']">
           <span class="truncate text-[8px] text-white font-medium">{{ entry.title }}</span>
         </div>
 
@@ -255,8 +256,8 @@ onMounted(() => {
         <DropdownMenuTrigger as-child>
           <button
             :class="[
-              'max-h-[10lh] min-h-[1lh] flex items-center justify-center rounded-md p-2 outline-none',
-              'transition-colors transition-transform active:scale-95',
+              'max-h-[10lh] min-h-lh flex items-center justify-center rounded-md p-2 outline-none',
+              'transition-transform active:scale-95',
             ]"
             bg="neutral-100 dark:neutral-800"
             text="lg neutral-500 dark:neutral-400"
@@ -301,7 +302,7 @@ onMounted(() => {
 
       <button
         :class="[
-          'max-h-[10lh] min-h-[1lh]',
+          'max-h-[10lh] min-h-lh',
         ]"
         bg="neutral-100 dark:neutral-800"
         text="lg neutral-500 dark:neutral-400"
@@ -314,7 +315,7 @@ onMounted(() => {
 
       <!-- Image Journal Deep Link -->
       <button
-        class="max-h-[10lh] min-h-[1lh]"
+        class="min-h-lh max-h-[10lh]"
         bg="neutral-100 dark:neutral-800"
         text="lg neutral-500 dark:neutral-400"
         hover:text="primary-500 dark:primary-400"
@@ -328,7 +329,7 @@ onMounted(() => {
 
       <!-- Attach Image -->
       <button
-        class="max-h-[10lh] min-h-[1lh]"
+        class="min-h-lh max-h-[10lh]"
         bg="neutral-100 dark:neutral-800"
         text="lg neutral-500 dark:neutral-400"
         hover:text="primary-500 dark:primary-400"

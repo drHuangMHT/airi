@@ -70,7 +70,6 @@ export async function getValues(dbName: string, storeName: string, keys: IDBVali
     const transaction = db.transaction([storeName], 'readonly')
     const store = transaction.objectStore(storeName)
 
-    // 为每个键发起 get 请求，返回 Promise 数组
     const promises = keys.map((key: IDBValidKey) => {
       return new Promise((resolve, reject) => {
         const request = store.get(key)
@@ -78,11 +77,84 @@ export async function getValues(dbName: string, storeName: string, keys: IDBVali
         request.onerror = () => reject(new Error(`Failed to get key "${key}": ${request.error?.message}`))
       })
     })
-
-    // 并行执行所有读取，结果顺序与 keys 一致
     return await Promise.all(promises)
   }
   finally {
-    db.close() // 确保数据库连接被关闭
+    db.close()
+  }
+}
+
+/**
+ * Deletes a key from an IndexedDB object store.
+ * @param dbName - Name of the database.
+ * @param storeName - Name of the object store.
+ * @param key - The key to delete (must be a valid IndexedDB key).
+ * @returns `true` if the key existed and was successfully deleted, otherwise `false`.
+ */
+export async function deleteIndexedDBKey(
+  dbName: string,
+  storeName: string,
+  key: IDBValidKey,
+): Promise<boolean> {
+  // Check if the database exists (avoid auto-creating a new database)
+  let dbExists = false
+  try {
+    const databases = await indexedDB.databases()
+    dbExists = databases.some(db => db.name === dbName)
+  }
+  catch {
+    // If indexedDB.databases() fails (unlikely in modern browsers), fall back to safe open
+    return false
+  }
+  if (!dbExists)
+    return false
+
+  // Helper to open the existing database
+  const openDB = (): Promise<IDBDatabase> =>
+    new Promise((resolve, reject) => {
+      const request = indexedDB.open(dbName)
+      request.onerror = () => reject(request.error)
+      request.onsuccess = () => resolve(request.result)
+      // If an upgrade is triggered (should not happen for existing DB without version change), reject
+      request.onupgradeneeded = () => reject(new Error('Unexpected upgrade needed'))
+    })
+
+  let db: IDBDatabase | null = null
+  try {
+    db = await openDB()
+
+    // Verify the object store exists
+    if (!db.objectStoreNames.contains(storeName))
+      return false
+
+    // Perform get + delete inside a readwrite transaction
+    const deleted = await new Promise<boolean>((resolve, reject) => {
+      const transaction = db!.transaction(storeName, 'readwrite')
+      const store = transaction.objectStore(storeName)
+      const getRequest = store.get(key)
+
+      getRequest.onsuccess = () => {
+        const exists = getRequest.result !== undefined
+        if (!exists) {
+          resolve(false)
+          return
+        }
+        const deleteRequest = store.delete(key)
+        deleteRequest.onsuccess = () => resolve(true)
+        deleteRequest.onerror = () => reject(deleteRequest.error)
+      }
+      getRequest.onerror = () => reject(getRequest.error)
+      transaction.onerror = () => reject(transaction.error)
+      transaction.onabort = () => reject(new Error('Transaction aborted'))
+    })
+
+    return deleted
+  }
+  catch {
+    // Any error (DB open fails, store missing, transaction failure, etc.) returns false
+    return false
+  }
+  finally {
+    db?.close()
   }
 }

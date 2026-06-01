@@ -5,12 +5,12 @@ import type { AiriExtension } from '@proj-airi/stage-ui/stores/modules/airi-card
 import kebabcase from '@stdlib/string-base-kebabcase'
 
 import { DEFAULT_ARTISTRY_WIDGET_INSTRUCTION } from '@proj-airi/stage-ui/constants/prompts/artistry-instruction'
+import { useProvidersStore } from '@proj-airi/stage-ui/stores'
 import { useDisplayModelsStore } from '@proj-airi/stage-ui/stores/display-models'
 import { useAiriCardStore } from '@proj-airi/stage-ui/stores/modules/airi-card'
 import { useArtistryStore } from '@proj-airi/stage-ui/stores/modules/artistry'
 import { useConsciousnessStore } from '@proj-airi/stage-ui/stores/modules/consciousness'
 import { useSpeechStore } from '@proj-airi/stage-ui/stores/modules/speech'
-import { useProvidersStore } from '@proj-airi/stage-ui/stores/providers'
 import { useSettingsStageModel } from '@proj-airi/stage-ui/stores/settings/stage-model'
 import { Button, FieldInput, FieldValues } from '@proj-airi/ui'
 import { ComboboxSelect } from '@proj-airi/ui/components/form'

@@ -9,14 +9,14 @@ import type {
   TranscriptionProviderWithExtraOptions,
 } from '@xsai-ext/providers/utils'
 import type { ProgressInfo } from '@xsai-transformers/shared/types'
-import type {
-  UnAlibabaCloudOptions,
-  UnDeepgramOptions,
-  UnElevenLabsOptions,
-  UnMicrosoftOptions,
-  UnVolcengineOptions,
-  VoiceProviderWithExtraOptions,
-} from 'unspeech'
+// import type {
+//   UnAlibabaCloudOptions,
+//   UnDeepgramOptions,
+//   UnElevenLabsOptions,
+//   UnMicrosoftOptions,
+//   UnVolcengineOptions,
+//   VoiceProviderWithExtraOptions,
+// } from 'unspeech'
 
 import type { ProviderOnboardingField } from '../libs/providers/types'
 import type { AliyunRealtimeSpeechExtraOptions } from './providers/aliyun/stream-transcription'
@@ -42,23 +42,21 @@ import {
   kokoroModelsToModelInfo,
 } from 'inference-transformers'
 import { defineStore } from 'pinia'
-import {
-  createUnAlibabaCloud,
-  createUnDeepgram,
-  createUnElevenLabs,
-  createUnMicrosoft,
-  createUnVolcengine,
-  listVoices,
-} from 'unspeech'
+// import {
+//   createUnAlibabaCloud,
+//   createUnDeepgram,
+//   createUnElevenLabs,
+//   createUnMicrosoft,
+//   createUnVolcengine,
+//   listVoices,
+// } from 'unspeech'
 import { computed, ref, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
 
 import { getKokoroAdapter } from '../libs/inference/adapters/kokoro'
 import { getProviderValidationIntervalMs, listProviders as listDefinedProviders, ProviderValidationCheck } from '../libs/providers'
 import { useAuthStore } from './auth'
 import { createAliyunNLSProvider as createAliyunNlsStreamProvider } from './providers/aliyun/stream-transcription'
 import { convertProviderDefinitionsToMetadata } from './providers/converters'
-import { models as elevenLabsModels } from './providers/elevenlabs/list-models'
 import { buildOpenAICompatibleProvider } from './providers/openai-compatible-builder'
 import { buildOpenRouterAudioSpeechProvider } from './providers/openrouter/audio-speech'
 import { createWebSpeechAPIProvider } from './providers/web-speech-api'
@@ -221,7 +219,6 @@ export const useProvidersStore = defineStore('providers', () => {
   const providerCredentials = useLocalStorage<Record<string, Record<string, unknown>>>('settings/credentials/providers', {})
   const addedProviders = useLocalStorage<Record<string, boolean>>('settings/providers/added', {})
   const providerInstanceCache = ref<Record<string, unknown>>({})
-  const { t } = useI18n()
   const baseUrlValidator = computed(() => (baseUrl: unknown) => {
     let msg = ''
     if (!baseUrl) {
@@ -920,96 +917,7 @@ export const useProvidersStore = defineStore('providers', () => {
         },
       },
     },
-    'elevenlabs': {
-      id: 'elevenlabs',
-      category: 'speech',
-      tasks: ['text-to-speech'],
-      nameKey: 'settings.pages.providers.provider.elevenlabs.title',
-      name: 'ElevenLabs',
-      descriptionKey: 'settings.pages.providers.provider.elevenlabs.description',
-      description: 'elevenlabs.io',
-      icon: 'i-simple-icons:elevenlabs',
-      defaultOptions: () => ({
-        baseUrl: 'https://unspeech.hyp3r.link/v1/',
-        voiceSettings: {
-          similarityBoost: 0.75,
-          stability: 0.5,
-        },
-      }),
-      createProvider: async config => createUnElevenLabs((config.apiKey as string).trim(), (config.baseUrl as string).trim()) as SpeechProviderWithExtraOptions<string, UnElevenLabsOptions>,
-      capabilities: {
-        listModels: async () => {
-          return elevenLabsModels.map((model) => {
-            return {
-              id: model.model_id,
-              name: model.name,
-              provider: 'elevenlabs',
-              description: model.description,
-              contextLength: 0,
-              deprecated: false,
-            } satisfies ModelInfo
-          })
-        },
-        listVoices: async (config) => {
-          const provider = createUnElevenLabs((config.apiKey as string).trim(), (config.baseUrl as string).trim()) as VoiceProviderWithExtraOptions<UnElevenLabsOptions>
 
-          const voices = await listVoices({
-            ...provider.voice(),
-          })
-
-          if (!voices || !Array.isArray(voices)) {
-            return []
-          }
-
-          // Find indices of Aria and Bill
-          const ariaIndex = voices.findIndex(voice => voice.name.includes('Aria'))
-          const billIndex = voices.findIndex(voice => voice.name.includes('Bill'))
-
-          // Determine the range to move (ensure valid indices and proper order)
-          const startIndex = ariaIndex !== -1 ? ariaIndex : 0
-          const endIndex = billIndex !== -1 ? billIndex : voices.length - 1
-          const lowerIndex = Math.min(startIndex, endIndex)
-          const higherIndex = Math.max(startIndex, endIndex)
-
-          // Rearrange voices: voices outside the range first, then voices within the range
-          const rearrangedVoices = [
-            ...voices.slice(0, lowerIndex),
-            ...voices.slice(higherIndex + 1),
-            ...voices.slice(lowerIndex, higherIndex + 1),
-          ]
-
-          return rearrangedVoices.map((voice) => {
-            return {
-              id: voice.id,
-              name: voice.name,
-              provider: 'elevenlabs',
-              previewURL: voice.preview_audio_url,
-              languages: voice.languages,
-            }
-          })
-        },
-      },
-      validators: {
-        chatPingCheckAvailable: false,
-        validateProviderConfig: (config) => {
-          const errors = [
-            !config.apiKey && new Error('API key is required.'),
-            !config.baseUrl && new Error('Base URL is required.'),
-          ].filter(Boolean)
-
-          const res = baseUrlValidator.value(config.baseUrl)
-          if (res) {
-            return res
-          }
-
-          return {
-            errors,
-            reason: errors.filter(e => e).map(e => String(e)).join(', ') || '',
-            valid: !!config.apiKey && !!config.baseUrl,
-          }
-        },
-      },
-    },
     'deepgram-tts': {
       id: 'deepgram-tts',
       category: 'speech',
@@ -2249,7 +2157,7 @@ export const useProvidersStore = defineStore('providers', () => {
 
   const translatedProviderMetadata = convertProviderDefinitionsToMetadata(
     definedProviders,
-    t,
+    (i, j) => i,
     providerMetadata,
   )
 
@@ -2257,7 +2165,6 @@ export const useProvidersStore = defineStore('providers', () => {
   for (const definition of definedProviders) {
     const intervalMs = getProviderValidationIntervalMs({
       definition,
-      contextOptions: { t },
     })
     if (intervalMs && intervalMs > 0) {
       providerValidationIntervalMsById.set(definition.id, intervalMs)
@@ -2601,8 +2508,8 @@ export const useProvidersStore = defineStore('providers', () => {
 
     return {
       ...metadata,
-      localizedName: t(metadata.nameKey, metadata.name),
-      localizedDescription: t(metadata.descriptionKey, metadata.description),
+      localizedName: metadata.name,
+      localizedDescription: metadata.description,
     }
   }
 

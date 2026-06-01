@@ -179,7 +179,7 @@ export function createChatHooks(): ChatHookRegistry {
     onAssistantResponseEnd,
     onAssistantMessage,
     onChatTurnComplete,
-    emitBeforeMessageComposedHooks,
+    emitBeforeMessageComposeHooks: emitBeforeMessageComposedHooks,
     emitAfterMessageComposedHooks,
     emitBeforeSendHooks,
     emitAfterSendHooks,

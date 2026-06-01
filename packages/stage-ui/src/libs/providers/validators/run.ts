@@ -58,10 +58,9 @@ export function createProviderValidationSteps(providerValidators: ProviderRuntim
 
 export function getProviderValidationIntervalMs(options: {
   definition: ProviderDefinition
-  contextOptions: { t: ComposerTranslation }
   defaultIntervalMs?: number
 }) {
-  const validators = (options.definition.validators?.validateProvider || []).map(creator => creator(options.contextOptions))
+  const validators = (options.definition.validators?.validateProvider || []).map(validator => validator())
   const defaultIntervalMs = options.defaultIntervalMs ?? 15_000
   const intervals = validators
     .filter(validator => validator.schedule?.mode === 'interval')
@@ -78,12 +77,11 @@ export function getValidatorsOfProvider(options: {
   definition: ProviderDefinition
   config: Record<string, unknown>
   schemaDefaults: Record<string, unknown>
-  contextOptions: { t: ComposerTranslation }
 }): ProviderValidationPlan {
   const { definition } = options
 
-  const configValidators = (definition.validators?.validateConfig || []).map(creator => creator(options.contextOptions))
-  const allProviderValidators = (definition.validators?.validateProvider || []).map(creator => creator(options.contextOptions))
+  const configValidators = (definition.validators?.validateConfig || []).map(creator => creator())
+  const allProviderValidators = (definition.validators?.validateProvider || []).map(creator => creator())
 
   const providerValidators = allProviderValidators
 

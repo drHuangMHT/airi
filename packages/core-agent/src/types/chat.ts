@@ -1,27 +1,28 @@
 import type { ContextUpdate, MetadataEventSource, WebSocketEventInputs } from '@proj-airi/server-shared/types'
 import type { AssistantMessage, CommonContentPart, CompletionToolCall, Message, SystemMessage, ToolMessage, UserMessage } from '@xsai/shared-chat'
 
-export interface ChatSlicesText {
+/** Assistant text intend for user to read */
+export interface AssistantText {
   type: 'text'
   text: string
 }
-
-export interface ChatSlicesToolCall {
+/** A tool-call made by assistant */
+export interface ToolCallRequest {
   type: 'tool-call'
   toolCall: CompletionToolCall
 }
-
-export interface ChatSlicesToolCallResult {
+/** A result returned by the tool */
+export interface ToolCallResult {
   type: 'tool-call-result'
   id: string
   isError?: boolean
   result?: string | CommonContentPart[]
 }
 
-export type ChatSlices = ChatSlicesText | ChatSlicesToolCall | ChatSlicesToolCallResult
+export type MicroTurn = AssistantText | ToolCallRequest | ToolCallResult
 
 export interface ChatAssistantMessage extends AssistantMessage {
-  slices: ChatSlices[]
+  slices: MicroTurn[]
   tool_results: {
     id: string
     isError?: boolean
@@ -47,10 +48,10 @@ export interface ContextMessage extends ContextUpdate<Record<string, unknown>, u
   createdAt: number
 }
 
-export type ChatHistoryItem = (ChatMessage | ErrorMessage) & { context?: ContextMessage } & { createdAt?: number, id?: string }
+export type ChatHistoryItem = (ChatMessage | ErrorMessage) & { context?: ContextMessage } & { createdAt: number, id: string }
 
 export interface ChatStreamEventContext {
-  message: ChatHistoryItem
+  message: ChatHistoryItem | null
   contexts: Record<string, ContextMessage[]>
   composedMessage: Array<Message>
   input?: WebSocketEventInputs

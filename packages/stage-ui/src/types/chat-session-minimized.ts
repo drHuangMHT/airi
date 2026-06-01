@@ -3,7 +3,7 @@ import type { ChatHistoryItem } from './chat'
 export interface SessionMeta {
   sessionId: string
   userId: string
-  characterId: string
+  characterId?: string
   title?: string
   createdAt: number
   updatedAt: number

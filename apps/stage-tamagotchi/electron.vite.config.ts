@@ -8,7 +8,6 @@ import Info from 'unplugin-info/vite'
 import Yaml from 'unplugin-yaml/vite'
 import Inspect from 'vite-plugin-inspect'
 import VitePluginVueDevTools from 'vite-plugin-vue-devtools'
-import Layouts from 'vite-plugin-vue-layouts'
 import VueMacros from 'vue-macros/vite'
 import VueRouter from 'vue-router/vite'
 
@@ -229,20 +228,8 @@ export default defineConfig({
         ],
         exclude: ['**/components/**'],
       }),
-
       VitePluginVueDevTools(),
-
-      // https://github.com/JohnCampionJr/vite-plugin-vue-layouts
-      Layouts({
-        layoutsDirs: [
-          resolve(import.meta.dirname, 'src', 'renderer', 'layouts'),
-          resolve(import.meta.dirname, '..', '..', 'packages', 'stage-layouts', 'src', 'layouts'),
-        ],
-        pagesDirs: [resolve(import.meta.dirname, 'src', 'renderer', 'pages')],
-      }),
-
       UnoCss(),
-
       // https://github.com/intlify/bundle-tools/tree/main/packages/unplugin-vue-i18n
       VueI18n({
         runtimeOnly: true,

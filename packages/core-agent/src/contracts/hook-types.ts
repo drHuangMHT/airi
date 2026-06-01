@@ -13,7 +13,7 @@ export interface ChatHookRegistry {
   onAssistantResponseEnd: (cb: (message: string, context: ChatStreamEventContext) => Promise<void>) => () => void
   onAssistantMessage: (cb: (message: StreamingAssistantMessage, messageText: string, context: ChatStreamEventContext) => Promise<void>) => () => void
   onChatTurnComplete: (cb: (chat: { output: StreamingAssistantMessage, outputText: string, toolCalls: ToolMessage[] }, context: ChatStreamEventContext) => Promise<void>) => () => void
-  emitBeforeMessageComposedHooks: (message: string, context: Omit<ChatStreamEventContext, 'composedMessage'>) => Promise<void>
+  emitBeforeMessageComposeHooks: (message: string, context: Omit<ChatStreamEventContext, 'composedMessage'>) => Promise<void>
   emitAfterMessageComposedHooks: (message: string, context: ChatStreamEventContext) => Promise<void>
   emitBeforeSendHooks: (message: string, context: ChatStreamEventContext) => Promise<void>
   emitAfterSendHooks: (message: string, context: ChatStreamEventContext) => Promise<void>

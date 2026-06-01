@@ -8,13 +8,12 @@ import { animations } from '@proj-airi/stage-ui-three/assets/vrm'
 import { useDelayMessageQueue, useEmotionsMessageQueue } from '@proj-airi/stage-ui/composables/queues'
 import { llmInferenceEndToken } from '@proj-airi/stage-ui/constants'
 import { EMOTION_EmotionMotionName_value, EMOTION_VRMExpressionName_value, EmotionThinkMotionName } from '@proj-airi/stage-ui/constants/emotions'
+import { useProvidersStore } from '@proj-airi/stage-ui/stores'
 import { useAudioContext, useSpeakingStore } from '@proj-airi/stage-ui/stores/audio'
-import { useChatOrchestratorStore } from '@proj-airi/stage-ui/stores/chat'
-import { useChatMaintenanceStore } from '@proj-airi/stage-ui/stores/chat/maintenance'
+import { useChatOrchestratorStore } from '@proj-airi/stage-ui/stores/chat-minimized'
 import { useChatSessionStore } from '@proj-airi/stage-ui/stores/chat/session-store-minimized'
 import { useConsciousnessStore } from '@proj-airi/stage-ui/stores/modules/consciousness'
 import { useSpeechStore } from '@proj-airi/stage-ui/stores/modules/speech'
-import { useProvidersStore } from '@proj-airi/stage-ui/stores/providers'
 import { useSettings } from '@proj-airi/stage-ui/stores/settings'
 import { createQueue } from '@proj-airi/stream-kit'
 import { generateSpeech } from '@xsai/generate-speech'
@@ -78,10 +77,9 @@ const nowSpeaking = ref(false)
 const logLines = ref<string[]>([])
 const chatInput = ref('')
 const chatOrchestrator = useChatOrchestratorStore()
-const chatSession = useChatSessionStore()
-const chatMaintenance = useChatMaintenanceStore()
+const { activeSession } = useChatSessionStore()
 const chatMessages = computed(() => {
-  return chatSession.messages
+  return activeSession.value?.messages
     .filter(msg => msg.role !== 'system')
     .map((msg) => {
       const text = typeof msg.content === 'string'
@@ -219,7 +217,6 @@ async function sendChat() {
 }
 
 function resetChat() {
-  chatMaintenance.cleanupMessages()
   chatInput.value = ''
   logLines.value = []
   playbackManager.stopAll('reset')
@@ -296,11 +293,11 @@ onUnmounted(() => {
             <div class="text-[11px] text-neutral-500">
               {{ msg.role === 'user' ? 'User' : 'AIRI' }}
             </div>
-            <div class="whitespace-pre-wrap break-words text-sm">
+            <div class="wrap-break-words whitespace-pre-wrap text-sm">
               {{ msg.text }}
             </div>
           </div>
-          <div v-if="!chatMessages.length" class="text-sm text-neutral-500">
+          <div v-if="!chatMessages?.length" class="text-sm text-neutral-500">
             输入消息进行对话。
           </div>
         </div>

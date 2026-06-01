@@ -1,21 +1,6 @@
-// Message interface representing a chat message
-import type { ChatOrchestratorSendOptions, StreamOptions } from '@proj-airi/core-agent'
-import type { ChatProvider } from '@xsai-ext/providers/utils'
-import type { Message } from '@xsai/shared-chat'
-
-import { streamFrom as coreStreamFrom, createChatOrchestratorRuntime, modelKey as getModelKey } from '@proj-airi/core-agent'
-import { listModels } from '@xsai/model'
 import { nanoid } from 'nanoid'
-import { storeToRefs } from 'pinia'
-import { ref, toRaw } from 'vue'
 
-import { createMinecraftContext } from './chat/context-providers'
-import { useChatContextStore } from './chat/context-store'
-import { useChatSessionStore } from './chat/session-store'
-import { useChatStreamStore } from './chat/stream-store'
-import { useContextObservabilityStore } from './devtools/context-observability'
-import { useConsciousnessStore } from './modules'
-
+// Message interface representing a chat message
 export interface GenericMessage {
   id: string // unique message identifier
   participantId?: string
@@ -125,7 +110,7 @@ export class ChatRoom<M extends GenericMessage> {
   }
 
   private generateMessageId(): string {
-    return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+    return nanoid()
   }
 
   private checkParticipantPresence(id: string) {
@@ -222,127 +207,5 @@ export class Participant<M extends GenericMessage> {
     // In a real application, this could update UI, log to console, or store locally.
     // For demonstration, we simply log.
     console.info(`[${new Date(message.createdAt).toISOString()}] ${message.participantId}: ${message.content}`)
-  }
-}
-
-const room = new ChatRoom()
-const user = new Participant('user', 'user')
-const assistant = new Participant('assistant', 'assistant')
-
-assistant.join(room.joinTicket())
-user.join(room.joinTicket())
-
-export function useChatroomOrchestrator() {
-  const llm = useStreamingLLMResponse()
-  const consciousnessStore = useConsciousnessStore()
-  const { activeProvider } = storeToRefs(consciousnessStore)
-
-  const chatSession = useChatSessionStore()
-  const chatStream = useChatStreamStore()
-  const chatContext = useChatContextStore()
-  const contextObservability = useContextObservabilityStore()
-  const { activeSessionId } = storeToRefs(chatSession)
-  const { streamingMessage } = storeToRefs(chatStream)
-
-  const sending = ref(false)
-  const pendingQueuedSendCount = ref(0)
-
-  const runtime = createChatOrchestratorRuntime({
-    session: {
-      ensureSession: sessionId => chatSession.ensureSession(sessionId),
-      getSessionMessages: sessionId => chatSession.getSessionMessages(sessionId).map(message => toRaw(message)),
-      appendSessionMessage: (sessionId, message) => chatSession.appendSessionMessage(sessionId, message),
-      getSessionGeneration: sessionId => chatSession.getSessionGeneration(sessionId),
-    },
-    context: {
-      ingest: envelope => chatContext.ingestContextMessage(envelope),
-      snapshot: () => chatContext.getContextsSnapshot(),
-    },
-    foregroundStream: {
-      patch: (message) => {
-        streamingMessage.value = message
-      },
-      reset: () => {
-        streamingMessage.value = { role: 'assistant', content: '', slices: [], tool_results: [] }
-      },
-    },
-    llm: {
-      stream: llm.stream,
-    },
-    getActiveSessionId: () => activeSessionId.value,
-    getActiveProvider: () => activeProvider.value,
-    runtimeContextProviders: [
-      createMinecraftContext,
-    ],
-    createId: nanoid,
-    unwrapMessage: message => toRaw(message),
-    onStateChange: (state) => {
-      sending.value = state.sending
-      pendingQueuedSendCount.value = state.pendingQueuedSendCount
-    },
-    onLifecycle: record => contextObservability.recordLifecycle(record),
-    onPromptProjection: payload => contextObservability.capturePromptProjection(payload),
-  })
-
-  runtime.hooks.onChatTurnComplete(async (chat) => {
-    assistant.postMessage(chat.output.content as string)
-  })
-
-  function ingest(message: string, options: ChatOrchestratorSendOptions, targetSessionId?: string) {
-    runtime.ingest(message, options, targetSessionId)
-    user.postMessage(message)
-  }
-
-  return {
-    sending: false,
-    pendingQueuedSendCount: 0,
-
-    ingest,
-    cancelPendingSends: () => console.error('unimplemented: cancelPendingSends'),
-    getPendingQueuedSendSnapshot: () => [],
-  }
-}
-
-export function useStreamingLLMResponse() {
-  async function stream(model: string, chatProvider: ChatProvider, messages: Message[], options?: StreamOptions) {
-    const modelKey = getModelKey(model, chatProvider)
-
-    const runStream = () => coreStreamFrom({
-      model,
-      chatProvider,
-      messages,
-      options: {
-        ...options,
-      },
-      builtinToolsResolver: async () => [],
-    })
-
-    try {
-      console.info(`using model ${modelKey}`)
-      await runStream()
-    }
-    catch (err) {
-      console.warn(err)
-    }
-  }
-  async function models(apiUrl: string, apiKey: string) {
-    if (apiUrl === '')
-      return []
-
-    try {
-      return await listModels({
-        baseURL: (apiUrl.endsWith('/') ? apiUrl : `${apiUrl}/`) as `${string}/`,
-        apiKey,
-      })
-    }
-    catch (err) {
-      if (String(err).includes(`Failed to construct 'URL': Invalid URL`))
-        return []
-      throw err
-    }
-  }
-  return {
-    models,
-    stream,
   }
 }

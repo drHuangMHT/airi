@@ -11,8 +11,8 @@ import {
   VoiceCardManySelect,
 } from '@proj-airi/stage-ui/components'
 import { useAnalytics } from '@proj-airi/stage-ui/composables'
+import { useProvidersStore } from '@proj-airi/stage-ui/stores'
 import { useSpeechStore } from '@proj-airi/stage-ui/stores/modules/speech'
-import { useProvidersStore } from '@proj-airi/stage-ui/stores/providers'
 import {
   FieldCheckbox,
   FieldInput,

@@ -12,7 +12,7 @@ import { toXml } from 'xast-util-to-xml'
 import { x } from 'xastscript'
 
 import { setupOfficialSpeechAutoPick } from '../../libs/providers/providers/official'
-import { useProvidersStore } from '../providers'
+import { useProvidersStore } from '../index'
 
 export function toSignedPercent(value: number): string {
   if (value > 0)
@@ -24,7 +24,7 @@ export function toSignedPercent(value: number): string {
 
 export const useSpeechStore = defineStore('speech', () => {
   const providersStore = useProvidersStore()
-  const { allAudioSpeechProvidersMetadata } = storeToRefs(providersStore)
+  const { addedProviders, providerFactories } = storeToRefs(providersStore)
   const { locale } = useI18n()
 
   // State
@@ -42,11 +42,11 @@ export const useSpeechStore = defineStore('speech', () => {
   const modelSearchQuery = refManualReset<string>('')
 
   // Computed properties
-  const availableSpeechProvidersMetadata = computed(() => allAudioSpeechProvidersMetadata.value)
+  const availableSpeechProvidersMetadata = computed(() => addedProviders.value)
 
   // Computed properties
   const supportsModelListing = computed(() => {
-    return providersStore.getProviderMetadata(activeSpeechProvider.value)?.capabilities.listModels !== undefined
+    return providerFactories.value[activeSpeechProvider.value]?.capabilities.listModels !== undefined
   })
 
   const providerModels = computed(() => {
@@ -58,7 +58,7 @@ export const useSpeechStore = defineStore('speech', () => {
   })
 
   const activeProviderModelError = computed(() => {
-    return providersStore.modelLoadError[activeSpeechProvider.value] || null
+    return providersStore.providerRuntimeState[activeSpeechProvider.value].logEntry
   })
 
   const filteredModels = computed(() => {
@@ -92,7 +92,7 @@ export const useSpeechStore = defineStore('speech', () => {
     speechProviderError.value = null
 
     try {
-      const voices = await providersStore.getProviderMetadata(provider).capabilities.listVoices?.(providersStore.getProviderConfig(provider), model) || []
+      const voices = await providersStore.providerFactories[provider].capabilities.listVoices?.(providersStore.getProviderConfig(provider), model) || []
       // Reassign to trigger reactivity when adding/updating provider entries
       availableVoices.value = {
         ...availableVoices.value,
@@ -131,7 +131,7 @@ export const useSpeechStore = defineStore('speech', () => {
   }
 
   watch(
-    () => providersStore.configuredSpeechProvidersMetadata.map(provider => provider.id),
+    () => Object.entries(providersStore.addedProviders).map(([id, _]) => id),
     (configuredProviderIds) => {
       if (!activeSpeechProvider.value || activeSpeechProvider.value === 'speech-noop')
         return

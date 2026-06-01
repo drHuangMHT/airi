@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { Alert, ErrorContainer, RadioCardManySelect, RadioCardSimple } from '@proj-airi/stage-ui/components'
 import { useAnalytics } from '@proj-airi/stage-ui/composables'
+import { useProvidersStore } from '@proj-airi/stage-ui/stores'
 import { useVisionProcessingStore, useVisionStore } from '@proj-airi/stage-ui/stores/modules/vision'
-import { useProvidersStore } from '@proj-airi/stage-ui/stores/providers'
 import { FieldCheckbox, FieldRange } from '@proj-airi/ui'
 import { storeToRefs } from 'pinia'
 import { computed, watch } from 'vue'

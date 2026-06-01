@@ -2,6 +2,15 @@ import type { SessionRecord, UserSessionIndex } from '../../types/chat-session-m
 
 import { storage } from '../storage'
 
+/**
+ * A aggregated interface for getting and setting chat sessions.
+ * Uses IndexedDB under the hood.
+ *
+ * Electron specific: Windows of the same application will share
+ * localStorage and IndexedDB, but not sessionStorage. Can be controlled
+ * using `partition` option when creating the window. By default,
+ * changes are synced between windows so no manual sync is required.
+ */
 export const chatSessionsRepo = {
   async getIndex(userId: string) {
     const key = `local:chat/index/${userId}`

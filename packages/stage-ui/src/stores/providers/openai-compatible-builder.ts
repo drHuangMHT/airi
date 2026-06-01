@@ -1,10 +1,11 @@
-import type { ModelInfo, ProviderMetadata } from '../providers'
+import type { ModelInfo, ProviderFactory, ProviderMetadata } from '../providers-minimized'
 
 import { generateText } from '@xsai/generate-text'
 import { listModels } from '@xsai/model'
 import { message } from '@xsai/utils-chat'
 
 import { ProviderValidationCheck } from '../../libs/providers'
+import { Task } from '../providers-minimized'
 
 type ProviderCreator = (apiKey: string, baseUrl: string) => any
 
@@ -36,22 +37,9 @@ function logWarn(...args: unknown[]) {
 }
 
 export function buildOpenAICompatibleProvider(
-  options: Partial<ProviderMetadata> & {
+  overrides: Partial<ProviderMetadata & ProviderFactory> & {
     id: string
-    name: string
-    icon: string
-    description: string
-    nameKey: string
-    descriptionKey: string
-    category?: 'chat' | 'embed' | 'speech' | 'transcription'
-    tasks?: string[]
-    defaultBaseUrl?: string
-    creator: ProviderCreator
-    capabilities?: ProviderMetadata['capabilities']
-    validators?: ProviderMetadata['validators']
-    validation?: ProviderValidationCheck[]
-    additionalHeaders?: Record<string, string>
-    transcriptionFeatures?: ProviderMetadata['transcriptionFeatures']
+    create: ProviderCreator
   },
 ): ProviderMetadata {
   const {
@@ -59,19 +47,19 @@ export function buildOpenAICompatibleProvider(
     name,
     icon,
     description,
-    nameKey,
-    descriptionKey,
+    startupValidations,
     category,
     tasks,
-    defaultBaseUrl,
-    creator,
+    i18nNameKey,
+    defaultOptions,
     capabilities,
     validators,
-    validation,
+    i18nDescriptionKey,
     additionalHeaders,
     transcriptionFeatures,
+    create,
     ...rest
-  } = options
+  } = overrides
 
   const defaultCapabilities = {
     listModels: async (config: Record<string, unknown>) => {
@@ -84,7 +72,7 @@ export function buildOpenAICompatibleProvider(
         return []
       }
 
-      const provider = await creator(apiKey, baseUrl)
+      const provider = await create(apiKey, baseUrl)
       // Check provider.model exists and is a function
       if (!provider || typeof provider.model !== 'function') {
         return []
@@ -101,7 +89,7 @@ export function buildOpenAICompatibleProvider(
         return {
           id: model.id,
           name: model.name || model.display_name || model.id,
-          provider: id,
+          providerId: id,
           description: model.description || '',
           contextLength: model.context_length || 0,
           deprecated: false,
@@ -122,14 +110,10 @@ export function buildOpenAICompatibleProvider(
       let baseUrl = normalizeString(config.baseUrl)
       const apiKey = normalizeString(config.apiKey)
 
-      if (!apiKey) {
+      if (!apiKey)
         errors.push(new Error('API Key is required'))
-      }
-
-      if (!baseUrl) {
+      if (!baseUrl)
         errors.push(new Error('Base URL is required'))
-      }
-
       try {
         if (new URL(baseUrl).host.length === 0) {
           errors.push(new Error('Base URL is not absolute. Check your input.'))
@@ -150,7 +134,7 @@ export function buildOpenAICompatibleProvider(
         }
       }
 
-      const validationChecks = validation || []
+      const validationChecks = startupValidations || []
       const hasApiKey = Boolean(apiKey)
       // Prepare model auto-detection promise for checks that need it
       const modelPromise = (async () => {
@@ -258,19 +242,17 @@ export function buildOpenAICompatibleProvider(
   return {
     id,
     category: resolvedCategory,
-    tasks: tasks || ['text-generation'],
-    nameKey,
+    tasks: tasks || [Task.GEN_TEXT],
     name,
-    descriptionKey,
+    i18nNameKey,
     description,
+    i18nDescriptionKey,
     icon,
-    defaultOptions: () => ({
-      baseUrl: defaultBaseUrl || '',
-    }),
+    defaultOptions,
     createProvider: async (config: { apiKey: string, baseUrl: string }) => {
       const apiKey = normalizeString(config.apiKey)
       const baseUrl = normalizeBaseUrl(config.baseUrl)
-      return creator(apiKey, baseUrl)
+      return create(apiKey, baseUrl)
     },
     capabilities: finalCapabilities,
     validators: finalValidators,

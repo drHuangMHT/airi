@@ -23,6 +23,7 @@ export type {
   QueuedSendSnapshot,
 } from './runtime/chat-orchestrator-runtime'
 export { createChatOrchestratorRuntime } from './runtime/chat-orchestrator-runtime'
+export { createChatOrchestratorRuntimeMinimized } from './runtime/chat-orchestrator-runtime-minimized'
 export type { ContextHistoryEntry, ContextIngestResult, ContextRegistry } from './runtime/context-registry'
 export { createContextRegistry } from './runtime/context-registry'
 export { useLlmmarkerParser } from './runtime/llm-marker-parser'
@@ -49,10 +50,10 @@ export type {
   ChatAssistantMessage,
   ChatHistoryItem,
   ChatMessage,
-  ChatSlices,
-  ChatSlicesText,
-  ChatSlicesToolCall,
-  ChatSlicesToolCallResult,
+  MicroTurn as ChatSlices,
+  AssistantText as ChatSlicesText,
+  ToolCallRequest as ChatSlicesToolCall,
+  ToolCallResult as ChatSlicesToolCallResult,
   ChatStreamEvent,
   ChatStreamEventContext,
   ContextMessage,

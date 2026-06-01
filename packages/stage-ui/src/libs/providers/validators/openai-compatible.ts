@@ -202,9 +202,9 @@ export function createOpenAICompatibleValidators<TConfig extends { apiKey?: stri
     validateProvider: [],
   }
 
-  validatorConfig.validateConfig?.push(({ t }) => ({
+  validatorConfig.validateConfig?.push(() => ({
     id: 'openai-compatible:check-config',
-    name: t('settings.pages.providers.catalog.edit.validators.openai-compatible.check-config.title'),
+    name: 'settings.pages.providers.catalog.edit.validators.openai-compatible.check-config.title',
     validator: async (config) => {
       const errors: Array<{ error: unknown }> = []
       const apiKey = typeof config.apiKey === 'string' ? config.apiKey.trim() : ''
@@ -236,9 +236,9 @@ export function createOpenAICompatibleValidators<TConfig extends { apiKey?: stri
   }))
 
   if (checks.includes(ProviderValidationCheck.Connectivity)) {
-    validatorConfig.validateProvider?.push(({ t }) => ({
+    validatorConfig.validateProvider?.push(() => ({
       id: 'openai-compatible:check-connectivity',
-      name: t('settings.pages.providers.catalog.edit.validators.openai-compatible.check-connectivity.title'),
+      name: 'settings.pages.providers.catalog.edit.validators.openai-compatible.check-connectivity.title',
       schedule: options?.schedule,
       validator: async (config) => {
         const errors: Array<{ error: unknown }> = []
@@ -287,9 +287,9 @@ export function createOpenAICompatibleValidators<TConfig extends { apiKey?: stri
   }
 
   if (checks.includes(ProviderValidationCheck.ChatCompletions)) {
-    validatorConfig.validateProvider?.push(({ t }) => ({
+    validatorConfig.validateProvider?.push(() => ({
       id: 'openai-compatible:check-chat-completions',
-      name: t('settings.pages.providers.catalog.edit.validators.openai-compatible.check-supports-chat-completion.title'),
+      name: 'settings.pages.providers.catalog.edit.validators.openai-compatible.check-supports-chat-completion.title',
       schedule: options?.schedule,
       validator: async (config, provider, providerExtra, contextOptions) => {
         const errors: Array<{ error: unknown }> = []
@@ -314,9 +314,9 @@ export function createOpenAICompatibleValidators<TConfig extends { apiKey?: stri
   }
 
   if (checks.includes(ProviderValidationCheck.ModelList)) {
-    validatorConfig.validateProvider?.push(({ t }) => ({
+    validatorConfig.validateProvider?.push(() => ({
       id: 'openai-compatible:check-model-list',
-      name: t('settings.pages.providers.catalog.edit.validators.openai-compatible.check-supports-model-listing.title'),
+      name: 'settings.pages.providers.catalog.edit.validators.openai-compatible.check-supports-model-listing.title',
       schedule: options?.schedule,
       validator: async (config, provider, providerExtra) => {
         const errors: Array<{ error: unknown }> = []

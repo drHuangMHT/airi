@@ -228,7 +228,7 @@ watch(modelSettingsRuntimeChannelEvent, (event) => {
 })
 
 onMounted(() => {
-  if (onboardingStore.needsOnboarding) {
+  if (onboardingStore.needsOnboarding && !IS_DEV) { // temporary disable onboarding for dev environment
     openOnboarding()
   }
 })

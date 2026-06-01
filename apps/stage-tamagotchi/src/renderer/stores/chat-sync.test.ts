@@ -111,7 +111,7 @@ vi.mock('@proj-airi/stage-ui/stores/chat/maintenance', () => ({
   }),
 }))
 
-vi.mock('@proj-airi/stage-ui/stores/providers', () => ({
+vi.mock('@proj-airi/stage-ui/stores', () => ({
   useProvidersStore: () => ({
     getProviderInstance: vi.fn(async () => ({ id: 'provider' })),
   }),

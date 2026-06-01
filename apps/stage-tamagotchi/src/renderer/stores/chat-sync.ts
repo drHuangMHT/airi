@@ -4,12 +4,13 @@ import type { ChatSessionMeta } from '@proj-airi/stage-ui/types/chat-session'
 import type { ChatProvider } from '@xsai-ext/providers/utils'
 
 import { errorMessageFrom } from '@moeru/std'
-import { useChatOrchestratorStore } from '@proj-airi/stage-ui/stores/chat'
-import { useChatMaintenanceStore } from '@proj-airi/stage-ui/stores/chat/maintenance'
-import { useChatSessionStore } from '@proj-airi/stage-ui/stores/chat/session-store'
+import { useProvidersStore } from '@proj-airi/stage-ui/stores'
+import { useChatOrchestratorStore } from '@proj-airi/stage-ui/stores/chat-minimized'
+import { useChatSessionStore } from '@proj-airi/stage-ui/stores/chat/session-store-minimized'
 import { useChatStreamStore } from '@proj-airi/stage-ui/stores/chat/stream-store'
 import { useConsciousnessStore } from '@proj-airi/stage-ui/stores/modules/consciousness'
-import { useProvidersStore } from '@proj-airi/stage-ui/stores/providers'
+import { cloneDeep } from 'es-toolkit'
+import { nanoid } from 'nanoid'
 import { defineStore, storeToRefs } from 'pinia'
 import { ref, watch } from 'vue'
 
@@ -158,20 +159,17 @@ function logChatSyncError(message: string, error: unknown, details: Record<strin
 }
 
 export const useChatSyncStore = defineStore('stage-tamagotchi:chat-sync', () => {
-  const instanceId = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`
+  const instanceId = nanoid()
   const mode = ref<ChatSyncMode>('inactive')
   const authorityId = ref<string | null>(null)
 
-  const chatSession = useChatSessionStore()
   const chatStream = useChatStreamStore()
   const chatOrchestrator = useChatOrchestratorStore()
-  const { cleanupMessages } = useChatMaintenanceStore()
   const providersStore = useProvidersStore()
   const consciousnessStore = useConsciousnessStore()
   const { activeProvider, activeModel } = storeToRefs(consciousnessStore)
-  const { activeSessionId, sessionMessages, sessionMetas } = storeToRefs(chatSession)
+  const { activeSession, activeSessionId, sessionMessages, loadedSessions } = useChatSessionStore()
   const { streamingMessage } = storeToRefs(chatStream)
-  const { sending } = storeToRefs(chatOrchestrator)
 
   const pendingRequests = new Map<string, PendingRequest>()
   const stopSyncWatchers: Array<() => void> = []
@@ -183,12 +181,18 @@ export const useChatSyncStore = defineStore('stage-tamagotchi:chat-sync', () => 
   }
 
   function buildSessionSnapshot(): SessionSnapshotPayload {
-    return chatSession.getSnapshot()
+    const sessions = cloneDeep(loadedSessions.value)
+    const payload = {
+      activeSessionId: activeSessionId.value,
+      sessionMessages: Object.fromEntries(sessions.entries().map(([k, v]) => [k, v[1].messages])),
+      sessionMetas: Object.fromEntries(sessions.entries().map(([k, v]) => [k, v[0]])),
+    }
+    return payload
   }
 
   function buildStreamSnapshot(): StreamSnapshotPayload {
     return {
-      sending: sending.value,
+      sending: false,
       streamingMessage: JSON.parse(JSON.stringify(streamingMessage.value)) as StreamingAssistantMessage,
     }
   }
@@ -242,10 +246,10 @@ export const useChatSyncStore = defineStore('stage-tamagotchi:chat-sync', () => 
 
   function registerAuthorityWatchers() {
     stopSyncWatchers.push(
-      watch([activeSessionId, sessionMessages, sessionMetas], () => {
+      watch([activeSession, sessionMessages], () => {
         broadcastSessionSnapshot()
       }, { deep: true, immediate: true }),
-      watch([sending, streamingMessage], () => {
+      watch([streamingMessage], () => {
         broadcastStreamSnapshot()
       }, { deep: true, immediate: true }),
     )
@@ -351,19 +355,19 @@ export const useChatSyncStore = defineStore('stage-tamagotchi:chat-sync', () => 
       return true
     })
 
-    chatSession.setSessionMessages(sessionId, nextMessages)
+    chatSession.appendMessage(sessionId, nextMessages)
   }
 
   function appendIngestErrorMessage(payload: IngestCommandPayload, message: string) {
     const sessionId = payload.sessionId || chatSession.activeSessionId
-    const nextMessages = [
-      ...chatSession.getSessionMessages(sessionId),
-      {
+    const nextMessages
+      = [{
+        id: nanoid(),
         role: 'error',
         content: message,
-      } satisfies ChatHistoryItem,
-    ]
-    chatSession.setSessionMessages(sessionId, nextMessages)
+      }]
+
+    chatSession.appendMessage(sessionId, nextMessages)
   }
 
   async function handleCommand(message: Extract<ChatSyncMessage, { type: 'command' }>) {
@@ -387,9 +391,6 @@ export const useChatSyncStore = defineStore('stage-tamagotchi:chat-sync', () => 
           break
         case 'retry':
           await executeRetry(message.payload)
-          break
-        case 'cleanup':
-          cleanupMessages(message.payload.sessionId)
           break
         case 'delete-message':
           executeDeleteMessage(message.payload)

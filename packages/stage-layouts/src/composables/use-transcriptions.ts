@@ -1,7 +1,7 @@
 import type { MaybeRefOrGetter, Ref } from 'vue'
 
+import { useProvidersStore } from '@proj-airi/stage-ui/stores'
 import { useHearingSpeechInputPipeline, useHearingStore } from '@proj-airi/stage-ui/stores/modules/hearing'
-import { useProvidersStore } from '@proj-airi/stage-ui/stores/providers'
 import { useSettingsAudioDevice } from '@proj-airi/stage-ui/stores/settings'
 import { until } from '@vueuse/core'
 import { storeToRefs } from 'pinia'

@@ -5,14 +5,13 @@ import { useResizeObserver, useScreenSafeArea } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
 import { DialogContent, DialogOverlay, DialogPortal, DialogRoot, DialogTitle } from 'reka-ui'
 import { DrawerContent, DrawerHandle, DrawerOverlay, DrawerPortal, DrawerRoot, DrawerTitle } from 'vaul-vue'
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { useAnalytics } from '../../../../composables/use-analytics'
 import { useBreakpoints } from '../../../../composables/use-breakpoints'
 import { extractMessageText } from '../../../../libs/chat-sync'
-import { useAuthStore } from '../../../../stores/auth'
-import { useChatSessionStore } from '../../../../stores/chat/session-store'
+import { useChatSessionStore } from '../../../../stores/chat/session-store-minimized'
 import { useAiriCardStore } from '../../../../stores/modules/airi-card'
 import { useConsciousnessStore } from '../../../../stores/modules/consciousness'
 
@@ -42,10 +41,8 @@ const { isDesktop } = useBreakpoints()
 const screenSafeArea = useScreenSafeArea()
 const { t } = useI18n()
 
-const chatSession = useChatSessionStore()
-const { sessionMetas, sessionMessages, activeSessionId } = storeToRefs(chatSession)
+const { sessionMessages, activeSessionId, loadedSessions, createSession, deleteSession } = useChatSessionStore()
 const { activeCardId } = storeToRefs(useAiriCardStore())
-const { userId } = storeToRefs(useAuthStore())
 const { activeModel } = storeToRefs(useConsciousnessStore())
 const { trackChatSessionStarted } = useAnalytics()
 
@@ -68,21 +65,6 @@ interface SessionRow {
 }
 
 /**
- * Sessions visible in the drawer. Filters by the currently effective user
- * (`userId.value || 'local'`) so:
- * - Anonymous users see their local-only sessions (previously hidden by a
- *   blanket `userId !== 'local'` filter).
- * - After an account swap, the previously signed-in user's sessions stay
- *   hidden until ensureActiveSessionForCharacter rehydrates the new tenant
- *   (the session-store also clears in-memory state on user change as a
- *   defense in depth).
- */
-const ownedSessions = computed(() => {
-  const effectiveUserId = userId.value || 'local'
-  return Object.values(sessionMetas.value).filter(meta => meta.userId === effectiveUserId)
-})
-
-/**
  * Pull a 1-line preview from the first non-system message; falls back to the
  * stored title or a generic placeholder when nothing readable is available.
  *
@@ -96,7 +78,7 @@ function previewFor(meta: SessionMeta): string {
   if (meta.title)
     return meta.title
 
-  const messages = sessionMessages.value[meta.sessionId] ?? []
+  const messages = sessionMessages.value ?? []
   for (const message of messages) {
     if (message.role === 'system')
       continue
@@ -140,8 +122,8 @@ function formatUpdatedAt(ts: number): string {
 }
 
 const rows = computed<SessionRow[]>(() => {
-  const list = ownedSessions.value
-    .map<SessionRow>(meta => ({
+  const list = loadedSessions.value.values()
+    .map<SessionRow>(([meta, _]) => ({
       meta,
       preview: previewFor(meta),
       isActive: meta.sessionId === activeSessionId.value,
@@ -149,12 +131,11 @@ const rows = computed<SessionRow[]>(() => {
     }))
   // Most-recent first; the active session usually ends up at the top after a
   // fresh send because `persistSession` bumps `updatedAt`.
-  list.sort((a, b) => b.meta.updatedAt - a.meta.updatedAt)
-  return list
+  return Array.from(list).sort((a, b) => b.meta.updatedAt - a.meta.updatedAt)
 })
 
 async function selectSession(sessionId: string) {
-  chatSession.setActiveSession(sessionId)
+  activeSessionId.value = sessionId
   showDialog.value = false
 }
 
@@ -164,7 +145,7 @@ async function startNewSession() {
   isCreatingSession.value = true
   try {
     const characterId = activeCardId.value || 'default'
-    await chatSession.createSession(characterId, { setActive: true })
+    await createSession(characterId, { setActive: true })
     // PostHog retention denominator. We pick this call site (UI new-session
     // button) rather than `createSession` in the store because the store also
     // creates sessions for cloud-reconcile / fork / restore flows that aren't
@@ -182,38 +163,8 @@ async function deleteRow(event: Event, sessionId: string) {
   // Stop the parent button's click — otherwise we'd switch into the session
   // we are about to remove and immediately need a fallback.
   event.stopPropagation()
-  await chatSession.deleteSession(sessionId)
+  await deleteSession(sessionId)
 }
-
-// Per-open generation counter. The batch loadSession loop checks this before
-// each batch so closing the drawer mid-load aborts cleanly instead of
-// continuing to hydrate sessions the user has navigated away from. Without
-// this, a session deleted from outside while the batch was running could be
-// re-added to `loadedSessions` as a phantom entry.
-let openGeneration = 0
-
-// Re-render relative timestamps + hydrate non-active session messages when
-// the drawer opens so each row can show a real preview instead of the
-// fallback. `loadSession` is idempotent (`loadedSessions` set), so reopening
-// the drawer is cheap.
-watch(showDialog, async (open) => {
-  if (!open)
-    return
-  openGeneration += 1
-  const myGeneration = openGeneration
-  // Touch `rows` first so reactive labels reflect a fresh `Date.now()`.
-  void rows.value
-  const knownSessionIds = ownedSessions.value.map(meta => meta.sessionId)
-  // Bounded concurrency keeps a long history list from spawning a hundred
-  // simultaneous IndexedDB transactions; 4 in flight is plenty for a list
-  // that the user is about to scroll.
-  const batchSize = 4
-  for (let i = 0; i < knownSessionIds.length; i += batchSize) {
-    if (myGeneration !== openGeneration || !showDialog.value)
-      return
-    await Promise.all(knownSessionIds.slice(i, i + batchSize).map(id => chatSession.loadSession(id)))
-  }
-})
 </script>
 
 <template>
@@ -222,13 +173,13 @@ watch(showDialog, async (open) => {
     <DialogPortal>
       <DialogOverlay
         :class="[
-          'fixed inset-0 z-[9999] bg-black/50 backdrop-blur-sm',
+          'fixed inset-0 z-9999 bg-black/50 backdrop-blur-sm',
           'data-[state=closed]:animate-fadeOut data-[state=open]:animate-fadeIn',
         ]"
       />
       <DialogContent
         :class="[
-          'fixed left-1/2 top-1/2 z-[9999] max-h-[80dvh] max-w-md w-[92dvw] transform overflow-hidden rounded-2xl bg-white/95 shadow-xl outline-none backdrop-blur-md scrollbar-none -translate-x-1/2 -translate-y-1/2 data-[state=closed]:animate-contentHide data-[state=open]:animate-contentShow dark:bg-neutral-900/90',
+          'fixed left-1/2 top-1/2 z-9999 max-h-[80dvh] max-w-md w-[92dvw] transform overflow-hidden rounded-2xl bg-white/95 shadow-xl outline-none backdrop-blur-md scrollbar-none -translate-x-1/2 -translate-y-1/2 data-[state=closed]:animate-contentHide data-[state=open]:animate-contentShow dark:bg-neutral-900/90',
         ]"
       >
         <div :class="['flex flex-col h-full max-h-[80dvh]']">

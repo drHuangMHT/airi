@@ -3,11 +3,10 @@ import type { Message } from '@xsai/shared-chat'
 
 import type { ContextMessage } from '../../types/chat'
 
+import { formatContextPromptText } from '@proj-airi/core-agent'
 import { nanoid } from 'nanoid'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-
-import { formatContextPromptText } from '../chat/context-prompt'
 
 export type ContextLifecyclePhase
   = | 'server-received'
