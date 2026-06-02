@@ -5,7 +5,7 @@ import type { ChatProvider } from '@xsai-ext/providers/utils'
 
 import { errorMessageFrom } from '@moeru/std'
 import { useProvidersStore } from '@proj-airi/stage-ui/stores'
-import { useChatOrchestratorStore } from '@proj-airi/stage-ui/stores/chat-minimized'
+import { useChatOrchestrator } from '@proj-airi/stage-ui/stores/chat-minimized'
 import { useChatSessionStore } from '@proj-airi/stage-ui/stores/chat/session-store-minimized'
 import { useChatStreamStore } from '@proj-airi/stage-ui/stores/chat/stream-store'
 import { useConsciousnessStore } from '@proj-airi/stage-ui/stores/modules/consciousness'
@@ -164,7 +164,7 @@ export const useChatSyncStore = defineStore('stage-tamagotchi:chat-sync', () => 
   const authorityId = ref<string | null>(null)
 
   const chatStream = useChatStreamStore()
-  const chatOrchestrator = useChatOrchestratorStore()
+  const chatOrchestrator = useChatOrchestrator()
   const providersStore = useProvidersStore()
   const consciousnessStore = useConsciousnessStore()
   const { activeProvider, activeModel } = storeToRefs(consciousnessStore)

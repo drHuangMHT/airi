@@ -4,9 +4,7 @@ import type { ChatToolCallRendererRegistry } from '@proj-airi/stage-ui/component
 import { ChatHistory, JournalPreviewModal } from '@proj-airi/stage-ui/components'
 import { useConsciousnessStore, useProvidersStore } from '@proj-airi/stage-ui/stores'
 import { useBackgroundStore } from '@proj-airi/stage-ui/stores/background'
-import { useChatOrchestratorStore } from '@proj-airi/stage-ui/stores/chat-minimized'
-import { useChatSessionStore } from '@proj-airi/stage-ui/stores/chat/session-store-minimized'
-import { useChatStreamStore } from '@proj-airi/stage-ui/stores/chat/stream-store'
+import { useChatOrchestrator } from '@proj-airi/stage-ui/stores/chat-minimized'
 import { useJournalPreviewStore } from '@proj-airi/stage-ui/stores/journal-preview'
 import { useAiriCardStore } from '@proj-airi/stage-ui/stores/modules/airi-card'
 import { BasicTextarea } from '@proj-airi/ui'
@@ -26,15 +24,10 @@ const attachments = ref<{ type: 'image', data: string, mimeType: string, url: st
 
 const providersStore = useProvidersStore()
 const { activeProvider, activeModel } = storeToRefs(useConsciousnessStore())
-const chatOrchestrator = useChatOrchestratorStore()
-const chatSession = useChatSessionStore()
-const chatStream = useChatStreamStore()
+const { ingest, session, sendLocked } = useChatOrchestrator()
 const backgroundStore = useBackgroundStore()
 const journalPreviewStore = useJournalPreviewStore()
 const airiCardStore = useAiriCardStore()
-const { ingest } = chatOrchestrator
-const { activeSession, activeSessionId } = chatSession
-const { streamingMessage } = storeToRefs(chatStream)
 const { activeCardId } = storeToRefs(airiCardStore)
 const { t } = useI18n()
 const { openImagePreview } = journalPreviewStore
@@ -67,13 +60,12 @@ function navigateToImageJournal() {
 }
 
 async function handleSend() {
-  if (isComposing.value) {
+  if (sendLocked.value)
     return
-  }
-
-  if (!messageInput.value.trim() && !attachments.value.length) {
+  if (isComposing.value)
     return
-  }
+  if (!messageInput.value.trim() && !attachments.value.length)
+    return
 
   const textToSend = messageInput.value
   const attachmentsToSend = attachments.value.map(att => ({ ...att }))
@@ -87,7 +79,6 @@ async function handleSend() {
     await ingest(
       textToSend,
       { chatProvider: await providersStore.getProviderInstance(activeProvider.value), model: activeModel.value, providerConfig },
-      activeSessionId.value,
     )
 
     attachmentsToSend.forEach(att => URL.revokeObjectURL(att.url))
@@ -185,7 +176,7 @@ watch(sendMode, () => {
   lastEnterTime.value = 0
 })
 
-const historyMessages = computed(() => activeSession.value?.messages ?? [])
+const historyMessages = computed(() => session.value?.messages ?? [])
 
 onMounted(() => {
   backgroundStore.initializeStore()
@@ -197,7 +188,6 @@ onMounted(() => {
     <div w-full flex-1 overflow-hidden>
       <ChatHistory
         :messages="historyMessages"
-        :streaming-message="streamingMessage"
         :tool-call-renderers="toolCallRenderers"
       />
     </div>

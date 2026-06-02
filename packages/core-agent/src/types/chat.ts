@@ -68,4 +68,4 @@ export type ChatStreamEvent
     | { type: 'assistant-end', message: string, sessionId: string, context: ChatStreamEventContext }
     | { type: 'assistant-message', message: ChatAssistantMessage, sessionId: string, messageText: string, context: ChatStreamEventContext }
 
-export type StreamingAssistantMessage = ChatAssistantMessage & { context?: ContextMessage } & { createdAt?: number, id?: string }
+export type StreamingAssistantMessage = ChatAssistantMessage & { context?: ContextMessage } & { createdAt: number, id: string }

@@ -4,7 +4,7 @@ import { isStageTamagotchi } from '@proj-airi/stage-shared'
 import { useLive2dParams, useSettingsLive2d } from '@proj-airi/stage-ui-live2d'
 import { useModelStore } from '@proj-airi/stage-ui-three'
 
-import { useChatOrchestratorStore } from '../stores/chat-minimized'
+import { useChatOrchestrator } from '../stores/chat-minimized'
 import { useChatSessionStore } from '../stores/chat/session-store'
 import { useDisplayModelsStore } from '../stores/display-models'
 import { useMcpStore } from '../stores/mcp'
@@ -22,7 +22,7 @@ import { useSettings, useSettingsAudioDevice } from '../stores/settings'
 
 export function useDataMaintenance() {
   const chatStore = useChatSessionStore()
-  const chatOrchestrator = useChatOrchestratorStore()
+  const chatOrchestrator = useChatOrchestrator()
   const displayModelsStore = useDisplayModelsStore()
   const providersStore = useProvidersStore()
   const settingsStore = useSettings()

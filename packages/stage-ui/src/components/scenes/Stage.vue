@@ -36,7 +36,7 @@ import { getDefinedProvider } from '../../libs/providers/providers'
 import { createStageTtsSession } from '../../libs/speech/tts-session'
 import { useAudioContext, useSpeakingStore } from '../../stores/audio'
 import { useBackgroundStore } from '../../stores/background'
-import { useChatOrchestratorStore } from '../../stores/chat-minimized'
+import { useChatOrchestrator } from '../../stores/chat-minimized'
 import { useLlmStreamingControlStore } from '../../stores/llm-streaming-control'
 import { useAiriCardStore } from '../../stores/modules'
 import { useSpeechStore } from '../../stores/modules/speech'
@@ -82,7 +82,7 @@ const { mouthOpenSize, nowSpeaking } = storeToRefs(useSpeakingStore())
 const { audioContext } = useAudioContext()
 const currentAudioSource = ref<AudioBufferSourceNode>()
 
-const { onBeforeMessageComposed, onBeforeSend, onTokenLiteral, onTokenSpecial, onStreamEnd, onAssistantResponseEnd } = useChatOrchestratorStore()
+const { onBeforeMessageComposed, onBeforeSend, onTokenLiteral, onTokenSpecial, onStreamEnd, onAssistantResponseEnd } = useChatOrchestrator()
 const chatHookCleanups: Array<() => void> = []
 // WORKAROUND: clear previous handlers on unmount to avoid duplicate calls when this component remounts.
 //             We keep per-hook disposers instead of wiping the global chat hooks to play nicely with

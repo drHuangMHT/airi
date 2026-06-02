@@ -2,80 +2,65 @@ import type { ChatOrchestratorSendOptions } from '@proj-airi/core-agent'
 
 import { createChatOrchestratorRuntimeMinimized } from '@proj-airi/core-agent'
 import { nanoid } from 'nanoid'
-import { storeToRefs } from 'pinia'
 import { ref, toRaw } from 'vue'
 
 import { useChatSession } from './chat/session-store-minimized'
-import { useChatStreamStore } from './chat/stream-store'
 import { useContextObservabilityStore } from './devtools/context-observability'
 import { useLLM } from './llm'
-import { useConsciousnessStore } from './modules/consciousness'
 
 export type { QueuedSendSnapshot, ChatOrchestratorSendOptions as SendOptions } from '@proj-airi/core-agent'
 
-const generation = ref(0)
-
-export function useChatOrchestratorStore() {
+export function useChatOrchestrator() {
   const llmStore = useLLM()
-  const consciousnessStore = useConsciousnessStore()
-  const { activeProvider } = storeToRefs(consciousnessStore)
 
   const chatSession = useChatSession()
-  const chatStream = useChatStreamStore()
   const contextObservability = useContextObservabilityStore()
-  const { session, sessionId, sendMessage, setMessage } = chatSession
-  const { streamingMessage } = storeToRefs(chatStream)
+  const { session, sessionId, sendMessage } = chatSession
 
-  const sending = ref(false)
-  const pendingQueuedSendCount = ref(0)
-
-  function syncRuntimeState(state: any) {
-    sending.value = state.sending
-    pendingQueuedSendCount.value = state.pendingQueuedSendCount
-  }
+  const sendLocked = ref(false)
 
   const runtime = createChatOrchestratorRuntimeMinimized({
     session: {
-      ensureSession: () => {},
       getSessionMessages: () => session.value?.messages.map(message => toRaw(message)) ?? [],
-      appendSessionMessage: (sessionId, message) => {
-        chatSession.setMessage(sessionId, [message], true)
-      },
-      getSessionGeneration: () => generation.value,
-    },
-    foregroundStream: {
-      patch: (message) => {
-        streamingMessage.value = message
-      },
-      reset: () => {
-        streamingMessage.value = { role: 'assistant', content: '', slices: [], tool_results: [] }
+      appendSessionMessage: (message) => {
+        sendMessage(message.role, message)
       },
     },
     llm: {
       stream: llmStore.stream,
     },
-    getActiveProvider: () => activeProvider.value,
     createId: nanoid,
-    onStateChange: syncRuntimeState,
     onLifecycle: record => contextObservability.recordLifecycle(record),
-    onPromptProjection: payload => contextObservability.capturePromptProjection(payload),
+    turnLifecycle: {
+      onBeforeContextFreeze: () => {
+        sendLocked.value = true
+      },
+      onTurnReady: () => {
+        sendLocked.value = false
+      },
+    },
   })
-
-  runtime.hooks.onChatTurnComplete(() => saveAllSessions())
 
   async function ingest(
     sendingMessage: string,
     options: ChatOrchestratorSendOptions,
-    targetSessionId: string,
   ) {
-    return runtime.ingest(sendingMessage, options, targetSessionId)
+    return runtime.ingest(sendingMessage, options)
+  }
+  function setSession(id: string): boolean {
+    if (sendLocked.value)
+      return false
+    sessionId.value = id
+    return true
   }
 
   return {
-    sending,
-    pendingQueuedSendCount,
+    session,
 
+    /** Signals whether user input is allowed. */
+    sendLocked,
     ingest,
+    setSession,
 
     clearHooks: runtime.hooks.clearHooks,
 

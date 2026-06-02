@@ -1,7 +1,7 @@
 export type { AgentContextPort } from './contracts/context-port'
 export type { ChatHookRegistry } from './contracts/hook-types'
 export type { AgentLLMPort } from './contracts/llm-port'
-export type { AgentSessionPort } from './contracts/session-port'
+export type { SessionPort as AgentSessionPort } from './contracts/session-port'
 export type { AgentForegroundStreamPort } from './contracts/stream-port'
 
 export {

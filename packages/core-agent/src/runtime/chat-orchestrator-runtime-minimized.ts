@@ -1,7 +1,7 @@
 import type { ChatProvider } from '@xsai-ext/providers/utils'
 import type { CommonContentPart as ContentPart, Message, ToolMessage } from '@xsai/shared-chat'
 
-import type { AgentForegroundStreamPort } from '../contracts/stream-port'
+import type { SessionPort } from '../contracts/session-port'
 import type { ChatHistoryItem, ChatStreamEventContext, ContextMessage, MicroTurn, StreamingAssistantMessage } from '../types/chat'
 import type { StreamEvent, StreamOptions } from '../types/llm'
 
@@ -12,15 +12,6 @@ import { useLlmmarkerParser } from './llm-marker-parser'
 import { categorizeResponse, createStreamingCategorizer } from './response-categoriser'
 
 const STREAMING_UI_FLUSH_CHUNK_SIZE = 24
-
-function cloneStreamingMessage(message: StreamingAssistantMessage): StreamingAssistantMessage {
-  try {
-    return structuredClone(message)
-  }
-  catch {
-    return JSON.parse(JSON.stringify(message)) as StreamingAssistantMessage
-  }
-}
 
 /**
  * Options accepted by the chat orchestrator runtime for one user send.
@@ -41,41 +32,9 @@ export interface ChatOrchestratorSendOptions {
 }
 
 /**
- * Serializable view of a queued send waiting to be processed.
- */
-export interface QueuedSendSnapshot {
-  /** Session that owns the queued send. */
-  sessionId: string
-  /** Session generation captured when the send was enqueued. */
-  generation: number
-  /** Whether the queued send has been rejected before execution. */
-  cancelled: boolean
-  /** First 120 characters of the pending user message. */
-  messagePreview: string
-  /** Whether the queued send carries image attachments. */
-  hasAttachments: boolean
-  /** Optional input event type for transport-originated sends. */
-  inputType?: NonNullable<ChatStreamEventContext['input']>['type']
-}
-
-/**
- * Session operations required by the core chat orchestrator runtime.
- */
-export interface ChatOrchestratorSessionPort {
-  /** Ensures a session exists before messages are appended. */
-  ensureSession: (sessionId: string) => void
-  /** Returns chronological chat history for a session. */
-  getSessionMessages: (sessionId: string) => ChatHistoryItem[]
-  /** Appends a finalized user/assistant/tool history item. */
-  appendSessionMessage: (sessionId: string, message: ChatHistoryItem) => void
-  /** Returns a monotonic generation used to reject stale queued sends. */
-  getSessionGeneration: (sessionId: string) => number
-}
-
-/**
  * LLM streaming boundary used by the core chat orchestrator runtime.
  */
-export interface ChatOrchestratorLLMPort {
+export interface LLMPort {
   /** Streams one composed chat request and emits normalized stream events. */
   stream: (model: string, chatProvider: ChatProvider, messages: Message[], options?: StreamOptions) => Promise<void>
 }
@@ -88,10 +47,6 @@ export interface ChatOrchestratorLifecycleRecord {
   phase: 'before-compose' | 'prompt-context-built' | 'after-compose'
   /** Logical event channel for context observability. */
   channel: 'chat'
-  /** Session associated with this send. */
-  sessionId: string
-  /** Optional compact preview of the user text. */
-  textPreview?: string
   /** Phase-specific payload for devtools and diagnostics. */
   details?: unknown
 }
@@ -124,79 +79,54 @@ export interface ChatOrchestratorRuntimeState {
  * Dependency surface used by the platform-agnostic chat orchestrator runtime.
  */
 export interface ChatOrchestratorRuntimeDeps {
-  /** Session persistence and generation guard port. */
-  session: ChatOrchestratorSessionPort
-  /** Foreground assistant stream port controlled by the UI facade. */
-  foregroundStream: AgentForegroundStreamPort
+  session: SessionPort
   /** Provider-agnostic LLM streaming port. */
-  llm: ChatOrchestratorLLMPort
-  /** Returns the currently active provider ID for categorization policy. */
-  getActiveProvider: () => string | undefined
+  llm: LLMPort
   /** Clock used for persisted message timestamps. @default Date.now */
   now?: () => number
   /** Monotonic clock used for elapsed telemetry in milliseconds. @default performance.now */
   monotonicNow?: () => number
   /** ID factory used for persisted chat messages. @default crypto.randomUUID fallback */
   createId?: () => string
-  /** Called whenever writable runtime state changes. */
-  onStateChange?: (state: ChatOrchestratorRuntimeState) => void
-  /** Called after a runtime-owned send completes or fails and `sending` has been cleared. */
-  onSendSettled?: (event: { sessionId: string }) => void
-  /** Called when a send starts and the first assistant placeholder is created. */
-  onAssistantStreamingStarted?: () => void
-  /** Called when a user message send begins. */
-  onMessageSendStarted?: (event: {
-    source: 'text' | 'voice'
-    model: string
-  }) => void
-  /** Called immediately before the provider LLM request starts. */
-  onLlmRequestStarted?: (event: {
-    model: string
-    provider: string
-    hasVoice: boolean
-  }) => void
-  /** Called when the first text token arrives from the provider stream. */
-  onLlmFirstToken?: (event: {
-    model: string
-    ttfbMs: number
-  }) => void
-  /** Called after the assistant stream is parsed and rendered into runtime state. */
-  onAssistantResponseRendered?: (event: {
-    model: string
-    latencyMs: number
-  }) => void
-  /** Called after one user-to-assistant message round completes successfully. */
-  onMessageRound?: (event: {
-    durationMs: number
-    hasVoice: boolean
-    model: string
-  }) => void
   /** Called for context/prompt lifecycle observability. */
   onLifecycle?: (record: ChatOrchestratorLifecycleRecord) => void
   /** Called with the final provider prompt projection. */
   onPromptProjection?: (payload: ChatOrchestratorPromptProjection) => void
-  /** Called after the user message has been appended to session history. */
-  onUserMessageAppend?: (event: {
-    sessionId: string
+  turnLifecycle?: ChatTurnLifecycleHooks
+}
+
+interface ChatTurnLifecycleHooks {
+  /**
+   * Called right before the context freeze.
+   * This is the last chance of injecting context info.
+   */
+  onBeforeContextFreeze?: (event: {
+    context: ChatStreamEventContext
+  }) => void
+  /**
+   * Called right after the context freeze.
+   * The session SHOULD NOT accept further messages after this point.
+   */
+  onAfterContextFreeze?: (event: {
     message: Extract<ChatHistoryItem, { role: 'user' }> & { id: string }
     messageText: string
   }) => void
-  /** Called after the assistant message has been finalized into session history. */
+  onGenerationStarted?: () => void
+  /**
+   * Called after the assistant message has been fully parsed.
+   * This is the only chance to make changes to the generate assistant message
+   */
+  onAssistantMessageParsed?: () => void
+  /** Called after the assistant message has been appended into session history. */
   onAssistantMessageAppended?: (event: {
-    sessionId: string
     message: StreamingAssistantMessage
     messageText: string
   }) => void
-  /** Called after user turn persistence, before provider prompt composition. */
-  onUserTurnReady?: (event: {
-    messageText: string
-    sessionMessages: ChatHistoryItem[]
-  }) => void
-  /** Called after assistant streaming and hook finalization. */
-  onAssistantTurnReady?: (event: {
-    messageText: string
-    sessionMessages: ChatHistoryItem[]
-  }) => void
+  /**
+   * Called after assistant streaming and hook finalization.
+   * The session should be able to accept further user input.
+   */
+  onTurnReady?: () => void
 }
 
 /**
@@ -204,7 +134,7 @@ export interface ChatOrchestratorRuntimeDeps {
  */
 export interface ChatOrchestratorRuntime {
   /** Enqueues a user send for the target session, preserving FIFO order. */
-  ingest: (sendingMessage: string, options: ChatOrchestratorSendOptions, sessionId: string) => Promise<void>
+  ingest: (sendingMessage: string, options: ChatOrchestratorSendOptions) => Promise<void>
   hooks: ReturnType<typeof createChatHooks>
 }
 
@@ -214,65 +144,20 @@ function defaultCreateId() {
 
 /**
  * Creates the core chat orchestrator runtime used behind UI facades.
- * Does not handle session switch during assistant message composition
- *
- * Use when:
- * - A platform wants AIRI chat send orchestration without Vue/Pinia coupling.
- * - Session, context, foreground stream, and LLM integrations are provided as adapters.
- *
- * Expects:
- * - Session messages are returned in chronological order.
- * - `foregroundStream.patch` replaces the visible streaming assistant message.
- *
- * Returns:
- * - A runtime with send queue APIs, hook registry, writable sending state, and queue snapshots.
+ * Does not handle session switch during assistant message composition.
  */
-
-export class ChatOrchestratorBuilder{
-  private clock: () => number = () => Date.now()
-  private monotonicClock:
-}
-
 export function createChatOrchestratorRuntimeMinimized(deps: ChatOrchestratorRuntimeDeps): ChatOrchestratorRuntime {
   const hooks = createChatHooks()
   const now = deps.now ?? (() => Date.now())
-  const monotonicNow = deps.monotonicNow ?? (() => globalThis.performance?.now?.() ?? Date.now())
+  const analyticNow = deps.monotonicNow ?? (() => globalThis.performance?.now?.() ?? Date.now())
   const createId = deps.createId ?? defaultCreateId
-
-  let sending = false
-
-  function emitStateChange() {
-    deps.onStateChange?.({
-      sending,
-    })
-  }
-
-  function setSending(next: boolean) {
-    if (sending === next)
-      return
-    sending = next
-    emitStateChange()
-  }
-
-  function patchForegroundStream(message: StreamingAssistantMessage) {
-    deps.foregroundStream.patch(cloneStreamingMessage(message))
-  }
-
-  function resetForegroundStream() {
-    deps.foregroundStream.reset()
-  }
 
   async function performSend(
     userText: string,
     options: ChatOrchestratorSendOptions,
-    generation: number,
-    sessionId: string,
   ) {
     if (!userText && !options.attachments?.length)
       return
-
-    deps.session.ensureSession(sessionId)
-
     const sendingCreatedAt = now()
 
     // TODO: Expire or prune stale runtime contexts from disconnected services before composing.
@@ -282,24 +167,25 @@ export function createChatOrchestratorRuntimeMinimized(deps: ChatOrchestratorRun
       composedMessage: [],
       input: options.input,
     }
-    deps.onLifecycle?.({
-      phase: 'before-compose',
-      channel: 'chat',
-      sessionId,
-      textPreview: userText,
-      details: {
-        contexts: userMessageContext.contexts,
-      },
+
+    const contentParts: ContentPart[] = [{ type: 'text', text: userText }]
+
+    deps.turnLifecycle?.onBeforeContextFreeze?.({
+      context: userMessageContext,
     })
 
-    const isStaleGeneration = () =>
-      deps.session.getSessionGeneration(sessionId) !== generation
+    // TODO: handle attachments
+    const userMessage = {
+      role: 'user' as const,
+      content: contentParts,
+      createdAt: sendingCreatedAt,
+      id: createId(),
+    }
+    userMessageContext.message = userMessage
 
-    const shouldAbort = () => isStaleGeneration()
+    const shouldAbort = () => false
     if (shouldAbort())
       return
-
-    setSending(true)
 
     const assistantMessage: StreamingAssistantMessage = {
       role: 'assistant',
@@ -309,51 +195,19 @@ export function createChatOrchestratorRuntimeMinimized(deps: ChatOrchestratorRun
       createdAt: now(),
       id: createId(),
     }
-    patchForegroundStream(assistantMessage)
-    deps.onAssistantStreamingStarted?.()
-    deps.onMessageSendStarted?.({
-      source: options.input ? 'voice' : 'text',
-      model: options.model,
-    })
-    const roundStartedAt = monotonicNow()
+    const roundStartedAt = analyticNow()
 
     try {
       await hooks.emitBeforeMessageComposeHooks(userText, userMessageContext)
 
-      const contentParts: ContentPart[] = [{ type: 'text', text: userText }]
-      if (!userMessageContext.input) {
-        userMessageContext.input = {
-          type: 'input:text',
-          data: {
-            text: userText,
-          },
-        }
-      }
-
-      if (shouldAbort())
-        return
-
-      const userMessage = {
-        role: 'user' as const,
-        content: contentParts,
-        createdAt: sendingCreatedAt,
-        id: createId(),
-      }
-      userMessageContext.message = userMessage
-
-      deps.onUserMessageAppend?.({
-        sessionId,
+      deps.turnLifecycle?.onAfterContextFreeze?.({
         message: userMessage,
         messageText: userText,
       })
 
-      const sessionMessagesForSend = deps.session.getSessionMessages(sessionId)
-      deps.onUserTurnReady?.({
-        messageText: userText,
-        sessionMessages: sessionMessagesForSend,
-      })
+      const sessionMessagesForSend = deps.session.getSessionMessages()
 
-      const categorizer = createStreamingCategorizer(deps.getActiveProvider())
+      const categorizer = createStreamingCategorizer()
       let streamPosition = 0
 
       const parser = useLlmmarkerParser({
@@ -381,7 +235,6 @@ export function createChatOrchestratorRuntimeMinimized(deps: ChatOrchestratorRun
                 text: speechOnly,
               })
             }
-            patchForegroundStream(assistantMessage)
           }
         },
         onSpecial: async (special) => {
@@ -391,17 +244,16 @@ export function createChatOrchestratorRuntimeMinimized(deps: ChatOrchestratorRun
           await hooks.emitTokenSpecialHooks(special, userMessageContext)
         },
         onEnd: async (fullText) => {
-          if (isStaleGeneration())
+          if (shouldAbort())
             return
 
-          const finalCategorization = categorizeResponse(fullText, deps.getActiveProvider())
+          const finalCategorization = categorizeResponse(fullText)
 
           const reasoningContentField = assistantMessage.categorization?.reasoning?.trim()
           assistantMessage.categorization = {
             speech: finalCategorization.speech,
             reasoning: reasoningContentField || finalCategorization.reasoning,
           }
-          patchForegroundStream(assistantMessage)
         },
         minLiteralEmitLength: STREAMING_UI_FLUSH_CHUNK_SIZE,
       })
@@ -413,13 +265,11 @@ export function createChatOrchestratorRuntimeMinimized(deps: ChatOrchestratorRun
               return
             if (ctx.data.type === 'tool-call') {
               assistantMessage.slices.push(ctx.data)
-              patchForegroundStream(assistantMessage)
               return
             }
 
             if (ctx.data.type === 'tool-call-result') {
               assistantMessage.tool_results.push(ctx.data)
-              patchForegroundStream(assistantMessage)
             }
           },
         ],
@@ -431,15 +281,11 @@ export function createChatOrchestratorRuntimeMinimized(deps: ChatOrchestratorRun
       deps.onLifecycle?.({
         phase: 'after-compose',
         channel: 'chat',
-        sessionId,
-        textPreview: userText,
         details: {
+          textPreview: userText,
           composedMessage: newMessages,
         },
       })
-
-      await hooks.emitAfterMessageComposedHooks(userText, userMessageContext)
-      await hooks.emitBeforeSendHooks(userText, userMessageContext)
 
       let fullText = ''
       const headers = (options.providerConfig?.headers || {}) as Record<string, string>
@@ -447,13 +293,8 @@ export function createChatOrchestratorRuntimeMinimized(deps: ChatOrchestratorRun
       if (shouldAbort())
         return
 
-      const llmRequestStartedAt = monotonicNow()
+      const llmRequestStartedAt = analyticNow()
       let llmFirstTokenEmitted = false
-      deps.onLlmRequestStarted?.({
-        model: options.model,
-        provider: deps.getActiveProvider() || 'unknown',
-        hasVoice: !!options.input,
-      })
 
       await deps.llm.stream(options.model, options.chatProvider, newMessages as Message[], {
         headers,
@@ -461,104 +302,59 @@ export function createChatOrchestratorRuntimeMinimized(deps: ChatOrchestratorRun
         waitForTools: true,
         captureToolErrors: true,
         onStreamEvent: async (event: StreamEvent) => {
-          switch (event.type) {
-            case 'tool-call':
-              toolCallQueue.enqueue({
-                type: 'tool-call',
-                toolCall: event,
-              })
-
-              break
-            case 'tool-result':
-              toolCallQueue.enqueue({
-                type: 'tool-call-result',
-                id: event.toolCallId,
-                result: event.result,
-              })
-
-              break
-            case 'tool-error':
-              toolCallQueue.enqueue({
-                type: 'tool-call-result',
-                id: event.toolCallId,
-                isError: true,
-                result: event.result,
-              })
-
-              break
-            case 'text-delta':
-              if (!llmFirstTokenEmitted) {
-                llmFirstTokenEmitted = true
-                deps.onLlmFirstToken?.({
-                  model: options.model,
-                  ttfbMs: Math.round(monotonicNow() - llmRequestStartedAt),
-                })
-              }
-              fullText += event.text
-              await parser.consume(event.text)
-              break
-            case 'reasoning-delta': {
-              if (shouldAbort())
+          handleStreamEvent(event, {
+            toolCallEnqueue: toolCallQueue.enqueue,
+            onTextDelta: () => {
+              if (llmFirstTokenEmitted)
                 return
-
-              const { reasoning = '' } = assistantMessage.categorization ?? {}
-              const nextReasoning = reasoning + event.text
-              assistantMessage.categorization = {
-                speech: typeof assistantMessage.content === 'string' ? assistantMessage.content : '',
-                reasoning: nextReasoning,
-              }
-              const crossesBoundary
-                = Math.floor(nextReasoning.length / STREAMING_UI_FLUSH_CHUNK_SIZE)
-                  > Math.floor(reasoning.length / STREAMING_UI_FLUSH_CHUNK_SIZE)
-              if (!reasoning || crossesBoundary)
-                patchForegroundStream(assistantMessage)
-              break
-            }
-            case 'finish':
-              break
-            case 'error':
-              throw event.error ?? new Error('Stream error')
-          }
+              llmFirstTokenEmitted = true
+              deps.onLifecycle?.({
+                phase: 'after-compose',
+                channel: 'chat',
+                details: {
+                  model: options.model,
+                  ttfbMs: Math.round(analyticNow() - llmRequestStartedAt),
+                },
+              })
+            },
+            analyticNow,
+            appendFullText: text => fullText += text,
+            assistantMessage,
+            options,
+            shouldAbort,
+            writeGenerationStream: () => {},
+            parser,
+          })
         },
       })
 
       await parser.end()
-      deps.onAssistantResponseRendered?.({
-        model: options.model,
-        latencyMs: Math.round(monotonicNow() - llmRequestStartedAt),
-      })
 
-      if (!isStaleGeneration() && assistantMessage.slices.length > 0) {
+      if (!shouldAbort() && assistantMessage.slices.length > 0) {
         const finalAssistant = assistantMessage
-        deps.session.appendSessionMessage(sessionId, finalAssistant)
-        deps.onAssistantMessageAppended?.({
-          sessionId,
+        deps.session.appendSessionMessage(finalAssistant)
+        deps.turnLifecycle?.onAssistantMessageAppended?.({
           message: finalAssistant,
           messageText: fullText,
         })
       }
 
       await hooks.emitStreamEndHooks(userMessageContext)
-      await hooks.emitAssistantResponseEndHooks(fullText, userMessageContext)
 
-      await hooks.emitAfterSendHooks(userText, userMessageContext)
-      await hooks.emitAssistantMessageHooks({ ...assistantMessage }, fullText, userMessageContext)
       await hooks.emitChatTurnCompleteHooks({
         output: { ...assistantMessage },
         outputText: fullText,
         toolCalls: sessionMessagesForSend.filter(msg => msg.role === 'tool') as ToolMessage[],
       }, userMessageContext)
 
-      deps.onAssistantTurnReady?.({
-        messageText: fullText,
-        sessionMessages: sessionMessagesForSend,
-      })
-
-      resetForegroundStream()
-      deps.onMessageRound?.({
-        durationMs: Math.round(monotonicNow() - roundStartedAt),
-        hasVoice: !!options.input,
-        model: options.model,
+      deps.onLifecycle?.({
+        phase: 'after-compose',
+        channel: 'chat',
+        details: {
+          durationMs: Math.round(analyticNow() - roundStartedAt),
+          hasVoice: !!options.input,
+          model: options.model,
+        },
       })
     }
     catch (error) {
@@ -566,22 +362,86 @@ export function createChatOrchestratorRuntimeMinimized(deps: ChatOrchestratorRun
       throw error
     }
     finally {
-      setSending(false)
-      deps.onSendSettled?.({ sessionId })
+      deps.turnLifecycle?.onTurnReady?.()
     }
   }
 
   function ingest(
     userText: string,
     options: ChatOrchestratorSendOptions,
-    sessionId: string,
   ) {
-    const generation = deps.session.getSessionGeneration(sessionId)
-    return performSend(userText, options, generation, sessionId)
+    return performSend(userText, options)
   }
 
   return {
     ingest,
     hooks,
+  }
+}
+
+async function handleStreamEvent(
+  ev: StreamEvent,
+  ctx: {
+    toolCallEnqueue: (turn: MicroTurn) => void
+    assistantMessage: StreamingAssistantMessage
+    appendFullText: (text: string) => void
+    onTextDelta: () => void
+    options: Pick<ChatOrchestratorSendOptions, 'model'>
+    analyticNow: () => number
+    shouldAbort: () => boolean
+    writeGenerationStream: (message: StreamingAssistantMessage) => void
+    parser: ReturnType<typeof useLlmmarkerParser>
+  },
+) {
+  switch (ev.type) {
+    case 'tool-call':
+      ctx.toolCallEnqueue({
+        type: 'tool-call',
+        toolCall: ev,
+      })
+      break
+    case 'tool-result':
+      ctx.toolCallEnqueue({
+        type: 'tool-call-result',
+        id: ev.toolCallId,
+        result: ev.result,
+      })
+
+      break
+    case 'tool-error':
+      ctx.toolCallEnqueue({
+        type: 'tool-call-result',
+        id: ev.toolCallId,
+        isError: true,
+        result: ev.result,
+      })
+
+      break
+    case 'text-delta':
+      ctx.onTextDelta()
+      ctx.appendFullText(ev.text)
+      await ctx.parser.consume(ev.text)
+      break
+    case 'reasoning-delta': {
+      if (ctx.shouldAbort())
+        return
+
+      const { reasoning = '' } = ctx.assistantMessage.categorization ?? {}
+      const nextReasoning = reasoning + ev.text
+      ctx.assistantMessage.categorization = {
+        speech: typeof ctx.assistantMessage.content === 'string' ? ctx.assistantMessage.content : '',
+        reasoning: nextReasoning,
+      }
+      const crossesBoundary
+        = Math.floor(nextReasoning.length / STREAMING_UI_FLUSH_CHUNK_SIZE)
+          > Math.floor(reasoning.length / STREAMING_UI_FLUSH_CHUNK_SIZE)
+      if (!reasoning || crossesBoundary)
+        ctx.writeGenerationStream(ctx.assistantMessage)
+      break
+    }
+    case 'finish':
+      break
+    case 'error':
+      throw ev.error ?? new Error('Stream error')
   }
 }
