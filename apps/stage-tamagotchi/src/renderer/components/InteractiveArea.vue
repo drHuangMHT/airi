@@ -2,7 +2,6 @@
 import type { ChatToolCallRendererRegistry } from '@proj-airi/stage-ui/components'
 
 import { ChatHistory, JournalPreviewModal } from '@proj-airi/stage-ui/components'
-import { useConsciousnessStore, useProvidersStore } from '@proj-airi/stage-ui/stores'
 import { useBackgroundStore } from '@proj-airi/stage-ui/stores/background'
 import { useChatOrchestrator } from '@proj-airi/stage-ui/stores/chat-minimized'
 import { useJournalPreviewStore } from '@proj-airi/stage-ui/stores/journal-preview'
@@ -22,8 +21,6 @@ const messageInput = ref('')
 const lastEnterTime = ref(0)
 const attachments = ref<{ type: 'image', data: string, mimeType: string, url: string }[]>([])
 
-const providersStore = useProvidersStore()
-const { activeProvider, activeModel } = storeToRefs(useConsciousnessStore())
 const { ingest, session, sendLocked } = useChatOrchestrator()
 const backgroundStore = useBackgroundStore()
 const journalPreviewStore = useJournalPreviewStore()
@@ -75,10 +72,8 @@ async function handleSend() {
   attachments.value = []
 
   try {
-    const providerConfig = providersStore.getProviderConfig(activeProvider.value)
     await ingest(
       textToSend,
-      { chatProvider: await providersStore.getProviderInstance(activeProvider.value), model: activeModel.value, providerConfig },
     )
 
     attachmentsToSend.forEach(att => URL.revokeObjectURL(att.url))

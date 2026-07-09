@@ -5,16 +5,13 @@ import { defineStore, storeToRefs } from 'pinia'
 import { ref, watch } from 'vue'
 
 import { useBuildInfo } from '../../composables/use-build-info'
-import { useAuthStore } from '../auth'
 import { useAiriCardStore } from '../modules/airi-card'
 import { useConsciousnessStore } from '../modules/consciousness'
 import { useSettingsAnalytics } from '../settings/analytics'
 import {
   capturePosthogEvent,
-  identifyPosthogUser,
   isPosthogAvailableInBuild,
   registerPosthogBuildInfo,
-  resetPosthog,
   syncPosthogCapture,
 } from './posthog'
 
@@ -56,9 +53,9 @@ export const useSharedAnalyticsStore = defineStore('analytics-shared', () => {
       // on a delayed opt-in. Without this, server-side `payment_completed`
       // (keyed by Better Auth user id) won't merge with the browser's
       // anonymous funnel events.
-      const authStore = useAuthStore()
-      if (authStore.isAuthenticated && authStore.user?.id)
-        identifyPosthogUser(authStore.user.id)
+      // const authStore = useAuthStore()
+      // if (authStore.isAuthenticated && authStore.user?.id)
+      //   identifyPosthogUser(authStore.user.id)
     }
   })
 
@@ -90,17 +87,17 @@ export const useSharedAnalyticsStore = defineStore('analytics-shared', () => {
     // funnel events (anonymous `distinct_id` until identify) live on
     // different person profiles and the funnel never joins. See
     // `apps/server/docs/ai-context/metrics-ownership.md`.
-    const authStore = useAuthStore()
-    if (authStore.isAuthenticated && authStore.user?.id)
-      identifyPosthogUser(authStore.user.id)
+    // const authStore = useAuthStore()
+    // if (authStore.isAuthenticated && authStore.user?.id)
+    //   identifyPosthogUser(authStore.user.id)
 
-    authStore.onAuthenticated(() => {
-      if (authStore.user?.id)
-        identifyPosthogUser(authStore.user.id)
-    })
-    authStore.onLogout(() => {
-      resetPosthog()
-    })
+    // authStore.onAuthenticated(() => {
+    //   if (authStore.user?.id)
+    //     identifyPosthogUser(authStore.user.id)
+    // })
+    // authStore.onLogout(() => {
+    //   resetPosthog()
+    // })
 
     // Wire model-selection events. The consciousness store holds the
     // user-chosen chat model; both `activeProvider` and `activeModel` are

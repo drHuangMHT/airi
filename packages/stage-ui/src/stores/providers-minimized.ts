@@ -19,9 +19,6 @@ import { uniqBy } from 'es-toolkit'
 import { defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
 
-import { listProviders as listDefinedProviders } from '../libs/providers'
-import { useAuthStore } from './auth'
-
 export enum Task {
   // GEN_*: generate with creativity
   GEN_TEXT,
@@ -172,9 +169,6 @@ export const useProvidersStore = defineStore('providers', () => {
   const providerInstanceCache = ref<Record<string, unknown>>({})
 
   // Centralized provider metadata with provider factory functions
-  const authState = useAuthStore()
-
-  const definedProviders = listDefinedProviders()
 
   // const validatedCredentials = ref<Record<string, string>>({})
   const providerState = ref<Record<string, ProviderState>>({})
@@ -304,8 +298,6 @@ export const useProvidersStore = defineStore('providers', () => {
 
   // Call initially and watch for changes
   watch(providerCredentials, updateConfigurationStatus, { deep: true, immediate: true })
-
-  watch(() => authState.isAuthenticated, updateConfigurationStatus)
 
   // Store available models for each provider
   const availableModels = computed(() => {
@@ -458,7 +450,7 @@ export const useProvidersStore = defineStore('providers', () => {
   }, { deep: true, immediate: true })
 
   const allProvidersMetadata = computed(() => {
-    const ordered = definedProviders
+    const ordered = []
       .filter(d => availableProviders.value[d.id])
 
     return [...ordered]

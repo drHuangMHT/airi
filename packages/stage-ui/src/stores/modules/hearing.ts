@@ -13,9 +13,8 @@ import { computed, ref, shallowRef, watch } from 'vue'
 
 import { useAnalytics } from '../../composables/use-analytics'
 import { activeTurnSpan, startSpan } from '../../composables/use-io-tracer'
-import { useProvidersStore } from '../providers'
-import { streamAliyunTranscription } from '../providers/aliyun/stream-transcription'
-import { streamWebSpeechAPITranscription } from '../providers/web-speech-api'
+import { streamWebSpeechAPITranscription } from '../builtin-providers/web-speech-api'
+import { useProvidersStore } from '../providers-minimized'
 
 function errorMessage(err: unknown): string {
   const msg = errorMessageFrom(err) ?? String(err)
@@ -92,8 +91,6 @@ export function filterTranscriptionByConfidence(
 }
 
 const STREAM_TRANSCRIPTION_EXECUTORS: Record<string, StreamTranscription> = {
-  'aliyun-nls-transcription': streamAliyunTranscription,
-  // Web Speech API is handled specially in transcribeForMediaStream since it works directly with MediaStream
 }
 
 export const useHearingStore = defineStore('hearing-store', () => {

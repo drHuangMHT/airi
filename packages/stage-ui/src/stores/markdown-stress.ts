@@ -11,7 +11,7 @@ import { useChatOrchestratorStore } from './chat'
 import { useLLM } from './llm'
 import { useConsciousnessStore } from './modules/consciousness'
 import { usePerfTracerBridgeStore } from './perf-tracer-bridge'
-import { useProvidersStore } from './providers'
+import { useProvidersStore } from './providers-minimized'
 
 interface DeterministicTimer {
   now: () => number

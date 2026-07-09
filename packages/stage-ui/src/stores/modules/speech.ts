@@ -11,7 +11,6 @@ import { useI18n } from 'vue-i18n'
 import { toXml } from 'xast-util-to-xml'
 import { x } from 'xastscript'
 
-import { setupOfficialSpeechAutoPick } from '../../libs/providers/providers/official'
 import { useProvidersStore } from '../index'
 
 export function toSignedPercent(value: number): string {
@@ -164,13 +163,6 @@ export const useSpeechStore = defineStore('speech', () => {
         activeSpeechVoice.value = availableVoices.value[activeSpeechProvider.value]?.find(voice => voice.id === activeSpeechVoiceId.value)
       }
     })
-  })
-
-  setupOfficialSpeechAutoPick({
-    activeSpeechProvider,
-    activeSpeechVoiceId,
-    availableVoices,
-    uiLocale: locale,
   })
 
   watch([activeSpeechVoiceId, availableVoices], ([voiceId, voices]) => {

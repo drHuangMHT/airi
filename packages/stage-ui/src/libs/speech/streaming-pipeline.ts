@@ -1,5 +1,5 @@
-import { getAuthToken } from '../auth'
-import { SERVER_URL } from '../server'
+// import { getAuthToken } from '../auth.old'
+// import { SERVER_URL } from '../server'
 
 /**
  * One synthesized sentence emitted by the streaming pipeline. The pipeline
@@ -105,7 +105,7 @@ export interface StreamingTtsPipelineHandle {
  *   AudioBuffers are emitted via `options.onSentence` in arrival order.
  */
 export function createStreamingTtsPipeline(options: StreamingTtsPipelineOptions): StreamingTtsPipelineHandle {
-  const token = options.token ?? getAuthToken()
+  const token = options.token
   if (!token) {
     const err = new Error('streaming-pipeline: not authenticated')
     queueMicrotask(() => {
@@ -115,7 +115,7 @@ export function createStreamingTtsPipeline(options: StreamingTtsPipelineOptions)
     return noopHandle()
   }
 
-  const wsUrl = toWebSocketUrl(options.serverUrl ?? SERVER_URL, '/api/v1/audio/speech/ws', token)
+  const wsUrl = toWebSocketUrl(options.serverUrl ?? '', '/api/v1/audio/speech/ws', token)
   const ws = new WebSocket(wsUrl)
   ws.binaryType = 'arraybuffer'
 

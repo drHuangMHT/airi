@@ -54,12 +54,9 @@ import { computed, ref, watch } from 'vue'
 
 import { getKokoroAdapter } from '../libs/inference/adapters/kokoro'
 import { getProviderValidationIntervalMs, listProviders as listDefinedProviders, ProviderValidationCheck } from '../libs/providers'
-import { useAuthStore } from './auth'
-import { createAliyunNLSProvider as createAliyunNlsStreamProvider } from './providers/aliyun/stream-transcription'
-import { convertProviderDefinitionsToMetadata } from './providers/converters'
-import { buildOpenAICompatibleProvider } from './providers/openai-compatible-builder'
-import { buildOpenRouterAudioSpeechProvider } from './providers/openrouter/audio-speech'
-import { createWebSpeechAPIProvider } from './providers/web-speech-api'
+import { convertProviderDefinitionsToMetadata } from './builtin-providers/converters'
+import { buildOpenAICompatibleProvider } from './builtin-providers/openai-compatible-builder'
+import { createWebSpeechAPIProvider } from './builtin-providers/web-speech-api'
 
 const ALIYUN_NLS_REGIONS = [
   'cn-shanghai',
@@ -264,7 +261,6 @@ export const useProvidersStore = defineStore('providers', () => {
   }
 
   // Centralized provider metadata with provider factory functions
-  const authState = useAuthStore()
   const providerMetadata: Record<string, ProviderMetadata> = {
     'speech-noop': {
       id: 'speech-noop',

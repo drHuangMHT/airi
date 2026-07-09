@@ -1,9 +1,10 @@
 <script setup lang="ts">
+import { AudioAnalyzer } from '@proj-airi/multimodal-core'
 import { Button, Callout, FieldCombobox } from '@proj-airi/ui'
 import { storeToRefs } from 'pinia'
 import { computed } from 'vue'
 
-import { useAudioAnalyzer, useAudioDevice } from '../../../../composables'
+import { useAudioDevice } from '../../../../composables'
 import { useSettingsAudioDevice } from '../../../../stores'
 
 const props = withDefaults(defineProps<{
@@ -17,7 +18,7 @@ const emit = defineEmits(['toggleTranscription'])
 const deviceStore = useSettingsAudioDevice()
 const { enabled, selectedAudioInput } = storeToRefs(deviceStore)
 const { audioInputs, permissionGranted, askPermission } = useAudioDevice()
-const { volumeLevel } = useAudioAnalyzer()
+const { volumeLevel } = new AudioAnalyzer()
 
 const autoSend = defineModel<boolean>('autoSend')
 const ringEnabledClass = computed(() => enabled.value

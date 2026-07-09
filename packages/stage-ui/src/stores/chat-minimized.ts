@@ -1,5 +1,3 @@
-import type { ChatOrchestratorSendOptions } from '@proj-airi/core-agent'
-
 import { createChatOrchestratorRuntimeMinimized } from '@proj-airi/core-agent'
 import { nanoid } from 'nanoid'
 import { ref, toRaw } from 'vue'
@@ -43,9 +41,8 @@ export function useChatOrchestrator() {
 
   async function ingest(
     sendingMessage: string,
-    options: ChatOrchestratorSendOptions,
   ) {
-    return runtime.ingest(sendingMessage, options)
+    return runtime.ingest(sendingMessage)
   }
   function setSession(id: string): boolean {
     if (sendLocked.value)

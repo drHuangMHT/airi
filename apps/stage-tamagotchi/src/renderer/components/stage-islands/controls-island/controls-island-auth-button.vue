@@ -1,7 +1,5 @@
 <script setup lang="ts">
 import { useElectronEventaContext, useElectronEventaInvoke } from '@proj-airi/electron-vueuse'
-import { useAuthStore } from '@proj-airi/stage-ui/stores/auth'
-import { storeToRefs } from 'pinia'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -18,8 +16,6 @@ const props = defineProps<{
 }>()
 
 const { t } = useI18n()
-const authStore = useAuthStore()
-const { isAuthenticated, user, needsLogin, credits } = storeToRefs(authStore)
 const context = useElectronEventaContext()
 
 const startSigningIn = useElectronEventaInvoke(electronAuthStartLogin)
@@ -27,8 +23,13 @@ const openSettings = useElectronEventaInvoke(electronOpenSettings)
 
 const signingIn = ref(false)
 
-const userName = computed(() => user.value?.name)
-const userAvatar = computed(() => user.value?.image)
+const user = ref(null)
+const isAuthenticated = ref(false)
+const needsLogin = ref(true)
+const credits = ref(0)
+
+const userName = computed(() => user.value?.name ?? null)
+const userAvatar = computed(() => user.value?.image ?? null)
 
 function handleClick() {
   if (isAuthenticated.value) {

@@ -2,7 +2,7 @@ import { useLocalStorageManualReset } from '@proj-airi/stage-shared/composables'
 import { defineStore } from 'pinia'
 import { watch } from 'vue'
 
-import { useAudioDevice } from '../../composables/audio'
+import { useAudioDevice } from '../../composables/audio-device'
 
 let microphonePermissionStatus: PermissionStatus
 

@@ -12,7 +12,7 @@ import {
   ProviderSettingsContainer,
   ProviderSettingsLayout,
 } from '.'
-import { useProvidersStore } from '../../../stores/providers'
+import { useProvidersStore } from '../../../stores/providers-minimized'
 
 const props = defineProps<{
   providerId: string

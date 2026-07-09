@@ -1,4 +1,3 @@
-import { getAuthToken } from '../auth'
 import { SERVER_URL } from '../server'
 
 /**
@@ -80,7 +79,7 @@ const DEFAULT_RESPONSE_FORMAT = 'mp3' as const
  * - Rejects with the abort reason on signal abort.
  */
 export async function streamingSynthesize(options: StreamingTtsSessionOptions): Promise<StreamingTtsSessionResult> {
-  const token = options.token ?? getAuthToken()
+  const token = options.token
   if (!token)
     throw new Error('streaming-tts: not authenticated')
 

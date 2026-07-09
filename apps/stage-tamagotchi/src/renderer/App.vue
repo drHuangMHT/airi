@@ -25,7 +25,7 @@ import {
   i18nGetLocale,
   i18nSetLocale,
 } from '../shared/eventa'
-import { initializeElectronAuthCallbackBridge } from './bridges/electron-auth-callback'
+// import { initializeElectronAuthCallbackBridge } from './bridges/electron-auth-callback.old.js'
 import { initializeStageThreeRuntimeTraceBridge } from './bridges/stage-three-runtime-trace'
 import { useSetupPluginHost } from './composables/setup-plugin-host'
 import { useLanguage } from './composables/use-language'
@@ -52,7 +52,7 @@ const { activeProvider, artistryGlobals, activeModel, defaultPromptPrefix, provi
 const context = useElectronEventaContext()
 usePerfTracerBridgeStore()
 initializeStageThreeRuntimeTraceBridge()
-initializeElectronAuthCallbackBridge()
+// initializeElectronAuthCallbackBridge()
 void stageWindowLifecycleStore.initializeWindowLifecycleBridge()
 const getServerChannelConfig = useElectronEventaInvoke(electronGetServerChannelConfig)
 const getMainLocale = useElectronEventaInvoke(i18nGetLocale)

@@ -8,7 +8,7 @@ import { ref } from 'vue'
 
 import { useLLM } from '../../stores/llm'
 import { useVisionStore } from '../../stores/modules/vision'
-import { useProvidersStore } from '../../stores/providers'
+import { useProvidersStore } from '../../stores/providers-minimized'
 import { getVisionWorkload } from './use-vision-workloads'
 
 export interface VisionInferenceInput {

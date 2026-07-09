@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useAudioAnalyzer } from '@proj-airi/stage-ui/composables'
+import { AudioAnalyzer } from '@proj-airi/multimodal-core/audio'
 import { useAudioContext } from '@proj-airi/stage-ui/stores/audio'
 import { useSettingsAudioDevice } from '@proj-airi/stage-ui/stores/settings'
 import { storeToRefs } from 'pinia'
@@ -10,7 +10,7 @@ const settingsAudio = useSettingsAudioDevice()
 const { stream, enabled } = storeToRefs(settingsAudio)
 
 const { audioContext } = storeToRefs(useAudioContext())
-const { startAnalyzer, stopAnalyzer, volumeLevel } = useAudioAnalyzer()
+const { startAnalyzer, stopAnalyzer, volumeLevel } = new AudioAnalyzer()
 
 let source: MediaStreamAudioSourceNode | undefined
 

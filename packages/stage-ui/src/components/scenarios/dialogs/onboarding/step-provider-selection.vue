@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ProviderMetadata } from '../../../../stores/providers'
+import type { ProviderMetadata } from '../../../../stores/providers-minimized'
 import type { OnboardingStepNextHandler, OnboardingStepPrevHandler } from './types'
 
 import { Button } from '@proj-airi/ui'

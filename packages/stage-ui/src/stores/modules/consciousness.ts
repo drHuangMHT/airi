@@ -3,7 +3,7 @@ import { refManualReset } from '@vueuse/core'
 import { defineStore } from 'pinia'
 import { computed } from 'vue'
 
-import { useProvidersStore } from '../providers'
+import { useProvidersStore } from '../providers-minimized'
 
 export const useConsciousnessStore = defineStore('consciousness', () => {
   const providersStore = useProvidersStore()
@@ -17,7 +17,7 @@ export const useConsciousnessStore = defineStore('consciousness', () => {
 
   // Computed properties
   const supportsModelListing = computed(() => {
-    return providersStore.getProviderMetadata(activeProvider.value)?.capabilities.listModels !== undefined
+    return providersStore.allProvidersMetadata.find(v => v === activeProvider.value)?.capabilities.listModels !== undefined
   })
 
   const providerModels = computed(() => {

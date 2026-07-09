@@ -1,7 +1,5 @@
-import type { OAuthProvider } from '../../libs/auth'
-
 export interface SignInProviderDefinition {
-  id: OAuthProvider
+  id: any
   name: string
   icon: string
 }

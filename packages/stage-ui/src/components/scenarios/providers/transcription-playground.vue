@@ -1,14 +1,13 @@
 <script setup lang="ts">
 import type { HearingTranscriptionResult } from '../../../stores/modules/hearing'
 
+import { AudioAnalyzer, useAudioRecorder } from '@proj-airi/multimodal-core/audio'
 import { Button, FieldCombobox, FieldRange } from '@proj-airi/ui'
 import { until } from '@vueuse/core'
 import { computed, onUnmounted, ref, shallowRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { useAudioDevice } from '../../../composables/audio'
-import { useAudioAnalyzer } from '../../../composables/audio/audio-analyzer'
-import { useAudioRecorder } from '../../../composables/audio/audio-recorder'
+import { useAudioDevice } from '../../../composables/audio-device'
 import { LevelMeter, TestDummyMarker, ThresholdMeter } from '../../gadgets'
 
 const props = defineProps<{
@@ -20,7 +19,7 @@ const props = defineProps<{
 
 const { t } = useI18n()
 const { audioInputs, selectedAudioInput, stream, stopStream, startStream } = useAudioDevice()
-const { volumeLevel, stopAnalyzer, startAnalyzer } = useAudioAnalyzer()
+const { volumeLevel, stopAnalyzer, startAnalyzer } = new AudioAnalyzer()
 const { startRecord, stopRecord, onStopRecord } = useAudioRecorder(stream)
 
 const speakingThreshold = ref(25) // 0-100 (for volume-based fallback)

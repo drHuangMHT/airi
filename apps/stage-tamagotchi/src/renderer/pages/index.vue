@@ -14,7 +14,6 @@ import {
 import { IS_DEV } from '@proj-airi/stage-shared'
 import { useSettingsLive2d } from '@proj-airi/stage-ui-live2d'
 import { useModelStore, useThreeSceneIsTransparentAtPoint } from '@proj-airi/stage-ui-three'
-import { HoloCoupon } from '@proj-airi/stage-ui/components'
 import {
   createEmptyModelSettingsRuntimeSnapshot,
   resolveComponentStateToRuntimePhase,
@@ -281,7 +280,6 @@ trackingSource.value = computed(() => ({
           flex-1
           :paused="stagePaused"
         />
-        <HoloCoupon />
         <ControlsIsland
           ref="controlsIslandRef"
         />

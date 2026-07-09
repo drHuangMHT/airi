@@ -13,7 +13,7 @@ import { detectWebGPU, getCachedWebGPUCapabilities } from '@proj-airi/stage-shar
 import { getDefaultKokoroModel, KOKORO_MODELS } from 'inference-transformers/kokoro'
 
 import { getKokoroAdapter } from '../libs/inference/adapters/kokoro'
-import { useProvidersStore } from '../stores/providers'
+import { useProvidersStore } from '../stores/providers-minimized'
 import { useModelPreload } from './use-model-preload'
 
 export interface UseInferencePreloadOptions {

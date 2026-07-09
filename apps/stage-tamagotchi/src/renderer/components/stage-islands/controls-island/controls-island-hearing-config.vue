@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { electron } from '@proj-airi/electron-eventa'
 import { useElectronEventaInvoke } from '@proj-airi/electron-vueuse'
+import { AudioAnalyzer } from '@proj-airi/multimodal-core/audio'
 import { HearingConfigDialog } from '@proj-airi/stage-ui/components'
-import { useAudioAnalyzer, useAudioContextFromStream } from '@proj-airi/stage-ui/composables'
+import { useAudioContextFromStream } from '@proj-airi/stage-ui/composables'
 import { useSettingsAudioDevice } from '@proj-airi/stage-ui/stores/settings'
 import { useAsyncState } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
@@ -17,7 +18,7 @@ const getMediaAccessStatus = useElectronEventaInvoke(electron.systemPreferences.
 const { state: mediaAccessStatus, execute: refreshMediaAccessStatus } = useAsyncState(() => getMediaAccessStatus(['microphone']), 'not-determined')
 
 const { audioContext, initialize, dispose, pause } = useAudioContextFromStream(stream)
-const { volumeLevel, startAnalyzer, stopAnalyzer } = useAudioAnalyzer()
+const { volumeLevel, startAnalyzer, stopAnalyzer } = new AudioAnalyzer()
 
 // NOTICE: Do not call `startStream()` / `stopStream()` from this component.
 //

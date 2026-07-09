@@ -3,7 +3,7 @@ import { refManualReset } from '@vueuse/core'
 import { defineStore } from 'pinia'
 import { computed } from 'vue'
 
-import { useProvidersStore } from '../../providers'
+import { useProvidersStore } from '../../providers-minimized'
 
 export const useVisionStore = defineStore('vision', () => {
   const providersStore = useProvidersStore()

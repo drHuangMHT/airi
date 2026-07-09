@@ -118,6 +118,7 @@ catalog:
   jose: ^6.2.2
   jsdom: ^29.0.2
   knip: ^6.4.1
+  mediabunny: ^1.40.1
   meow: ^14.1.0
   mkcert: ^3.2.0
   nano-staged: ^1.0.2

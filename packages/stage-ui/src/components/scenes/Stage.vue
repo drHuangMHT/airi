@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import type { Live2DLipSync, Live2DLipSyncOptions } from '@proj-airi/model-driver-lipsync'
 import type { Profile } from '@proj-airi/model-driver-lipsync/shared/wlipsync'
-import type { SpeechProviderWithExtraOptions } from '@xsai-ext/providers/utils'
-import type { UnElevenLabsOptions } from 'unspeech'
 
 import type { EmotionPayload } from '../../constants/emotions'
 import type { SpeechTransport, StageTtsSession, StreamingSessionSnapshot } from '../../libs/speech/tts-session'
@@ -18,21 +16,16 @@ import { animations } from '@proj-airi/stage-ui-three/assets/vrm'
 import { createQueue } from '@proj-airi/stream-kit'
 import { Callout } from '@proj-airi/ui'
 import { useBroadcastChannel } from '@vueuse/core'
-// import { createTransformers } from '@xsai-transformers/embed'
-// import embedWorkerURL from '@xsai-transformers/embed/worker?worker&url'
-// import { embed } from '@xsai/embed'
 import { generateSpeech } from '@xsai/generate-speech'
 import { storeToRefs } from 'pinia'
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 
 import { useSettingsLive2d } from '../../../../stage-ui-live2d/src/composables/live2d/live2d'
-import { useAuthProviderSync } from '../../composables/use-auth-provider-sync'
 import { useDuckDb } from '../../composables/use-duck-db'
 import { useIOTraceBridge } from '../../composables/use-io-trace-bridge'
 import { initIOTracer } from '../../composables/use-io-tracer'
 import { useSpeechPipelineAnalytics } from '../../composables/use-speech-pipeline-analytics'
 import { Emotion, EMOTION_EmotionMotionName_value, EMOTION_VRMExpressionName_value, EmotionThinkMotionName } from '../../constants/emotions'
-import { getDefinedProvider } from '../../libs/providers/providers'
 import { createStageTtsSession } from '../../libs/speech/tts-session'
 import { useAudioContext, useSpeakingStore } from '../../stores/audio'
 import { useBackgroundStore } from '../../stores/background'
@@ -40,7 +33,7 @@ import { useChatOrchestrator } from '../../stores/chat-minimized'
 import { useLlmStreamingControlStore } from '../../stores/llm-streaming-control'
 import { useAiriCardStore } from '../../stores/modules'
 import { useSpeechStore } from '../../stores/modules/speech'
-import { useProvidersStore } from '../../stores/providers'
+import { useProvidersStore } from '../../stores/providers-minimized'
 import { useSettings } from '../../stores/settings'
 import { useSpeechRuntimeStore } from '../../stores/speech-runtime'
 
@@ -89,7 +82,6 @@ const chatHookCleanups: Array<() => void> = []
 //             cross-window broadcast wiring.
 
 const providersStore = useProvidersStore()
-useAuthProviderSync()
 const live2dStore = useLive2dParams()
 const showStage = ref(true)
 const viewUpdateCleanups: Array<() => void> = []
@@ -328,7 +320,7 @@ const speechPipeline = createSpeechPipeline<AudioBuffer>({
       return null
     }
 
-    const provider = await providersStore.getProviderInstance(activeSpeechProvider.value) as SpeechProviderWithExtraOptions<string, UnElevenLabsOptions>
+    const provider = await providersStore.getProviderInstance(activeSpeechProvider.value)
     if (!provider) {
       console.error('Failed to initialize speech provider')
       return null
@@ -595,7 +587,7 @@ function resolveSpeechTransport(providerId: string | null | undefined): SpeechTr
   // factory transport-agnostic and lets a new provider opt into streaming
   // by setting `capabilities.speech.transport: 'bidirectional-ws'` in its
   // own `defineProvider` call (no Stage / factory edits needed).
-  return getDefinedProvider(providerId)?.capabilities?.speech?.transport
+  return undefined
 }
 
 function openTtsSession(): StageTtsSession {

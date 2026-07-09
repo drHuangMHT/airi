@@ -20,7 +20,7 @@ import { sparkNotifyCommandSchema, useCharacterOrchestratorStore } from '.'
 import { useCharacterStore } from '..'
 import { useLLM } from '../../llm'
 import { useAiriCardStore, useConsciousnessStore } from '../../modules'
-import { useProvidersStore } from '../../providers'
+import { useProvidersStore } from '../../providers-minimized'
 
 vi.mock('vue-i18n', () => ({
   useI18n: () => ({

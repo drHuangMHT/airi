@@ -2,14 +2,11 @@
 import AccountSettingsPage from '@proj-airi/stage-pages/pages/settings/account/account-settings-page.vue'
 
 import { signOut } from '@proj-airi/stage-ui/libs/auth'
-import { useAuthStore } from '@proj-airi/stage-ui/stores/auth'
 import { useRouter } from 'vue-router'
 
-const authStore = useAuthStore()
 const router = useRouter()
 
 function handleLogin() {
-  authStore.needsLogin = true
 }
 
 async function handleLogout() {

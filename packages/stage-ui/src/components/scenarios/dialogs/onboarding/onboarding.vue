@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ProviderMetadata } from '../../../../stores/providers'
+import type { ProviderMetadata } from '../../../../stores/providers-minimized'
 import type {
   OnboardingStep,
   OnboardingStepGuard,
@@ -18,7 +18,7 @@ import StepWelcome from './step-welcome.vue'
 
 import { capturePosthogEvent } from '../../../../stores/analytics/posthog'
 import { useConsciousnessStore } from '../../../../stores/modules/consciousness'
-import { useProvidersStore } from '../../../../stores/providers'
+import { useProvidersStore } from '../../../../stores/providers-minimized'
 
 interface Emits {
   (e: 'configured'): void
