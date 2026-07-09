@@ -20,8 +20,8 @@
   },
   "dependencies": {
     "@huggingface/transformers": "^3.8.1",
+    "@proj-airi/multimodal-core": "workspace:^",
     "kokoro-js": "^1.2.1",
-    "proj-airi-inference-core": "file:../core",
-    "proj-airi-multimodal-core": "file:../../../packages/multimodal-core"
+    "proj-airi-inference-core": "file:../core"
   }
 }
