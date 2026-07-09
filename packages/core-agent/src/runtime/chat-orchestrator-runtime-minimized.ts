@@ -154,9 +154,8 @@ export function createChatOrchestratorRuntimeMinimized(deps: ChatOrchestratorRun
 
   async function performSend(
     userText: string,
-    options: ChatOrchestratorSendOptions,
   ) {
-    if (!userText && !options.attachments?.length)
+    if (!userText)
       return
     const sendingCreatedAt = now()
 
@@ -165,7 +164,6 @@ export function createChatOrchestratorRuntimeMinimized(deps: ChatOrchestratorRun
       message: null,
       contexts: {},
       composedMessage: [],
-      input: options.input,
     }
 
     const contentParts: ContentPart[] = [{ type: 'text', text: userText }]
@@ -288,7 +286,7 @@ export function createChatOrchestratorRuntimeMinimized(deps: ChatOrchestratorRun
       })
 
       let fullText = ''
-      const headers = (options.providerConfig?.headers || {}) as Record<string, string>
+      const headers = {} as Record<string, string>
 
       if (shouldAbort())
         return
@@ -296,7 +294,7 @@ export function createChatOrchestratorRuntimeMinimized(deps: ChatOrchestratorRun
       const llmRequestStartedAt = analyticNow()
       let llmFirstTokenEmitted = false
 
-      await deps.llm.stream(options.model, options.chatProvider, newMessages as Message[], {
+      await deps.llm.stream(newMessages as Message[], {
         headers,
         tools: options.tools,
         waitForTools: true,
@@ -368,9 +366,8 @@ export function createChatOrchestratorRuntimeMinimized(deps: ChatOrchestratorRun
 
   function ingest(
     userText: string,
-    options: ChatOrchestratorSendOptions,
   ) {
-    return performSend(userText, options)
+    return performSend(userText)
   }
 
   return {
