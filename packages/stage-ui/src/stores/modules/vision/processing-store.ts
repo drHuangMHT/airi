@@ -1,5 +1,5 @@
 import { errorMessageFrom } from '@moeru/std'
-import { useLocalStorageManualReset } from '@proj-airi/stage-shared/composables'
+import { useLocalStorageWithDefault } from '@proj-airi/stage-shared/composables'
 import { defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
 
@@ -32,7 +32,7 @@ function countInWindow(history: number[], windowMs: number) {
 }
 
 export const useVisionProcessingStore = defineStore('vision-processing', () => {
-  const captureIntervalMs = useLocalStorageManualReset<number>(
+  const captureIntervalMs = useLocalStorageWithDefault<number>(
     'settings/vision/capture-interval-ms',
     DEFAULT_CAPTURE_INTERVAL_MS,
   )

@@ -18,7 +18,7 @@ const getMediaAccessStatus = useElectronEventaInvoke(electron.systemPreferences.
 const { state: mediaAccessStatus, execute: refreshMediaAccessStatus } = useAsyncState(() => getMediaAccessStatus(['microphone']), 'not-determined')
 
 const { audioContext, initialize, dispose, pause } = useAudioContextFromStream(stream)
-const { volumeLevel, startAnalyzer, stopAnalyzer } = new AudioAnalyzer()
+const audioAnalyzer = new AudioAnalyzer()
 
 // NOTICE: Do not call `startStream()` / `stopStream()` from this component.
 //
@@ -34,24 +34,21 @@ watch([enabled, stream], ([isEnabled, currentStream]) => {
   if (isEnabled && currentStream) {
     initialize().then(() => {
       if (audioContext.value)
-        return startAnalyzer(audioContext.value)
+        return audioAnalyzer.startAnalyzer(audioContext.value)
     })
   }
   else {
-    stopAnalyzer()
+    audioAnalyzer.stopAnalyzer()
     pause()
   }
 }, { immediate: true })
 
 onMounted(async () => {
   await refreshMediaAccessStatus()
-  if (audioContext.value) {
-    await startAnalyzer(audioContext.value)
-  }
 })
 
 onUnmounted(async () => {
-  await stopAnalyzer()
+  await audioAnalyzer.stopAnalyzer()
   await dispose()
 })
 </script>
@@ -60,7 +57,7 @@ onUnmounted(async () => {
   <HearingConfigDialog
     v-model:show="show"
     :granted="mediaAccessStatus !== 'denied' && mediaAccessStatus !== 'restricted'"
-    :volume-level="volumeLevel"
+    :volume-level="audioAnalyzer.volumeLevel"
   >
     <slot />
   </HearingConfigDialog>

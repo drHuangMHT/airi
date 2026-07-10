@@ -13,6 +13,7 @@ export class AudioAnalyzer {
   private smoothingTimeConstant: number
   private _volumeLevel: number = 0
   private _error: string | null = null
+  private mode: 'linear' | 'minmax' | 'rms' = 'rms'
   private onUpdateHooks: Array<(volumeLevel: number) => void | Promise<void>> = []
 
   constructor(options: AudioAnalyzerOptions = {}) {
@@ -55,13 +56,20 @@ export class AudioAnalyzer {
         return cancelAnimationFrame(this.frameRequest as any)
 
       this.analyzer.getByteFrequencyData(this.dataArray as any)
-
-      let sum = 0
-      for (let i = 0; i < this.dataArray.length; i++) {
-        sum += this.dataArray[i] * this.dataArray[i]
+      switch (this.mode) {
+        case 'linear': {
+          this._volumeLevel = linearNormalize(this.dataArray)
+          break
+        }
+        case 'minmax': {
+          this._volumeLevel = minMaxNormalize(this.dataArray)
+          break
+        }
+        case 'rms': {
+          this._volumeLevel = Math.min(100, (rms(this.dataArray) / 255) * 100 * this.amplification)
+          break
+        }
       }
-      const rms = Math.sqrt(sum / this.dataArray.length)
-      this._volumeLevel = Math.min(100, (rms / 255) * 100 * this.amplification)
 
       for (const hook of this.onUpdateHooks) {
         try {
@@ -121,4 +129,59 @@ export class AudioAnalyzer {
     this.analyzer = null
     this.dataArray = null
   }
+}
+
+function linearNormalize(buf: Uint8Array): number {
+  const volumeVector: Array<number> = []
+  for (let i = 0; i < 700; i += 80)
+    volumeVector.push(buf[i])
+
+  const volumeSum = buf
+    // The volume changes flatten-ly, while the volume is often low, therefore we need to amplify it.
+    // Applying a power function to amplify the volume is helpful, for example:
+    // v ** 1.2 will amplify the volume by 1.2 times
+    .map(v => v ** 1.2)
+    // Scale up the volume values to make them more distinguishable
+    .map(v => v * 1.2)
+    .reduce((acc, cur) => acc + cur, 0)
+
+  return (volumeSum / buf.length / 100)
+}
+
+function minMaxNormalize(buf: Uint8Array) {
+  const volumeVector: Array<number> = []
+  for (let i = 0; i < 700; i += 80)
+    volumeVector.push(buf[i])
+
+  // The volume changes flatten-ly, while the volume is often low, therefore we need to amplify it.
+  // We can apply a power function to amplify the volume, for example
+  // v ** 1.2 will amplify the volume by 1.2 times
+  const amplifiedVolumeVector = buf.map(v => v ** 1.5)
+
+  // Normalize the amplified values using Min-Max scaling
+  const min = Math.min(...amplifiedVolumeVector)
+  const max = Math.max(...amplifiedVolumeVector)
+  const range = max - min
+
+  let normalizedVolumeVector
+  if (range === 0) {
+    // If range is zero, all values are the same, so normalization is not needed
+    normalizedVolumeVector = amplifiedVolumeVector.map(() => 0) // or any default value
+  }
+  else {
+    normalizedVolumeVector = amplifiedVolumeVector.map(v => (v - min) / range)
+  }
+
+  // Aggregate the volume values
+  const volumeSum = normalizedVolumeVector.reduce((acc, cur) => acc + cur, 0)
+
+  // Average the volume values
+  return volumeSum / buf.length
+}
+function rms(buf: Uint8Array): number {
+  let sum = 0
+  for (let i = 0; i < buf.length; i++) {
+    sum += buf[i] * buf[i]
+  }
+  return Math.sqrt(sum / buf.length)
 }

@@ -1,6 +1,6 @@
 import type { Ref } from 'vue'
 
-import { useLocalStorageManualReset } from '@proj-airi/stage-shared/composables'
+import { useLocalStorageWithDefault } from '@proj-airi/stage-shared/composables'
 import { watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -26,7 +26,7 @@ export function useLanguage(
   setLocale: (locale: string) => Promise<unknown> | unknown,
 ) {
   const i18n = useI18n()
-  const persistedLanguage = useLocalStorageManualReset<string>('settings/language', '')
+  const persistedLanguage = useLocalStorageWithDefault<string>('settings/language', '')
   const hasPersistedLanguage = persistedLanguage.value !== ''
   let isLocaleSynced = false
 

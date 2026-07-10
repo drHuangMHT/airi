@@ -1,6 +1,6 @@
 import type { DisplayModel } from '../display-models'
 
-import { useLocalStorageManualReset } from '@proj-airi/stage-shared/composables'
+import { useLocalStorageWithDefault } from '@proj-airi/stage-shared/composables'
 import { refManualReset, useEventListener } from '@vueuse/core'
 import { defineStore } from 'pinia'
 import { computed, watch } from 'vue'
@@ -15,7 +15,7 @@ export const useSettingsStageModel = defineStore('settings-stage-model', () => {
   let stageModelUpdateSequence = 0
   const stageModelStorageKey = 'settings/stage/model'
 
-  const stageModelSelectedState = useLocalStorageManualReset<string>(stageModelStorageKey, 'preset-live2d-1')
+  const stageModelSelectedState = useLocalStorageWithDefault<string>(stageModelStorageKey, 'preset-live2d-1')
   const stageModelSelected = computed<string>({
     get: () => stageModelSelectedState.value,
     set: (value) => {

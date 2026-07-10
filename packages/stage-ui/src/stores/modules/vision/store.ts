@@ -1,4 +1,4 @@
-import { useLocalStorageManualReset } from '@proj-airi/stage-shared/composables'
+import { useLocalStorageWithDefault } from '@proj-airi/stage-shared/composables'
 import { refManualReset } from '@vueuse/core'
 import { defineStore } from 'pinia'
 import { computed } from 'vue'
@@ -8,10 +8,10 @@ import { useProvidersStore } from '../../providers-minimized'
 export const useVisionStore = defineStore('vision', () => {
   const providersStore = useProvidersStore()
 
-  const activeProvider = useLocalStorageManualReset('settings/vision/active-provider', '')
-  const activeModel = useLocalStorageManualReset('settings/vision/active-model', '')
-  const activeCustomModelName = useLocalStorageManualReset('settings/vision/active-custom-model', '')
-  const ollamaThinkingEnabled = useLocalStorageManualReset('settings/vision/ollama-thinking-enabled', false)
+  const activeProvider = useLocalStorageWithDefault('settings/vision/active-provider', '')
+  const activeModel = useLocalStorageWithDefault('settings/vision/active-model', '')
+  const activeCustomModelName = useLocalStorageWithDefault('settings/vision/active-custom-model', '')
+  const ollamaThinkingEnabled = useLocalStorageWithDefault('settings/vision/ollama-thinking-enabled', false)
   const modelSearchQuery = refManualReset('')
 
   const providerMetadata = computed(() => {

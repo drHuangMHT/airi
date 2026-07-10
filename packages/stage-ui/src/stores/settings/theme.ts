@@ -1,4 +1,4 @@
-import { useLocalStorageManualReset } from '@proj-airi/stage-shared/composables'
+import { useLocalStorageWithDefault } from '@proj-airi/stage-shared/composables'
 import { converter } from 'culori'
 import { defineStore } from 'pinia'
 
@@ -8,8 +8,8 @@ const convert = converter('oklch')
 const getHueFrom = (color?: string) => color ? convert(color)?.h : DEFAULT_THEME_COLORS_HUE
 
 export const useSettingsTheme = defineStore('settings-theme', () => {
-  const themeColorsHue = useLocalStorageManualReset<number>('settings/theme/colors/hue', DEFAULT_THEME_COLORS_HUE)
-  const themeColorsHueDynamic = useLocalStorageManualReset<boolean>('settings/theme/colors/hue-dynamic', false)
+  const themeColorsHue = useLocalStorageWithDefault<number>('settings/theme/colors/hue', DEFAULT_THEME_COLORS_HUE)
+  const themeColorsHueDynamic = useLocalStorageWithDefault<boolean>('settings/theme/colors/hue-dynamic', false)
 
   function setThemeColorsHue(hue = DEFAULT_THEME_COLORS_HUE) {
     themeColorsHue.value = hue

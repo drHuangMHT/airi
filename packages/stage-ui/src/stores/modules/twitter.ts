@@ -1,4 +1,4 @@
-import { useLocalStorageManualReset } from '@proj-airi/stage-shared/composables'
+import { useLocalStorageWithDefault } from '@proj-airi/stage-shared/composables'
 import { defineStore } from 'pinia'
 import { computed } from 'vue'
 
@@ -7,11 +7,11 @@ import { useConfiguratorByModsChannelServer } from '../configurator'
 export const useTwitterStore = defineStore('twitter', () => {
   const configurator = useConfiguratorByModsChannelServer()
 
-  const enabled = useLocalStorageManualReset<boolean>('settings/twitter/enabled', false)
-  const apiKey = useLocalStorageManualReset<string>('settings/twitter/api-key', '')
-  const apiSecret = useLocalStorageManualReset<string>('settings/twitter/api-secret', '')
-  const accessToken = useLocalStorageManualReset<string>('settings/twitter/access-token', '')
-  const accessTokenSecret = useLocalStorageManualReset<string>('settings/twitter/access-token-secret', '')
+  const enabled = useLocalStorageWithDefault<boolean>('settings/twitter/enabled', false)
+  const apiKey = useLocalStorageWithDefault<string>('settings/twitter/api-key', '')
+  const apiSecret = useLocalStorageWithDefault<string>('settings/twitter/api-secret', '')
+  const accessToken = useLocalStorageWithDefault<string>('settings/twitter/access-token', '')
+  const accessTokenSecret = useLocalStorageWithDefault<string>('settings/twitter/access-token-secret', '')
 
   function saveSettings() {
     // Data is automatically saved to localStorage via useLocalStorage

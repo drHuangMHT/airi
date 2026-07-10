@@ -1,13 +1,12 @@
 import type { SpeechProviderWithExtraOptions } from '@xsai-ext/providers/utils'
 
-import type { VoiceInfo } from '../providers'
+import type { VoiceInfo } from '../providers-minimized'
 
-import { useLocalStorageManualReset } from '@proj-airi/stage-shared/composables'
+import { useLocalStorageWithDefault } from '@proj-airi/stage-shared/composables'
 import { refManualReset } from '@vueuse/core'
 import { generateSpeech } from '@xsai/generate-speech'
 import { defineStore, storeToRefs } from 'pinia'
 import { computed, onMounted, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { toXml } from 'xast-util-to-xml'
 import { x } from 'xastscript'
 
@@ -24,17 +23,16 @@ export function toSignedPercent(value: number): string {
 export const useSpeechStore = defineStore('speech', () => {
   const providersStore = useProvidersStore()
   const { addedProviders, providerFactories } = storeToRefs(providersStore)
-  const { locale } = useI18n()
 
   // State
-  const activeSpeechProvider = useLocalStorageManualReset<string>('settings/speech/active-provider', 'speech-noop')
-  const activeSpeechModel = useLocalStorageManualReset<string>('settings/speech/active-model', '')
-  const activeSpeechVoiceId = useLocalStorageManualReset<string>('settings/speech/voice', '')
+  const activeSpeechProvider = useLocalStorageWithDefault<string>('settings/speech/active-provider', 'speech-noop')
+  const activeSpeechModel = useLocalStorageWithDefault<string>('settings/speech/active-model', '')
+  const activeSpeechVoiceId = useLocalStorageWithDefault<string>('settings/speech/voice', '')
   const activeSpeechVoice = refManualReset<VoiceInfo | undefined>(undefined)
 
-  const pitch = useLocalStorageManualReset<number>('settings/speech/pitch', 0)
-  const rate = useLocalStorageManualReset<number>('settings/speech/rate', 1)
-  const ssmlEnabled = useLocalStorageManualReset<boolean>('settings/speech/ssml-enabled', false)
+  const pitch = useLocalStorageWithDefault<number>('settings/speech/pitch', 0)
+  const rate = useLocalStorageWithDefault<number>('settings/speech/rate', 1)
+  const ssmlEnabled = useLocalStorageWithDefault<boolean>('settings/speech/ssml-enabled', false)
   const isLoadingSpeechProviderVoices = refManualReset<boolean>(false)
   const speechProviderError = refManualReset<string | null>(null)
   const availableVoices = refManualReset<Record<string, VoiceInfo[]>>(() => ({}))
@@ -91,7 +89,7 @@ export const useSpeechStore = defineStore('speech', () => {
     speechProviderError.value = null
 
     try {
-      const voices = await providersStore.providerFactories[provider].capabilities.listVoices?.(providersStore.getProviderConfig(provider), model) || []
+      const voices = await providersStore.providerFactories[provider]?.capabilities.listVoices?.(providersStore.getProviderConfig(provider), model) || []
       // Reassign to trigger reactivity when adding/updating provider entries
       availableVoices.value = {
         ...availableVoices.value,

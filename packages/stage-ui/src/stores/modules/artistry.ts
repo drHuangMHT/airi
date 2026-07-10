@@ -1,4 +1,4 @@
-import { useLocalStorageManualReset } from '@proj-airi/stage-shared/composables'
+import { useLocalStorageWithDefault } from '@proj-airi/stage-shared/composables'
 import { defineStore } from 'pinia'
 import { computed, isRef, ref, watch } from 'vue'
 
@@ -19,10 +19,10 @@ export interface ComfyUIWorkflowTemplate {
 
 export const useArtistryStore = defineStore('artistry', () => {
   // --- Persistent Global Settings (User Preferences) ---
-  const globalProvider = useLocalStorageManualReset<string>('artistry-provider', 'none')
-  const globalModel = useLocalStorageManualReset<string>('artistry-model', '')
-  const globalPromptPrefix = useLocalStorageManualReset<string>('artistry-prompt-prefix', '')
-  const globalProviderOptions = useLocalStorageManualReset<Record<string, any> | undefined>('artistry-provider-options', undefined)
+  const globalProvider = useLocalStorageWithDefault<string>('artistry-provider', 'none')
+  const globalModel = useLocalStorageWithDefault<string>('artistry-model', '')
+  const globalPromptPrefix = useLocalStorageWithDefault<string>('artistry-prompt-prefix', '')
+  const globalProviderOptions = useLocalStorageWithDefault<Record<string, any> | undefined>('artistry-provider-options', undefined)
 
   // --- Active settings (transient, can be overridden by cards) ---
   const activeProvider = ref(globalProvider.value)
@@ -31,41 +31,41 @@ export const useArtistryStore = defineStore('artistry', () => {
   const providerOptions = ref(globalProviderOptions.value)
 
   // --- ComfyUI provider settings ---
-  const comfyuiServerUrl = useLocalStorageManualReset<string>(
+  const comfyuiServerUrl = useLocalStorageWithDefault<string>(
     'artistry-comfyui-server-url',
     'http://localhost:8188',
   )
-  const comfyuiSavedWorkflows = useLocalStorageManualReset<ComfyUIWorkflowTemplate[]>(
+  const comfyuiSavedWorkflows = useLocalStorageWithDefault<ComfyUIWorkflowTemplate[]>(
     'artistry-comfyui-saved-workflows',
     [],
   )
-  const comfyuiActiveWorkflow = useLocalStorageManualReset<string>(
+  const comfyuiActiveWorkflow = useLocalStorageWithDefault<string>(
     'artistry-comfyui-active-workflow',
     '',
   )
 
   // --- Replicate provider settings ---
-  const replicateApiKey = useLocalStorageManualReset<string>('artistry-replicate-api-key', '')
-  const replicateDefaultModel = useLocalStorageManualReset<string>(
+  const replicateApiKey = useLocalStorageWithDefault<string>('artistry-replicate-api-key', '')
+  const replicateDefaultModel = useLocalStorageWithDefault<string>(
     'artistry-replicate-default-model',
     'black-forest-labs/flux-schnell',
   )
-  const replicateAspectRatio = useLocalStorageManualReset<string>(
+  const replicateAspectRatio = useLocalStorageWithDefault<string>(
     'artistry-replicate-aspect-ratio',
     '16:9',
   )
-  const replicateInferenceSteps = useLocalStorageManualReset<number>(
+  const replicateInferenceSteps = useLocalStorageWithDefault<number>(
     'artistry-replicate-inference-steps',
     4,
   )
 
   // --- Nano Banana (Google AI Studio) provider settings ---
-  const nanobananaApiKey = useLocalStorageManualReset<string>('artistry-nanobanana-api-key', '')
-  const nanobananaModel = useLocalStorageManualReset<string>(
+  const nanobananaApiKey = useLocalStorageWithDefault<string>('artistry-nanobanana-api-key', '')
+  const nanobananaModel = useLocalStorageWithDefault<string>(
     'artistry-nanobanana-model',
     'gemini-3.1-flash-image-preview',
   )
-  const nanobananaResolution = useLocalStorageManualReset<string>(
+  const nanobananaResolution = useLocalStorageWithDefault<string>(
     'artistry-nanobanana-resolution',
     '1K',
   )

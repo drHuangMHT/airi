@@ -1,4 +1,4 @@
-import { useLocalStorageManualReset } from '@proj-airi/stage-shared/composables'
+import { useLocalStorageWithDefault } from '@proj-airi/stage-shared/composables'
 import { defineStore } from 'pinia'
 import { watch } from 'vue'
 
@@ -9,8 +9,8 @@ let microphonePermissionStatus: PermissionStatus
 export const useSettingsAudioDevice = defineStore('settings-audio-devices', () => {
   const { audioInputs, deviceConstraints, selectedAudioInput: selectedAudioInputNonPersist, startStream, stopStream, stream, askPermission } = useAudioDevice()
 
-  const selectedAudioInputPersist = useLocalStorageManualReset<string>('settings/audio/input', selectedAudioInputNonPersist.value)
-  const audioInputEnabled = useLocalStorageManualReset<boolean>('settings/audio/input/enabled', false)
+  const selectedAudioInputPersist = useLocalStorageWithDefault<string>('settings/audio/input', selectedAudioInputNonPersist.value)
+  const audioInputEnabled = useLocalStorageWithDefault<boolean>('settings/audio/input/enabled', false)
 
   watch(selectedAudioInputPersist, (newValue) => {
     selectedAudioInputNonPersist.value = newValue

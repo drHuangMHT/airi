@@ -1,4 +1,4 @@
-import { useLocalStorageManualReset } from '@proj-airi/stage-shared/composables'
+import { useLocalStorageWithDefault } from '@proj-airi/stage-shared/composables'
 import { useBroadcastChannel } from '@vueuse/core'
 import { defineStore } from 'pinia'
 import { ref, watch } from 'vue'
@@ -65,49 +65,49 @@ export const useSpine = defineStore('spine', () => {
   })
 
   /** Currently active idle animation (track 0). */
-  const currentAnimation = useLocalStorageManualReset<SpineCurrentAnimation>(
+  const currentAnimation = useLocalStorageWithDefault<SpineCurrentAnimation>(
     'settings/spine/current-animation',
     () => ({ ...defaultSpineAnimation }),
   )
 
   /** All animations discovered on the loaded skeleton. */
-  const availableAnimations = useLocalStorageManualReset<SpineAnimationDescriptor[]>(
+  const availableAnimations = useLocalStorageWithDefault<SpineAnimationDescriptor[]>(
     'settings/spine/available-animations',
     () => [],
   )
 
   /** All skins discovered on the loaded skeleton. */
-  const availableSkins = useLocalStorageManualReset<SpineSkinDescriptor[]>(
+  const availableSkins = useLocalStorageWithDefault<SpineSkinDescriptor[]>(
     'settings/spine/available-skins',
     () => [],
   )
 
   /** Active skin name. Empty string means use the model's default skin. */
-  const currentSkin = useLocalStorageManualReset<string>('settings/spine/current-skin', '')
+  const currentSkin = useLocalStorageWithDefault<string>('settings/spine/current-skin', '')
 
   /** All skeleton variants discovered in the ZIP. */
-  const availableVariants = useLocalStorageManualReset<SpineVariantDescriptor[]>(
+  const availableVariants = useLocalStorageWithDefault<SpineVariantDescriptor[]>(
     'settings/spine/available-variants',
     () => [],
   )
 
   /** Active variant name. Empty string means use the default (first) variant. */
-  const currentVariant = useLocalStorageManualReset<string>('settings/spine/current-variant', '')
+  const currentVariant = useLocalStorageWithDefault<string>('settings/spine/current-variant', '')
 
   /** Premultiplied alpha — most modern Spine atlases ship as PMA. */
-  const premultipliedAlpha = useLocalStorageManualReset<boolean>('settings/spine/premultiplied-alpha', true)
+  const premultipliedAlpha = useLocalStorageWithDefault<boolean>('settings/spine/premultiplied-alpha', true)
 
   /** Default mix-in/out duration (s) between track animations. */
-  const defaultMixDuration = useLocalStorageManualReset<number>('settings/spine/default-mix', 0.2)
+  const defaultMixDuration = useLocalStorageWithDefault<number>('settings/spine/default-mix', 0.2)
 
   /** Auto-play idle animation on load. */
-  const idleAnimationEnabled = useLocalStorageManualReset<boolean>('settings/spine/idle-enabled', true)
+  const idleAnimationEnabled = useLocalStorageWithDefault<boolean>('settings/spine/idle-enabled', true)
 
   /** Animation playback speed multiplier (1.0 = normal). */
-  const animationSpeed = useLocalStorageManualReset<number>('settings/spine/animation-speed', 1)
+  const animationSpeed = useLocalStorageWithDefault<number>('settings/spine/animation-speed', 1)
 
   /** Maximum FPS for the WebGL render loop (0 = uncapped). */
-  const maxFps = useLocalStorageManualReset<number>('settings/spine/max-fps', 0)
+  const maxFps = useLocalStorageWithDefault<number>('settings/spine/max-fps', 0)
 
   const { position, scale, reset: resetViewControl } = useSpineViewControl()
 

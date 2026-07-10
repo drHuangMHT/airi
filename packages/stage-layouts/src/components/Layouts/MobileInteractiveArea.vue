@@ -5,11 +5,10 @@ import { isStageTamagotchi } from '@proj-airi/stage-shared'
 import { useThreeViewControl } from '@proj-airi/stage-ui-three'
 import { ChatHistory, HearingConfigDialog } from '@proj-airi/stage-ui/components'
 import { ChatSessionsDrawer } from '@proj-airi/stage-ui/components/scenarios/chat'
-import { useAudioAnalyzer } from '@proj-airi/stage-ui/composables'
 import { useProvidersStore } from '@proj-airi/stage-ui/stores'
 import { useAudioContext } from '@proj-airi/stage-ui/stores/audio'
-import { useChatOrchestratorStore } from '@proj-airi/stage-ui/stores/chat-minimized'
-import { useChatSessionStore } from '@proj-airi/stage-ui/stores/chat/session-store-minimized'
+import { useChatOrchestrator } from '@proj-airi/stage-ui/stores/chat-minimized'
+import { useChatSession } from '@proj-airi/stage-ui/stores/chat/session-store-minimized'
 import { useChatStreamStore } from '@proj-airi/stage-ui/stores/chat/stream-store'
 import { useL2dViewControl } from '@proj-airi/stage-ui/stores/live2d'
 import { useConsciousnessStore } from '@proj-airi/stage-ui/stores/modules/consciousness'
@@ -17,7 +16,7 @@ import { useSettings, useSettingsAudioDevice } from '@proj-airi/stage-ui/stores/
 import { BasicTextarea, useTheme } from '@proj-airi/ui'
 import { useResizeObserver, useScreenSafeArea } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
 
@@ -29,13 +28,12 @@ import { useTranscriptions } from '../../composables/use-transcriptions'
 import { BackgroundDialogPicker } from '../Backgrounds'
 
 const { isDark, toggleDark } = useTheme()
-const chatOrchestrator = useChatOrchestratorStore()
-const chatSession = useChatSessionStore()
+const chatOrchestrator = useChatOrchestrator()
+const chatSession = useChatSession()
 const chatStream = useChatStreamStore()
-const { activeSession, activeSessionId } = chatSession
+const { session, sessionId } = chatSession
 const { streamingMessage } = storeToRefs(chatStream)
-const { sending } = chatOrchestrator
-const historyMessages = computed(() => activeSession?.value?.messages ?? [])
+const historyMessages = computed(() => session?.value?.messages ?? [])
 
 const messageInput = ref('')
 const isComposing = ref(false)
@@ -54,9 +52,7 @@ const settingsAudioDevice = useSettingsAudioDevice()
 const { enabled, stream } = storeToRefs(settingsAudioDevice)
 const { ingest, onAfterMessageComposed } = chatOrchestrator
 const { t } = useI18n()
-const { audioContext } = useAudioContext()
-const { startAnalyzer, stopAnalyzer } = useAudioAnalyzer()
-let analyzerSource: MediaStreamAudioSourceNode | undefined
+const { volume } = useAudioContext()
 
 function isMobileDevice() {
   return /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
@@ -101,37 +97,7 @@ async function handleSend() {
   }
 }
 
-function teardownAnalyzer() {
-  try {
-    analyzerSource?.disconnect()
-  }
-  catch { }
-  analyzerSource = undefined
-  stopAnalyzer()
-}
-
-async function setupAnalyzer() {
-  teardownAnalyzer()
-  if (!enabled.value || !stream.value)
-    return
-  if (audioContext.state === 'suspended')
-    await audioContext.resume()
-  const analyser = startAnalyzer(audioContext)
-  if (!analyser)
-    return
-  analyzerSource = audioContext.createMediaStreamSource(stream.value)
-  analyzerSource.connect(analyser)
-}
-
-watch([enabled, stream], () => {
-  setupAnalyzer()
-}, { immediate: true })
-
 onAfterMessageComposed(async () => {
-})
-
-onUnmounted(() => {
-  teardownAnalyzer()
 })
 
 onMounted(() => {
@@ -179,7 +145,6 @@ onMounted(() => {
           </button>
           <ChatSessionsDrawer v-model="sessionsDrawerOpen" />
           <HearingConfigDialog
-            v-model:enabled="enabled"
             :transcription="isListening"
             :toggle-transcription="toggleTranscription"
             :granted="true"

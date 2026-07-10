@@ -1,12 +1,12 @@
-import { useLocalStorageManualReset } from '@proj-airi/stage-shared/composables'
+import { useLocalStorageWithDefault } from '@proj-airi/stage-shared/composables'
 import { defineStore } from 'pinia'
 
 export const useSettingsSpine = defineStore('settings-spine', () => {
-  const spinePremultipliedAlpha = useLocalStorageManualReset<boolean>('settings/spine/premultiplied-alpha', true)
-  const spineDefaultMixDuration = useLocalStorageManualReset<number>('settings/spine/default-mix', 0.2)
-  const spineIdleAnimationEnabled = useLocalStorageManualReset<boolean>('settings/spine/idle-enabled', true)
-  const spineMaxFps = useLocalStorageManualReset<number>('settings/spine/max-fps', 0)
-  const spineRenderScale = useLocalStorageManualReset<number>('settings/spine/render-scale', 1)
+  const spinePremultipliedAlpha = useLocalStorageWithDefault<boolean>('settings/spine/premultiplied-alpha', true)
+  const spineDefaultMixDuration = useLocalStorageWithDefault<number>('settings/spine/default-mix', 0.2)
+  const spineIdleAnimationEnabled = useLocalStorageWithDefault<boolean>('settings/spine/idle-enabled', true)
+  const spineMaxFps = useLocalStorageWithDefault<number>('settings/spine/max-fps', 0)
+  const spineRenderScale = useLocalStorageWithDefault<number>('settings/spine/render-scale', 1)
 
   function resetState() {
     spinePremultipliedAlpha.reset()

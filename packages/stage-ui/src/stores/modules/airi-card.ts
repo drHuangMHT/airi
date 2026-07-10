@@ -2,7 +2,7 @@ import type { Card, ccv3 } from '@proj-airi/ccc'
 
 import type { SessionMeta } from '../../types/chat-session-minimized'
 
-import { useLocalStorageManualReset } from '@proj-airi/stage-shared/composables'
+import { useLocalStorageWithDefault } from '@proj-airi/stage-shared/composables'
 import { watchDebounced } from '@vueuse/core'
 import { nanoid } from 'nanoid'
 import { defineStore, storeToRefs } from 'pinia'
@@ -85,8 +85,8 @@ export interface AiriCard extends Card {
 export const useAiriCardStore = defineStore('airi-card', () => {
   const { t } = useI18n()
 
-  const cards = useLocalStorageManualReset<Map<string, AiriCard>>('airi-cards', new Map())
-  const activeCardId = useLocalStorageManualReset<string>('airi-card-active-id', 'default')
+  const cards = useLocalStorageWithDefault<Map<string, AiriCard>>('airi-cards', new Map())
+  const activeCardId = useLocalStorageWithDefault<string>('airi-card-active-id', 'default')
 
   const activeCard = computed(() => cards.value.get(activeCardId.value))
 

@@ -5,7 +5,7 @@ import type { StreamTranscriptionResult, StreamTranscriptionOptions as XSAIStrea
 
 import { errorMessageFrom, tryCatch } from '@moeru/std'
 import { IOAttributes, IOEvents, IOSpanNames, IOSubsystems } from '@proj-airi/stage-shared'
-import { useLocalStorageManualReset } from '@proj-airi/stage-shared/composables'
+import { useLocalStorageWithDefault } from '@proj-airi/stage-shared/composables'
 import { refManualReset } from '@vueuse/core'
 import { generateTranscription } from '@xsai/generate-transcription'
 import { defineStore, storeToRefs } from 'pinia'
@@ -98,13 +98,13 @@ export const useHearingStore = defineStore('hearing-store', () => {
   const { allAudioTranscriptionProvidersMetadata } = storeToRefs(providersStore)
 
   // State
-  const activeTranscriptionProvider = useLocalStorageManualReset('settings/hearing/active-provider', '')
-  const activeTranscriptionModel = useLocalStorageManualReset('settings/hearing/active-model', '')
-  const activeCustomModelName = useLocalStorageManualReset('settings/hearing/active-custom-model', '')
+  const activeTranscriptionProvider = useLocalStorageWithDefault('settings/hearing/active-provider', '')
+  const activeTranscriptionModel = useLocalStorageWithDefault('settings/hearing/active-model', '')
+  const activeCustomModelName = useLocalStorageWithDefault('settings/hearing/active-custom-model', '')
   const transcriptionModelSearchQuery = refManualReset<string>('')
-  const autoSendEnabled = useLocalStorageManualReset<boolean>('settings/hearing/auto-send-enabled', false)
-  const autoSendDelay = useLocalStorageManualReset<number>('settings/hearing/auto-send-delay', 2000) // Default 2 seconds
-  const confidenceThreshold = useLocalStorageManualReset<number>('settings/hearing/confidence-threshold', CONFIDENCE_THRESHOLD_DISABLED)
+  const autoSendEnabled = useLocalStorageWithDefault<boolean>('settings/hearing/auto-send-enabled', false)
+  const autoSendDelay = useLocalStorageWithDefault<number>('settings/hearing/auto-send-delay', 2000) // Default 2 seconds
+  const confidenceThreshold = useLocalStorageWithDefault<number>('settings/hearing/confidence-threshold', CONFIDENCE_THRESHOLD_DISABLED)
   const verboseJsonNotSupported = ref(false)
 
   watch(activeTranscriptionProvider, () => {

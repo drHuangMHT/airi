@@ -1,77 +1,52 @@
-import { defineStore } from 'pinia'
-import { computed, ref, shallowRef } from 'vue'
+import { AudioAnalyzer } from '@proj-airi/multimodal-core'
+import { defineStore, storeToRefs } from 'pinia'
+import { computed, onScopeDispose, ref, shallowRef, watch } from 'vue'
 
-function calculateVolumeWithLinearNormalize(analyser: AnalyserNode) {
-  const dataBuffer = new Uint8Array(analyser.frequencyBinCount)
-  analyser.getByteFrequencyData(dataBuffer)
+import { useSettingsAudioDevice } from './settings'
 
-  const volumeVector: Array<number> = []
-  for (let i = 0; i < 700; i += 80)
-    volumeVector.push(dataBuffer[i])
+const audioContext = shallowRef<AudioContext>(new AudioContext())
+export function useAudioContext() {
+  const { stream, enabled } = storeToRefs(useSettingsAudioDevice())
 
-  const volumeSum = dataBuffer
-    // The volume changes flatten-ly, while the volume is often low, therefore we need to amplify it.
-    // Applying a power function to amplify the volume is helpful, for example:
-    // v ** 1.2 will amplify the volume by 1.2 times
-    .map(v => v ** 1.2)
-    // Scale up the volume values to make them more distinguishable
-    .map(v => v * 1.2)
-    .reduce((acc, cur) => acc + cur, 0)
+  const audioAnalyzer = new AudioAnalyzer()
+  const normalized = ref(0)
+  audioAnalyzer.onAnalyzerUpdate((volume) => {
+    normalized.value = Math.min(1, (volume ?? 0) / 100)
+  })
 
-  return (volumeSum / dataBuffer.length / 100)
-}
+  let source: MediaStreamAudioSourceNode | undefined
 
-function calculateVolumeWithMinMaxNormalize(analyser: AnalyserNode) {
-  const dataBuffer = new Uint8Array(analyser.frequencyBinCount)
-  analyser.getByteFrequencyData(dataBuffer)
-
-  const volumeVector: Array<number> = []
-  for (let i = 0; i < 700; i += 80)
-    volumeVector.push(dataBuffer[i])
-
-  // The volume changes flatten-ly, while the volume is often low, therefore we need to amplify it.
-  // We can apply a power function to amplify the volume, for example
-  // v ** 1.2 will amplify the volume by 1.2 times
-  const amplifiedVolumeVector = dataBuffer.map(v => v ** 1.5)
-
-  // Normalize the amplified values using Min-Max scaling
-  const min = Math.min(...amplifiedVolumeVector)
-  const max = Math.max(...amplifiedVolumeVector)
-  const range = max - min
-
-  let normalizedVolumeVector
-  if (range === 0) {
-    // If range is zero, all values are the same, so normalization is not needed
-    normalizedVolumeVector = amplifiedVolumeVector.map(() => 0) // or any default value
-  }
-  else {
-    normalizedVolumeVector = amplifiedVolumeVector.map(v => (v - min) / range)
+  function teardown() {
+    try {
+      source?.disconnect()
+    }
+    catch { }
+    source = undefined
+    audioAnalyzer.stopAnalyzer()
   }
 
-  // Aggregate the volume values
-  const volumeSum = normalizedVolumeVector.reduce((acc, cur) => acc + cur, 0)
-
-  // Average the volume values
-  return volumeSum / dataBuffer.length
-}
-
-function calculateVolume(analyser: AnalyserNode, mode: 'linear' | 'minmax' = 'linear') {
-  switch (mode) {
-    case 'linear':
-      return calculateVolumeWithLinearNormalize(analyser)
-    case 'minmax':
-      return calculateVolumeWithMinMaxNormalize(analyser)
+  async function setup() {
+    teardown()
+    if (!enabled.value || !stream.value)
+      return
+    const ctx = audioContext.value
+    if (ctx.state === 'suspended')
+      await ctx.resume()
+    const analyser = audioAnalyzer.startAnalyzer(ctx)
+    if (!analyser)
+      return
+    source = ctx.createMediaStreamSource(stream.value)
+    source.connect(analyser)
   }
-}
 
-export const useAudioContext = defineStore('audio-context', () => {
-  const audioContext = shallowRef<AudioContext>(new AudioContext())
+  watch([enabled, stream], () => setup(), { immediate: true })
 
+  onScopeDispose(() => teardown())
   return {
     audioContext,
-    calculateVolume,
+    volume: normalized,
   }
-})
+}
 
 export const useSpeakingStore = defineStore('character-speaking', () => {
   const nowSpeakingAvatarBorderOpacityMin = 30

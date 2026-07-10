@@ -4,12 +4,12 @@ import type { MaybeRefOrGetter, WatchOptions } from 'vue'
 import { refManualReset, useLocalStorage } from '@vueuse/core'
 import { unref, watch } from 'vue'
 
-export function useLocalStorageManualReset<T>(
+export function useLocalStorageWithDefault<T>(
   key: MaybeRefOrGetter<string>,
-  initialValue: MaybeRefOrGetter<T>,
+  defaultValue: MaybeRefOrGetter<T>,
   options?: UseStorageOptions<T> & WatchOptions,
 ): ManualResetRefReturn<T> {
-  const value = unref(initialValue)
+  const value = unref(defaultValue)
   const localStorageState = useLocalStorage<T>(key, value, options)
   const state = refManualReset<T>(localStorageState)
 
