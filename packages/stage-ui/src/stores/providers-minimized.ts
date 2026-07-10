@@ -522,6 +522,7 @@ export const useProvidersStore = defineStore('providers', () => {
   }
 
   return {
+    getProviderMetadata: (..._args: any[]) => undefined,
     providers: providerCredentials,
     providerFactories,
     getProviderConfig,

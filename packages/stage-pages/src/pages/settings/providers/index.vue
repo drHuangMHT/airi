@@ -18,9 +18,7 @@ const { lastClickedIndex, setLastClickedIndex } = useRippleGridState()
 const { trackProviderClick } = useAnalytics()
 
 const {
-  allChatProvidersMetadata,
-  allAudioSpeechProvidersMetadata,
-  allAudioTranscriptionProvidersMetadata,
+  allProvidersMetadata,
 } = storeToRefs(providersStore)
 
 const allArtistryProvidersMetadata = computed(() => {
@@ -82,21 +80,21 @@ const providerBlocksConfig = [
     icon: 'i-solar:chat-square-like-bold-duotone',
     title: t('settings.pages.providers.categories.chat.title'),
     description: t('settings.pages.providers.categories.chat.description'),
-    providersRef: allChatProvidersMetadata,
+    providersRef: allProvidersMetadata,
   },
   {
     id: 'speech',
     icon: 'i-solar:user-speak-rounded-bold-duotone',
     title: t('settings.pages.providers.categories.speech.title'),
     description: t('settings.pages.providers.categories.speech.description'),
-    providersRef: allAudioSpeechProvidersMetadata,
+    providersRef: allProvidersMetadata,
   },
   {
     id: 'transcription',
     icon: 'i-solar:microphone-3-bold-duotone',
     title: t('settings.pages.providers.categories.transcription.title'),
     description: t('settings.pages.providers.categories.transcription.description'),
-    providersRef: allAudioTranscriptionProvidersMetadata,
+    providersRef: allProvidersMetadata,
   },
   {
     id: 'artistry',

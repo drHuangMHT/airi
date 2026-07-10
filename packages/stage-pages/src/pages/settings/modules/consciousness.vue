@@ -10,7 +10,7 @@ import { RouterLink } from 'vue-router'
 
 const providersStore = useProvidersStore()
 const consciousnessStore = useConsciousnessStore()
-const { persistedChatProvidersMetadata, configuredProviders } = storeToRefs(providersStore)
+const { allProvidersMetadata, configuredProviders } = storeToRefs(providersStore)
 const {
   activeProvider,
   activeModel,
@@ -69,13 +69,13 @@ function handleDeleteProvider(providerId: string) {
           See also: https://stackoverflow.com/a/33737340
         -->
           <fieldset
-            v-if="persistedChatProvidersMetadata.length > 0"
+            v-if="allProvidersMetadata.length > 0"
             flex="~ row gap-4"
             min-w-0 of-x-auto scroll-smooth
             role="radiogroup"
           >
             <RadioCardSimple
-              v-for="metadata in persistedChatProvidersMetadata"
+              v-for="metadata in allProvidersMetadata"
               :id="metadata.id"
               :key="metadata.id"
               v-model="activeProvider"
