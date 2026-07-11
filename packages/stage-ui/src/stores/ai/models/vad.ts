@@ -1,6 +1,5 @@
+import type { BaseVADConfig } from '@proj-airi/multimodal-core'
 import type { MaybeRefOrGetter } from 'vue'
-
-import type { BaseVADConfig } from '../../../libs/audio/vad'
 
 import { merge } from '@moeru/std'
 import { createVAD, createVADStates } from 'inference-transformers/vad'
