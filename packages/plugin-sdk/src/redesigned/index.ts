@@ -8,7 +8,8 @@ export interface PluginManifest {
   /** Human‑readable name. */
   name: string
   /** Path to the ESM entrypoint, relative to the plugin's root directory. */
-  entrypoint: string
+  entrypointMain: string
+  entrypointRenderer?: string
 }
 
 /**
