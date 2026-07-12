@@ -1204,6 +1204,9 @@ importers:
       '@proj-airi/multimodal-core':
         specifier: workspace:^
         version: link:../../packages/multimodal-core
+      '@proj-airi/plugin-host':
+        specifier: workspace:^
+        version: link:../../packages/plugin-host
       '@proj-airi/plugin-sdk-tamagotchi':
         specifier: workspace:^
         version: link:../../packages/plugin-sdk-tamagotchi
@@ -2675,6 +2678,12 @@ importers:
         specifier: ^1.0.2
         version: 1.0.2
 
+  packages/plugin-host:
+    dependencies:
+      '@proj-airi/plugin-sdk':
+        specifier: workspace:^
+        version: link:../plugin-sdk
+
   packages/plugin-protocol:
     dependencies:
       '@moeru/eventa':
@@ -3830,6 +3839,14 @@ importers:
       vue-tsc:
         specifier: ^3.2.6
         version: 3.2.6(typescript@5.9.3)
+
+  plugins/airi-plugin-external-providers: {}
+
+  plugins/airi-plugin-template:
+    dependencies:
+      '@proj-airi/plugin-sdk':
+        specifier: workspace:^
+        version: link:../../packages/plugin-sdk
 
   plugins/airi-plugin-web-extension:
     devDependencies:

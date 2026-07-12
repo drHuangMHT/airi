@@ -14,3 +14,4 @@ export * from './plugin'
  * - The `ContextInit` and `Plugin` types from `./plugin/shared`
  */
 export type { ContextInit, Plugin } from './plugin/shared'
+export * from './redesigned'

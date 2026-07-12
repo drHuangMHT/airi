@@ -1,0 +1,5 @@
+{
+  "identifier": "ai.moeru.airi.plugin-template",
+  "name": "plugin-template",
+  "entrypoint": "./src/index.ts"
+}
