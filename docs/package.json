@@ -28,9 +28,9 @@
     "motion-v": "^2.2.1",
     "pathe": "^2.0.3",
     "posthog-js": "catalog:",
-    "reka-ui": "^2.9.6",
+    "reka-ui": "catalog:",
     "vue": "catalog:",
-    "vue-i18n": "^11.3.2",
+    "vue-i18n": "catalog:",
     "vue-sonner": "^2.0.9"
   },
   "devDependencies": {

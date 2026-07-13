@@ -1,21 +1,19 @@
 <script setup lang="ts">
 import { Screen } from '@proj-airi/ui'
 import { storeToRefs } from 'pinia'
-import { ref, watch } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 
 import SliderControls from '../ViewControls/SliderControls.vue'
 import Live2DCanvas from './live2d/Canvas.vue'
 import Live2DModel from './live2d/Model.vue'
 
 import { useEyeTracking, useSettingsLive2d } from '../../composables/live2d'
+import { useModelsStore } from '../../composables/model'
 
 import '../../utils/live2d-zip-loader'
 import '../../utils/live2d-opfs-registration'
 
 withDefaults(defineProps<{
-  modelSrc?: string
-  modelId?: string
-
   paused?: boolean
   mouthOpenSize?: number
   nowSpeaking?: boolean
@@ -47,6 +45,9 @@ const {
   live2dRenderScale,
   live2dShadowEnabled,
 } = storeToRefs(useSettingsLive2d())
+
+const modelsStore = useModelsStore()
+
 const mouseFocus = useEyeTracking(
   () => live2dCanvasRef.value?.canvasElement(),
   () => ({
@@ -70,6 +71,10 @@ defineExpose({
     return live2dCanvasRef.value?.captureFrame()
   },
 })
+
+onMounted(async () => {
+  await modelsStore.initialize()
+})
 </script>
 
 <template>
@@ -90,8 +95,6 @@ defineExpose({
       <Live2DModel
         ref="live2dModelRef"
         v-model:state="componentStateModel"
-        :model-src="modelSrc"
-        :model-id="modelId"
         :app="app"
         :mouth-open-size="mouthOpenSize"
         :now-speaking="nowSpeaking"

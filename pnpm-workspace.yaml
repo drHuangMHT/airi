@@ -129,7 +129,7 @@ catalog:
   pinia: ^3.0.4
   posthog-js: 1.306.1
   posthog-node: ^5.34.1
-  reka-ui: ^2.9.2
+  reka-ui: ^2.10.1
   replicate: ^1.4.0
   splitpanes: ^4.0.4
   std-env: ^4.1.0
@@ -150,6 +150,7 @@ catalog:
   vite-plugin-mkcert: ^2.0.0
   vitest-browser-vue: ^2.1.0
   vue: ^3.5.32
+  vue-i18n: ^11.3.2
   vue-router: ^5.0.4
   vue-sonner: 2.0.9
   web-haptics: ^0.0.6

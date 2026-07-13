@@ -3,15 +3,25 @@ import type { DisplayModel } from '../display-models'
 import { useLocalStorageWithDefault } from '@proj-airi/stage-shared/composables'
 import { refManualReset, useEventListener } from '@vueuse/core'
 import { defineStore } from 'pinia'
-import { computed, watch } from 'vue'
+import { computed, defineAsyncComponent, watch } from 'vue'
 
-import { DisplayModelFormat, useDisplayModelsStore } from '../display-models'
+import { DisplayModelFormat, useModelsStore } from '../display-models'
 
 export type StageModelRenderer = 'live2d' | 'vrm' | 'spine' | 'godot' | 'disabled' | undefined
 type BuiltInStageModelRenderer = Exclude<StageModelRenderer, 'godot'>
 
+export const useSettingsStage = defineStore('settings-stage', () => {
+  const registeredStage = {
+    'plugin.airi_plugin_stage_live2d': {
+      stageName: 'Live2D',
+      stageIdentifier: 'plugin.airi_plugin_stage_live2d',
+      modelSelector: defineAsyncComponent(() => import('../../../../stage-ui-live2d/')),
+    },
+  }
+})
+
 export const useSettingsStageModel = defineStore('settings-stage-model', () => {
-  const displayModelsStore = useDisplayModelsStore()
+  const displayModelsStore = useModelsStore()
   let stageModelUpdateSequence = 0
   const stageModelStorageKey = 'settings/stage/model'
 

@@ -50,10 +50,10 @@
     "node-vibrant": "^4.0.4",
     "pinia": "^3.0.4",
     "posthog-js": "catalog:",
-    "reka-ui": "^2.9.6",
+    "reka-ui": "catalog:",
     "unspeech": "catalog:xsai",
     "vue": "catalog:",
-    "vue-i18n": "^11.3.2",
+    "vue-i18n": "catalog:",
     "vue-router": "^5.0.4",
     "vue-sonner": "catalog:"
   },

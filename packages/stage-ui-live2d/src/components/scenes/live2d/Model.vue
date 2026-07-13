@@ -27,11 +27,11 @@ import {
   useMotionUpdatePluginLipSync,
 } from '../../../composables/live2d'
 import { useFitModel } from '../../../composables/live2d/fit-model'
+import { useModelsStore } from '../../../composables/model'
 import { Emotion, EmotionNeutralMotionName } from '../../../constants/emotions'
 import { useL2dViewControl, useLive2dParams } from '../../../stores'
 
 const props = withDefaults(defineProps<{
-  modelSrc?: string
   modelId?: string
 
   app?: Application
@@ -73,10 +73,11 @@ const emits = defineEmits<{
   (e: 'error', error: Error): void
 }>()
 
+const modelsStore = useModelsStore()
+const { selectedModelData } = storeToRefs(modelsStore)
+
 const componentState = defineModel<'pending' | 'loading' | 'mounted'>('state', { default: 'pending' })
 const { position, scale } = useL2dViewControl()
-
-const modelSrcRef = toRef(() => props.modelSrc)
 
 const modelLoading = ref(false)
 // NOTICE: boolean is sufficient; this flag is only used inside loadModel to bail out if the component unmounts mid-load.
@@ -98,6 +99,8 @@ const initialModelHeight = ref<number>(0)
 const mouthOpenSize = computed(() => Math.max(0, Math.min(100, props.mouthOpenSize)))
 const nowSpeaking = toRef(() => props.nowSpeaking)
 const lastUpdateTime = ref(0)
+
+const modelUrls = ref<{ model: string, preview: string } | null>(null)
 
 const { isDark: dark } = useTheme()
 const dropShadowFilter = shallowRef(new DropShadowFilter({
@@ -195,10 +198,12 @@ const beatSync = createBeatSyncController({
 
 // Listen for model reload requests (e.g., when runtime motion is uploaded)
 const disposeShouldUpdateView = live2dStore.onShouldUpdateView(() => {
-  loadModel()
+  if (!modelUrls.value || !selectedModelData.value)
+    return
+  loadModel(modelUrls.value?.model, selectedModelData.value.metadata.identifier)
 })
 
-async function loadModel() {
+async function loadModel(modelUrl: string, modelId: string) {
   await until(modelLoading).not.toBeTruthy()
 
   await modelLoadMutex.acquire()
@@ -234,7 +239,7 @@ async function loadModel() {
     }
     model.value = undefined
   }
-  if (!modelSrcRef.value) {
+  if (!selectedModelData) {
     console.warn('No Live2D model source provided.')
     modelLoading.value = false
     componentState.value = 'mounted'
@@ -249,7 +254,7 @@ async function loadModel() {
     }
 
     const live2DModel = new Live2DModel<PixiLive2DInternalModel>()
-    await Live2DFactory.setupLive2DModel(live2DModel, { url: modelSrcRef.value, id: props.modelId }, { autoInteract: false })
+    await Live2DFactory.setupLive2DModel(live2DModel, { url: modelUrl, id: modelId }, { autoInteract: false })
     availableMotions.value.forEach((motion) => {
       if (motion.motionName in Emotion) {
         motionMap.value[motion.fileName] = motion.motionName
@@ -326,7 +331,7 @@ async function loadModel() {
     if (motionManager.groups.idle) {
       motionManager.motionGroups[motionManager.groups.idle]?.forEach((motion) => {
         motion._motionData.curves.forEach((curve: any) => {
-        // TODO: After emotion mapper, stage editor, eye related parameters should be take cared to be dynamical instead of hardcoding
+          // TODO: After emotion mapper, stage editor, eye related parameters should be take cared to be dynamical instead of hardcoding
           if (curve.id === 'ParamEyeBallX' || curve.id === 'ParamEyeBallY') {
             curve.id = `_${curve.id}`
           }
@@ -419,14 +424,14 @@ async function loadModel() {
       // replaces it. The SDK's manager runs after motionManager.update() and
       // would overwrite our final-plugin values every frame.
       if (motionManager.expressionManager) {
-        ;(motionManager as any).expressionManager = null
+        ; (motionManager as any).expressionManager = null
       }
       // Disable SDK eyeBlink — it runs on frames where motionUpdated=false and
       // would conflict with expression eye parameter overrides. Our auto-blink
       // plugin (Force Auto Blink setting) provides the replacement for models
       // without idle-motion blink curves.
       if (internalModel.eyeBlink) {
-        ;(internalModel as any).eyeBlink = null
+        ; (internalModel as any).eyeBlink = null
       }
 
       internalModelRef.value = internalModel
@@ -519,7 +524,19 @@ function updateDropShadowFilter() {
   model.value.filters = [dropShadowFilter.value]
 }
 
-watch(modelSrcRef, async () => await loadModel(), { immediate: true })
+watch(() => selectedModelData.value?.metadata.identifier, async () => {
+  console.info(`loading model on stage ${selectedModelData}`)
+  if (!selectedModelData.value)
+    return
+  if (modelUrls.value) {
+    Object.values(modelUrls.value).forEach(u => URL.revokeObjectURL(u.toString()))
+  }
+  modelUrls.value = {
+    model: URL.createObjectURL(selectedModelData.value.file),
+    preview: URL.createObjectURL(selectedModelData.value.preview),
+  }
+  await loadModel(modelUrls.value.model, selectedModelData.value.metadata.identifier)
+}, { immediate: true })
 watch(dark, updateDropShadowFilter, { immediate: true })
 watch([model, themeColorsHue], updateDropShadowFilter)
 watch(live2dShadowEnabled, updateDropShadowFilter)

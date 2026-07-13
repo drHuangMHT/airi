@@ -1,7 +1,7 @@
 import { createPinia, setActivePinia } from 'pinia'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { DisplayModelFormat, useDisplayModelsStore } from './display-models'
+import { DisplayModelFormat, useModelsStore } from './display-models'
 
 vi.mock('localforage', () => ({
   default: {
@@ -26,7 +26,7 @@ describe('display models store', () => {
    * it('resolves newly imported display models from memory before IndexedDB', async () => {})
    */
   it('resolves newly imported display models from memory before IndexedDB', async () => {
-    const store = useDisplayModelsStore()
+    const store = useModelsStore()
     const model = {
       id: 'display-model-pending-idb-write',
       format: DisplayModelFormat.Live2dZip,

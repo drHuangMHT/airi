@@ -6,7 +6,7 @@ import { useModelStore } from '@proj-airi/stage-ui-three'
 
 import { useChatOrchestrator } from '../stores/chat-minimized'
 import { useChatSessionStore } from '../stores/chat/session-store'
-import { useDisplayModelsStore } from '../stores/display-models'
+import { useModelsStore } from '../stores/display-models'
 import { useMcpStore } from '../stores/mcp'
 import { useAiriCardStore } from '../stores/modules/airi-card'
 import { useConsciousnessStore } from '../stores/modules/consciousness'
@@ -23,7 +23,7 @@ import { useSettings, useSettingsAudioDevice } from '../stores/settings'
 export function useDataMaintenance() {
   const chatStore = useChatSessionStore()
   const chatOrchestrator = useChatOrchestrator()
-  const displayModelsStore = useDisplayModelsStore()
+  const displayModelsStore = useModelsStore()
   const providersStore = useProvidersStore()
   const settingsStore = useSettings()
   const audioSettingsStore = useSettingsAudioDevice()

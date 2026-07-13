@@ -8,7 +8,7 @@ import { Live2DFactory, Live2DModel } from 'pixi-live2d-display/cubism4'
 /**
  * Render a Live2D zip/file to an offscreen canvas and return a padded preview data URL.
  */
-export async function loadLive2DModelPreview(file: File) {
+export async function loadLive2DModelPreview(file: File): Promise<Blob | null> {
   Live2DModel.registerTicker(Ticker)
   extensions.add(TickerPlugin)
 
@@ -77,14 +77,17 @@ export async function loadLive2DModelPreview(file: File) {
     const paddingCanvasCtx = paddingCanvas.getContext('2d')!
 
     paddingCanvasCtx.drawImage(croppedCanvas, (paddingCanvas.width - croppedCanvas.width) / 2, (paddingCanvas.height - croppedCanvas.height) / 2, croppedCanvas.width, croppedCanvas.height)
-    const paddingDataUrl = paddingCanvas.toDataURL()
+    const paddedPreviewImage = new Promise<Blob | null>((resolve, _reject) => {
+      paddingCanvas.toBlob(blob => resolve(blob))
+    })
 
     cleanup()
 
-    return paddingDataUrl
+    return paddedPreviewImage
   }
   catch (error) {
     console.error(error)
     cleanup()
   }
+  return null
 }
