@@ -5,7 +5,7 @@ import { storeToRefs } from 'pinia'
 import { Vector2, Vector3 } from 'three'
 import { computed, toValue } from 'vue'
 
-import { useModelStore } from '../stores/model-store'
+import { useRuntimeStateStore } from '../stores/model-store'
 
 interface ThreeWorldContext {
   raycaster: Raycaster
@@ -13,7 +13,7 @@ interface ThreeWorldContext {
   defaultLookAt: Vector3
 }
 
-const { trackingSource, trackingMode, cameraPosition } = storeToRefs(useModelStore())
+const { trackingSource, trackingMode, cameraPosition } = storeToRefs(useRuntimeStateStore())
 
 // look at mouse
 export function useEyeTracking(

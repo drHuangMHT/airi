@@ -10,13 +10,33 @@ import { DisplayModelFormat, useModelsStore } from '../display-models'
 export type StageModelRenderer = 'live2d' | 'vrm' | 'spine' | 'godot' | 'disabled' | undefined
 type BuiltInStageModelRenderer = Exclude<StageModelRenderer, 'godot'>
 
+const SELECTED_RENDERER_STORAGE_KEY = 'settings.stage.selectedRenderer'
+
+const registeredStage = [
+  {
+    identifier: 'plugin.airi_plugin_stage_live2d',
+    name: 'Live2D',
+    stage: defineAsyncComponent(() => import('../../../../stage-ui-live2d/src/components/scenes/Live2D.vue')),
+    modelSelector: defineAsyncComponent(() => import('../../../../stage-ui-live2d/src/components/ModelSelector.vue')),
+    modelSettings: defineAsyncComponent(() => import('../../../../stage-ui-live2d/src/components/ModelSettings.vue')),
+  },
+  {
+    identifier: 'plugin.airi_plugin_stage_three',
+    name: 'VRM',
+    stage: defineAsyncComponent(() => import('../../../../stage-ui-three/src/components/ThreeScene.vue')),
+    modelSelector: defineAsyncComponent(() => import('../../../../stage-ui-three/src/components/ModelSelector.vue')),
+    modelSettings: defineAsyncComponent(() => import('../../../../stage-ui-three/src/components/ModelSettings.vue')),
+  },
+]
+
 export const useSettingsStage = defineStore('settings-stage', () => {
-  const registeredStage = {
-    'plugin.airi_plugin_stage_live2d': {
-      stageName: 'Live2D',
-      stageIdentifier: 'plugin.airi_plugin_stage_live2d',
-      modelSelector: defineAsyncComponent(() => import('../../../../stage-ui-live2d/')),
-    },
+  const selectedRenderer = useLocalStorageWithDefault(SELECTED_RENDERER_STORAGE_KEY, 'plugin.airi_plugin_stage_live2d')
+  const currentRenderer = computed(() => registeredStage.find(s => s.identifier === selectedRenderer.value))
+
+  return {
+    selectedRenderer,
+    currentRenderer,
+    registeredStage,
   }
 })
 

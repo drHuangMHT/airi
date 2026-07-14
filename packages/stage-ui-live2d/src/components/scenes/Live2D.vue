@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { Screen } from '@proj-airi/ui'
+import { useMouse } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
-import { onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 
 import SliderControls from '../ViewControls/SliderControls.vue'
 import Live2DCanvas from './live2d/Canvas.vue'
@@ -44,6 +45,7 @@ const {
   live2dMaxFps,
   live2dRenderScale,
   live2dShadowEnabled,
+  live2dEyeTrackingSource,
 } = storeToRefs(useSettingsLive2d())
 
 const modelsStore = useModelsStore()
@@ -71,6 +73,12 @@ defineExpose({
     return live2dCanvasRef.value?.captureFrame()
   },
 })
+
+const { x: mouseX, y: mouseY } = useMouse()
+live2dEyeTrackingSource.value = computed(() => ({
+  x: mouseX.value,
+  y: mouseY.value,
+}))
 
 onMounted(async () => {
   await modelsStore.initialize()

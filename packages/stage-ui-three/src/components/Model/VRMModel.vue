@@ -32,6 +32,8 @@ import type { ManagedVrmInstance } from './vrm-instance-cache'
 import { VRMUtils } from '@pixiv/three-vrm'
 import { useLoop, useTresContext } from '@tresjs/core'
 import { until } from '@vueuse/core'
+import { Mutex } from 'async-mutex'
+import { storeToRefs } from 'pinia'
 import {
   AnimationMixer,
   Box3,
@@ -75,7 +77,7 @@ import {
 import { loadVrm } from '../../composables/vrm/core'
 import { useVRMEmote } from '../../composables/vrm/expression'
 import { resolveInternalVrmHooks } from '../../composables/vrm/internal-hooks'
-import { useVRMLipSync } from '../../composables/vrm/lip-sync'
+import { useModelsStore } from '../../model'
 import {
   createThreeRendererMemorySnapshot,
   createVrmSceneSummarySnapshot,
@@ -147,7 +149,6 @@ const emit = defineEmits<{
 const {
   currentAudioSource,
   lastCommittedModelSrc,
-  modelSrc,
   idleAnimation,
   // loadAnimations, // TBC
   paused,
@@ -180,6 +181,21 @@ const vrmHooks: readonly VrmHook[] = resolveInternalVrmHooks()
 type VrmFrameRuntimeHook = (vrm: VRM, delta: number) => void
 const vrmFrameRuntimeHook = shallowRef<VrmFrameRuntimeHook>()
 let disposeBeforeRenderLoop: (() => void | undefined) | undefined
+const mutex = new Mutex()
+
+const modelsStore = useModelsStore()
+const { selectedModelData } = storeToRefs(modelsStore)
+
+const modelSrc = ref<string | null>(null)
+
+watch(selectedModelData, () => {
+  if (!selectedModelData.value)
+    return
+  const old = modelSrc.value
+  const newSrc = URL.createObjectURL(selectedModelData.value.file)
+  modelSrc.value = newSrc
+  URL.revokeObjectURL(old ?? '')
+}, { immediate: true })
 
 // material type with optional update function for per-frame update, used for three-vrm's MToon material and custom shader materials with IBL injection
 type UpdatableMaterial = Material & {
@@ -190,7 +206,7 @@ type UpdatableMaterial = Material & {
 const blink = useBlink()
 const idleEyeSaccades = useIdleEyeSaccades()
 const vrmEmote = ref<ReturnType<typeof useVRMEmote>>()
-const vrmLipSync = useVRMLipSync(currentAudioSource)
+// const vrmLipSync = useVRMLipSync(currentAudioSource)
 
 // For sky box update
 const nprProgramVersion = ref(0)
@@ -234,7 +250,7 @@ function emitVrmLoadError(reason: VrmLifecycleReason, startedAt: number, error: 
   stageThreeRuntimeTraceContext.emit(stageThreeTraceVrmLoadErrorEvent, {
     durationMs: performance.now() - startedAt,
     errorMessage: toErrorMessage(error),
-    modelSrc: modelSrc.value,
+    modelSrc: modelSrc.value ?? undefined,
     reason,
     rendererMemory: createThreeRendererMemorySnapshot(getRendererInstance()),
     sceneSummary: createVrmSceneSummarySnapshot({ mixer: vrmAnimationMixer.value, vrm: vrm.value }),
@@ -447,9 +463,9 @@ function bindManagedVrmInstanceRenderLoop() {
     const emoteMs = measureFrameStep(tracingEnabled, () => {
       vrmEmote.value?.update(delta)
     })
-    const lipSyncMs = measureFrameStep(tracingEnabled, () => {
-      vrmLipSync.update(activeVrm, delta)
-    })
+    // const lipSyncMs = measureFrameStep(tracingEnabled, () => {
+    //   vrmLipSync.update(activeVrm, delta)
+    // })
     const expressionMs = measureFrameStep(tracingEnabled, () => {
       activeVrm?.expressionManager?.update()
     })
@@ -469,7 +485,7 @@ function bindManagedVrmInstanceRenderLoop() {
         emoteMs,
         expressionMs,
         humanoidMs,
-        lipSyncMs,
+        lipSyncMs: 50,
         lookAtMs,
         nodeConstraintMs,
         springBoneMs,
@@ -509,7 +525,7 @@ function componentCleanUp(
 
   if (hasCleanupWork && isStageThreeRuntimeTraceEnabled()) {
     stageThreeRuntimeTraceContext.emit(stageThreeTraceVrmDisposeStartEvent, {
-      modelSrc: modelSrc.value,
+      modelSrc: modelSrc.value ?? undefined,
       reason,
       rendererMemory: createThreeRendererMemorySnapshot(rendererInstance),
       sceneSummary: createVrmSceneSummarySnapshot({ mixer: activeInstance?.mixer, vrm: activeInstance?.vrm }),
@@ -542,7 +558,7 @@ function componentCleanUp(
   if (hasCleanupWork && isStageThreeRuntimeTraceEnabled()) {
     stageThreeRuntimeTraceContext.emit(stageThreeTraceVrmDisposeEndEvent, {
       durationMs: performance.now() - startedAt,
-      modelSrc: modelSrc.value,
+      modelSrc: modelSrc.value ?? undefined,
       reason,
       rendererMemory: createThreeRendererMemorySnapshot(rendererInstance),
       sceneSummary: createVrmSceneSummarySnapshot(),
@@ -659,6 +675,7 @@ async function loadModel() {
     }
 
     emit('loadStart', currentLoadReason)
+    console.info(`loading model because of ${currentLoadReason}`)
 
     if (isStageThreeRuntimeTraceEnabled()) {
       stageThreeRuntimeTraceContext.emit(stageThreeTraceVrmLoadStartEvent, {
@@ -902,6 +919,8 @@ const focusPos = useEyeTracking(() => ({
 }), props.screenBoundingBox)
 
 onMounted(async () => {
+  modelsStore.initialize()
+
   // watch if the model needs to be reloaded
   // Registered BEFORE the initial load to avoid missing src changes
   // that arrive while the first loadModel() is still in-flight.

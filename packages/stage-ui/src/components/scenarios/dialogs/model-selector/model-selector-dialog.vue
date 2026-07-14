@@ -10,9 +10,6 @@ import ModelManager from './model-selector.vue'
 
 import { useBreakpoints } from '../../../../composables/use-breakpoints'
 
-const props = defineProps<{
-  selectedModel?: DisplayModel
-}>()
 const emits = defineEmits<{
   (e: 'pick', value: DisplayModel | undefined): void
 }>()
@@ -35,7 +32,7 @@ onMounted(() => screenSafeArea.update())
         <VisuallyHidden>
           <DialogTitle>Models</DialogTitle>
         </VisuallyHidden>
-        <ModelManager :selected-model="props.selectedModel" @close="showDialog = false" @pick="value => emits('pick', value)" />
+        <ModelManager @close="showDialog = false" @pick="value => emits('pick', value)" />
       </DialogContent>
     </DialogPortal>
   </DialogRoot>
@@ -57,7 +54,7 @@ onMounted(() => screenSafeArea.update())
         :style="{ paddingBottom: `${Math.max(Number.parseFloat(screenSafeArea.bottom.value.replace('px', '')), 24)}px` }"
       >
         <DrawerHandle />
-        <ModelManager :selected-model="props.selectedModel" @close="showDialog = false" @pick="value => emits('pick', value)" />
+        <ModelManager @close="showDialog = false" @pick="value => emits('pick', value)" />
       </DrawerContent>
     </DrawerPortal>
   </DrawerRoot>

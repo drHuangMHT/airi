@@ -1,15 +1,13 @@
 <script setup lang="ts">
-import type { Live2DValidationReport } from '@proj-airi/stage-ui-live2d'
-
 import type { DisplayModel } from '../../../../stores/display-models'
 
-import { validateLive2DZip } from '@proj-airi/stage-ui-live2d'
 import { useFileDialog } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
 import { DropdownMenuContent, DropdownMenuItem, DropdownMenuPortal, DropdownMenuRoot, DropdownMenuTrigger } from 'reka-ui'
-import { defineAsyncComponent, ref, watch } from 'vue'
+import { ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import { useSettingsStage } from '../../../../stores'
 import { DisplayModelFormat, useModelsStore } from '../../../../stores/display-models'
 
 const props = defineProps<{
@@ -17,98 +15,20 @@ const props = defineProps<{
 }>()
 const emits = defineEmits<{
   (e: 'close', value: void): void
-  (e: 'pick', value: DisplayModel | undefined): void
+  (e: 'pick', value: string | undefined): void
 }>()
 
 const displayModelStore = useModelsStore()
-const { displayModels } = storeToRefs(displayModelStore)
 const { t } = useI18n()
 
-function handleRemoveModel(model: DisplayModel) {
-  displayModelStore.removeDisplayModel(model.id)
-}
-
 const highlightDisplayModelCard = ref<string | undefined>(props.selectedModel?.id)
-const showReportModal = ref(false)
-const pendingFile = ref<File | null>(null)
-const validationReport = ref<Live2DValidationReport | null>(null)
-
-const currentRenderer = ref('')
-
-const importedRenderers = [
-  {
-    identifier: 'plugin.airi_plugin_stage_live2d',
-    name: 'Live2D',
-    modelSelector: defineAsyncComponent(() => import('../../../../../../stage-ui-live2d/src/components/ModelSelector.vue')),
-  },
-]
+const stageSettings = useSettingsStage()
+const { currentRenderer, selectedRenderer } = storeToRefs(stageSettings)
+const { registeredStage } = stageSettings
 
 watch(() => props.selectedModel?.id, (modelId) => {
   highlightDisplayModelCard.value = modelId
 }, { immediate: true })
-
-async function handleAddLive2DModel(file: FileList | null) {
-  if (file === null || file.length === 0)
-    return
-  if (!file[0].name.endsWith('.zip'))
-    return
-
-  const report = await validateLive2DZip(file[0])
-  validationReport.value = report
-  pendingFile.value = file[0]
-
-  if (report.status === 'VALID' && report.errors.length === 0) {
-    await confirmImport()
-    return
-  }
-
-  showReportModal.value = true
-}
-
-async function confirmImport() {
-  if (pendingFile.value === null)
-    return
-
-  // NOTICE:
-  // Keep this await. Model picking can happen immediately after import from this dialog.
-  // If addDisplayModel is fire-and-forget, updateStageModel may read the new display-model id
-  // before IndexedDB or the in-memory displayModels list is ready and fall back to the default model.
-  // Source/context: model selector import flow -> settings model pick -> settings-stage-model.getDisplayModel().
-  // Removal condition: addDisplayModel becomes a synchronous transaction or pick is blocked by explicit import state.
-  const displayModel = await displayModelStore.addDisplayModel(DisplayModelFormat.Live2dZip, pendingFile.value)
-  highlightDisplayModelCard.value = displayModel.id
-  pendingFile.value = null
-}
-
-function handleFixError(error: string) {
-  void error
-}
-
-function handlePick(m: DisplayModel) {
-  highlightDisplayModelCard.value = m.id
-  emits('pick', m)
-  emits('close', undefined)
-}
-
-function handleMobilePick() {
-  emits('pick', displayModels.value.find(model => model.id === highlightDisplayModelCard.value))
-  emits('close', undefined)
-}
-
-async function handleAddVRMModel(file: FileList | null) {
-  if (file === null || file.length === 0)
-    return
-  if (!file[0].name.endsWith('.vrm'))
-    return
-
-  // NOTICE:
-  // Keep this await for the same import-then-pick race as Live2D imports above.
-  // The returned model id is only safe to highlight after addDisplayModel has updated the store.
-  // Source/context: model selector import flow -> settings model pick -> settings-stage-model.getDisplayModel().
-  // Removal condition: addDisplayModel becomes a synchronous transaction or pick is blocked by explicit import state.
-  const displayModel = await displayModelStore.addDisplayModel(DisplayModelFormat.VRM, file[0])
-  highlightDisplayModelCard.value = displayModel.id
-}
 
 async function handleAddSpineModel(file: FileList | null) {
   if (file === null || file.length === 0)
@@ -125,23 +45,11 @@ async function handleAddSpineModel(file: FileList | null) {
   highlightDisplayModelCard.value = displayModel.id
 }
 
-const mapFormatRenderer: Record<DisplayModelFormat, string> = {
-  [DisplayModelFormat.Live2dZip]: 'Live2D',
-  [DisplayModelFormat.Live2dDirectory]: 'Live2D',
-  [DisplayModelFormat.VRM]: 'VRM',
-  [DisplayModelFormat.SpineZip]: 'Spine',
-  [DisplayModelFormat.PMXDirectory]: 'MMD',
-  [DisplayModelFormat.PMXZip]: 'MMD',
-  [DisplayModelFormat.PMD]: 'MMD',
-}
-
-const live2dDialog = useFileDialog({ accept: '.zip', multiple: false, reset: true })
-const vrmDialog = useFileDialog({ accept: '.vrm', multiple: false, reset: true })
 const spineDialog = useFileDialog({ accept: '.zip', multiple: false, reset: true })
 
-live2dDialog.onChange(handleAddLive2DModel)
-vrmDialog.onChange(handleAddVRMModel)
 spineDialog.onChange(handleAddSpineModel)
+
+console.info(`${JSON.stringify(registeredStage)}`)
 </script>
 
 <template>
@@ -172,14 +80,14 @@ spineDialog.onChange(handleAddSpineModel)
               align="end" side="bottom" :side-offset="8"
             >
               <DropdownMenuItem
-                v-for="renderer in importedRenderers"
+                v-for="renderer in registeredStage"
                 :key="renderer.identifier"
                 :class="[
                   'data-[disabled]:text-mauve8 relative flex cursor-pointer select-none items-center rounded-md px-3 py-2 leading-none outline-none data-[disabled]:pointer-events-none',
                   'text-base sm:text-sm',
                   'data-[highlighted]:bg-primary-300/20 dark:data-[highlighted]:bg-primary-100/20',
                   'data-[highlighted]:text-primary-400 dark:data-[highlighted]:text-primary-200',
-                ]" transition="colors duration-200 ease-in-out" @click="() => currentRenderer = renderer.identifier"
+                ]" transition="colors duration-200 ease-in-out" @click="() => selectedRenderer = renderer.identifier"
               >
                 {{ renderer.name }}
               </DropdownMenuItem>
@@ -189,11 +97,11 @@ spineDialog.onChange(handleAddSpineModel)
       </div>
     </div>
     <div
-      v-if="importedRenderers.find(r => r.identifier === currentRenderer)"
+      v-if="currentRenderer"
       class="flex-1 overflow-x-auto overflow-y-hidden md:flex-none sm:overflow-x-hidden sm:overflow-y-scroll" h-full
       w-full
     >
-      <component :is="importedRenderers.find(r => r.identifier === currentRenderer)!.modelSelector" />
+      <component :is="currentRenderer.modelSelector" />
       <!-- <div class="w-full flex gap-2 md:grid lg:grid-cols-2 md:grid-cols-1 lg:max-h-80dvh">
         <div
           v-for="(model) of displayModels" :key="model.id" v-auto-animate relative gap-2

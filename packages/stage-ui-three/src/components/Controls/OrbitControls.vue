@@ -59,7 +59,7 @@ let disposeControlsChange: (() => void) | undefined
 
 const { cameraPosition, cameraFOV, cameraDistance } = useThreeCamera()
 const { viewControlsEnabled } = useThreeViewControl()
-const isPreviewStage = inject<boolean>('previewStage')
+const isPreviewStage = inject<boolean>('previewStage', false)
 
 // Initialisation on onMounted
 function registerInfoFlow() {

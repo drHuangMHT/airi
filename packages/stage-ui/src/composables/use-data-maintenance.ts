@@ -1,42 +1,33 @@
 import type { ChatSessionsExport } from '../types/chat-session'
 
 import { isStageTamagotchi } from '@proj-airi/stage-shared'
-import { useLive2dParams, useSettingsLive2d } from '@proj-airi/stage-ui-live2d'
 import { useModelStore } from '@proj-airi/stage-ui-three'
 
-import { useChatOrchestrator } from '../stores/chat-minimized'
 import { useChatSessionStore } from '../stores/chat/session-store'
 import { useModelsStore } from '../stores/display-models'
 import { useMcpStore } from '../stores/mcp'
 import { useAiriCardStore } from '../stores/modules/airi-card'
 import { useConsciousnessStore } from '../stores/modules/consciousness'
 import { useDiscordStore } from '../stores/modules/discord'
-import { useFactorioStore } from '../stores/modules/gaming-factorio'
-import { useMinecraftStore } from '../stores/modules/gaming-minecraft'
 import { useHearingStore } from '../stores/modules/hearing'
 import { useSpeechStore } from '../stores/modules/speech'
 import { useTwitterStore } from '../stores/modules/twitter'
 import { useOnboardingStore } from '../stores/onboarding'
-import { useProvidersStore } from '../stores/providers'
+import { useProvidersStore } from '../stores/providers-minimized'
 import { useSettings, useSettingsAudioDevice } from '../stores/settings'
 
 export function useDataMaintenance() {
   const chatStore = useChatSessionStore()
-  const chatOrchestrator = useChatOrchestrator()
   const displayModelsStore = useModelsStore()
   const providersStore = useProvidersStore()
   const settingsStore = useSettings()
   const audioSettingsStore = useSettingsAudioDevice()
-  const live2dParamsStore = useLive2dParams()
-  const live2dSettingsStore = useSettingsLive2d()
   const threeStore = useModelStore()
   const hearingStore = useHearingStore()
   const speechStore = useSpeechStore()
   const consciousnessStore = useConsciousnessStore()
   const twitterStore = useTwitterStore()
   const discordStore = useDiscordStore()
-  const factorioStore = useFactorioStore()
-  const minecraftStore = useMinecraftStore()
   const mcpStore = useMcpStore()
   const onboardingStore = useOnboardingStore()
   const airiCardStore = useAiriCardStore()
@@ -57,12 +48,9 @@ export function useDataMaintenance() {
     consciousnessStore.resetState()
     twitterStore.resetState()
     discordStore.resetState()
-    factorioStore.resetState()
-    minecraftStore.resetState()
   }
 
   function deleteAllChatSessions() {
-    chatOrchestrator.cancelPendingSends()
     chatStore.resetAllSessions()
   }
 
@@ -86,8 +74,6 @@ export function useDataMaintenance() {
   async function resetSettingsState() {
     await settingsStore.resetState()
     audioSettingsStore.resetState()
-    live2dParamsStore.resetState()
-    live2dSettingsStore.resetState()
     threeStore.resetModelStore()
     mcpStore.resetState()
     onboardingStore.resetSetupState()

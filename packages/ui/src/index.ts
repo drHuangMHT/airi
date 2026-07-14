@@ -1,4 +1,5 @@
 export * from './components/animations'
+export * from './components/data-pane'
 export * from './components/form'
 export * from './components/layouts'
 export * from './components/misc'

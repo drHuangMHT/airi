@@ -39,7 +39,6 @@ function handleRemoveModel(id: string) {
   modelStore.removeModel(id)
 }
 
-const highlightDisplayModelCard = ref<string | undefined>(selectedModel.value)
 const showReportModal = ref(false)
 const pendingFile = ref<File | null>(null)
 const validationReport = ref<Live2DValidationReport | null>(null)
@@ -107,12 +106,6 @@ onMounted(() => {
       v-model:open="showReportModal" :report="validationReport" @confirm="confirmImport"
       @fix-error="handleFixError"
     />
-
-    <div flex items-center>
-      <div w-full flex-1 text-xl>
-        {{ t('settings.model-select.select-model.title') }}
-      </div>
-    </div>
     <div
       class="flex-1 overflow-x-auto overflow-y-hidden md:flex-none sm:overflow-x-hidden sm:overflow-y-scroll" h-full
       w-full
@@ -161,13 +154,13 @@ onMounted(() => {
               v-if="model.preview" :src="model.preview" :class="[
                 'h-full w-full rounded-xl object-cover',
                 'transition-all duration-200 ease-in-out',
-                highlightDisplayModelCard && highlightDisplayModelCard === model.metadata.identifier ? 'ring-3 ring-primary-400' : 'ring-0 ring-transparent',
+                selectedModel === model.metadata.identifier ? 'ring-3 ring-primary-400' : 'ring-0 ring-transparent',
               ]"
             >
             <div
               v-else bg="neutral-100 dark:neutral-900" relative h-full w-full flex flex-col items-center
               justify-center gap-2 overflow-hidden rounded-xl
-              :class="[highlightDisplayModelCard && highlightDisplayModelCard === model.metadata.identifier ? 'ring-3 ring-primary-400' : 'ring-0 ring-transparent']"
+              :class="[selectedModel === model.metadata.identifier ? 'ring-3 ring-primary-400' : 'ring-0 ring-transparent']"
               transition="all duration-200 ease-in-out"
             >
               <div i-solar:question-square-bold-duotone text-4xl opacity-75 />

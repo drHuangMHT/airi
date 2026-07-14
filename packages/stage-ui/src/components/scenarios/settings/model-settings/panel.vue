@@ -5,21 +5,14 @@ import type {
   StageViewSnapshotPayload,
 } from '@proj-airi/stage-shared/godot-stage'
 
-import type { DisplayModel } from '../../../../stores/display-models'
 import type { ModelSettingsRuntimeSnapshot } from './runtime'
 
 import { Button, Callout } from '@proj-airi/ui'
 import { storeToRefs } from 'pinia'
-import { inject, ref } from 'vue'
+import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import GodotSettings from './godot.vue'
-import Live2DSettings from './live2d.vue'
-import SpineSettings from './spine.vue'
-import VRMSettings from './vrm.vue'
-
-import { useAiriCardStore } from '../../../../stores/modules/airi-card'
-import { useSettings } from '../../../../stores/settings'
+import { useSettingsStage } from '../../../../stores/settings'
 import { ModelSelectorDialog } from '../../dialogs/model-selector'
 
 interface ModelSettingsPanelProps {
@@ -45,18 +38,10 @@ const _props = withDefaults(defineProps<ModelSettingsPanelProps>(), {
 
 const emit = defineEmits<ModelSettingsPanelEmits>()
 
-const { t } = useI18n()
-const { localRenderer } = inject<{ localRenderer: string | undefined }>('local-renderer', { localRenderer: undefined })
-const modelSelectorOpen = ref(false)
-const settingsStore = useSettings()
-const airiCardStore = useAiriCardStore()
-const { stageModelSelectedDisplayModel, stageModelSelected } = storeToRefs(settingsStore)
+const { currentRenderer } = storeToRefs(useSettingsStage())
 
-async function handleModelPick(selectedModel: DisplayModel | undefined) {
-  stageModelSelected.value = selectedModel?.id ?? ''
-  airiCardStore.updateActiveCardDisplayModel(selectedModel?.id)
-  await settingsStore.updateStageModel()
-}
+const { t } = useI18n()
+const modelSelectorOpen = ref(false)
 </script>
 
 <template>
@@ -84,41 +69,21 @@ async function handleModelPick(selectedModel: DisplayModel | undefined) {
       </p>
     </Callout>
     <div :class="['flex flex-wrap items-center gap-2']">
-      <ModelSelectorDialog v-model:show="modelSelectorOpen" :selected-model="stageModelSelectedDisplayModel" @pick="handleModelPick">
+      <ModelSelectorDialog v-model:show="modelSelectorOpen">
         <Button variant="secondary">
           {{ t('settings.model-select.select-model.button') }}
         </Button>
       </ModelSelectorDialog>
       <slot name="actions" />
     </div>
-    <Live2DSettings
-      v-if="localRenderer === 'live2d'"
-      :allow-extract-colors="allowExtractColors"
-      :palette="palette"
-      :runtime-snapshot="runtimeSnapshot"
-      @extract-colors-from-model="emit('extractColorsFromModel')"
-    />
-    <VRMSettings
-      v-if="localRenderer === 'vrm'"
-      :allow-extract-colors="allowExtractColors"
-      :palette="palette"
-      :runtime-snapshot="runtimeSnapshot"
-      @extract-colors-from-model="emit('extractColorsFromModel')"
-    />
-    <SpineSettings
-      v-if="localRenderer === 'spine'"
-      :allow-extract-colors="allowExtractColors"
-      :palette="palette"
-      :runtime-snapshot="runtimeSnapshot"
-      @extract-colors-from-model="$emit('extractColorsFromModel')"
-    />
-    <GodotSettings
-      v-if="localRenderer === 'godot'"
-      :runtime-snapshot="runtimeSnapshot"
-      :view-snapshot="godotViewSnapshot"
-      :view-error="godotViewError"
-      :view-controls-locked="godotViewControlsLocked"
-      @patch-view-state="emit('patchGodotViewState', $event)"
-    />
+    <template v-if="currentRenderer">
+      <component
+        :is="currentRenderer.modelSettings"
+        :allow-extract-colors="allowExtractColors"
+        :palette="palette"
+        :runtime-snapshot="runtimeSnapshot"
+        @extract-colors-from-model="emit('extractColorsFromModel')"
+      />
+    </template>
   </div>
 </template>

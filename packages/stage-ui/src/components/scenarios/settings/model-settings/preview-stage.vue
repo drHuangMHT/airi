@@ -1,14 +1,10 @@
 <script setup lang="ts">
 import type { ModelSettingsRuntimeSnapshot } from './runtime'
 
-import { Live2DScene, useSettingsLive2d } from '@proj-airi/stage-ui-live2d'
-import { SpineScene } from '@proj-airi/stage-ui-spine'
-import { ThreeScene, useModelStore } from '@proj-airi/stage-ui-three'
-import { useMouse } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
 import { computed, provide, ref, useTemplateRef, watch } from 'vue'
 
-import { useSettings } from '../../../../stores/settings'
+import { useSettings, useSettingsStage } from '../../../../stores/settings'
 import {
   createEmptyModelSettingsRuntimeSnapshot,
   resolveComponentStateToRuntimePhase,
@@ -19,14 +15,10 @@ const emit = defineEmits<{
 }>()
 
 const settingsStore = useSettings()
-const modelStore = useModelStore()
-const live2dSceneRef = useTemplateRef('live2dSceneRef')
-const vrmSceneRef = ref<{ canvasElement: () => HTMLCanvasElement | undefined }>()
-const spineSceneRef = ref<{ canvasElement: () => HTMLCanvasElement | undefined }>()
-const live2dComponentState = ref<'pending' | 'loading' | 'mounted'>('pending')
-const spineComponentState = ref<'pending' | 'loading' | 'mounted'>('pending')
-const vrmPreviewStageInstanceId = `model-settings-preview-stage:${Math.random().toString(36).slice(2, 10)}`
+const stageRef = useTemplateRef('stageRef')
+const componentState = ref<'pending' | 'loading' | 'mounted'>('pending')
 
+const { currentRenderer } = storeToRefs(useSettingsStage())
 provide('previewStage', true)
 
 const {
@@ -44,87 +36,18 @@ const {
   spineMaxFps,
   spineRenderScale,
 } = storeToRefs(settingsStore)
-const { sceneMutationLocked, scenePhase } = storeToRefs(modelStore)
-
-function captureCanvasFrame(canvas?: HTMLCanvasElement) {
-  return new Promise<Blob | undefined>((resolve) => {
-    if (!canvas)
-      return resolve(undefined)
-
-    canvas.toBlob(blob => resolve(blob ?? undefined))
-  })
-}
-
-async function capturePreviewFrame() {
-  if (stageModelRenderer.value === 'live2d')
-    return live2dSceneRef.value?.captureFrame()
-
-  if (stageModelRenderer.value === 'vrm')
-    return captureCanvasFrame(vrmSceneRef.value?.canvasElement())
-
-  if (stageModelRenderer.value === 'spine')
-    return captureCanvasFrame(spineSceneRef.value?.canvasElement())
-
-  return undefined
-}
 
 const runtimeSnapshot = computed<ModelSettingsRuntimeSnapshot>(() => {
   const hasModel = !!stageModelSelectedUrl.value
 
-  if (stageModelRenderer.value === 'live2d') {
-    const phase = resolveComponentStateToRuntimePhase(live2dComponentState.value, { hasModel })
-
-    return createEmptyModelSettingsRuntimeSnapshot({
-      ownerInstanceId: vrmPreviewStageInstanceId,
-      renderer: 'live2d',
-      phase,
-      controlsLocked: hasModel ? phase !== 'mounted' : false,
-      previewAvailable: hasModel,
-      canCapturePreview: !!live2dSceneRef.value?.canvasElement(),
-      updatedAt: Date.now(),
-    })
-  }
-
-  if (stageModelRenderer.value === 'vrm') {
-    return createEmptyModelSettingsRuntimeSnapshot({
-      ownerInstanceId: vrmPreviewStageInstanceId,
-      renderer: 'vrm',
-      phase: hasModel ? scenePhase.value : 'no-model',
-      controlsLocked: hasModel ? sceneMutationLocked.value : false,
-      previewAvailable: hasModel,
-      canCapturePreview: !!vrmSceneRef.value?.canvasElement(),
-      updatedAt: Date.now(),
-    })
-  }
-
-  if (stageModelRenderer.value === 'spine') {
-    const phase = resolveComponentStateToRuntimePhase(spineComponentState.value, { hasModel })
-
-    return createEmptyModelSettingsRuntimeSnapshot({
-      ownerInstanceId: vrmPreviewStageInstanceId,
-      renderer: 'spine',
-      phase,
-      controlsLocked: hasModel ? phase !== 'mounted' : false,
-      previewAvailable: hasModel,
-      canCapturePreview: !!spineSceneRef.value?.canvasElement(),
-      updatedAt: Date.now(),
-    })
-  }
-
-  if (stageModelRenderer.value === 'godot') {
-    return createEmptyModelSettingsRuntimeSnapshot({
-      ownerInstanceId: vrmPreviewStageInstanceId,
-      renderer: 'godot',
-      phase: hasModel ? 'mounted' : 'no-model',
-      controlsLocked: false,
-      previewAvailable: false,
-      canCapturePreview: false,
-      updatedAt: Date.now(),
-    })
-  }
+  const phase = resolveComponentStateToRuntimePhase(componentState.value, { hasModel })
 
   return createEmptyModelSettingsRuntimeSnapshot({
-    ownerInstanceId: vrmPreviewStageInstanceId,
+    renderer: 'live2d',
+    phase,
+    controlsLocked: hasModel ? phase !== 'mounted' : false,
+    previewAvailable: hasModel,
+    canCapturePreview: !!stageRef.value?.canvasElement(),
     updatedAt: Date.now(),
   })
 })
@@ -132,47 +55,12 @@ const runtimeSnapshot = computed<ModelSettingsRuntimeSnapshot>(() => {
 watch(runtimeSnapshot, snapshot => emit('runtimeSnapshotChanged', snapshot), { immediate: true })
 
 defineExpose({
-  capturePreviewFrame,
+  capturePreviewFrame: () => stageRef.value?.captureFrame(),
 })
-
-const { live2dEyeTrackingSource } = storeToRefs(useSettingsLive2d())
-const { x: mouseX, y: mouseY } = useMouse()
-live2dEyeTrackingSource.value = computed(() => ({
-  x: mouseX.value,
-  y: mouseY.value,
-}))
-const { trackingSource } = storeToRefs(useModelStore())
-trackingSource.value = computed(() => ({
-  x: mouseX.value,
-  y: mouseY.value,
-}))
 </script>
 
 <template>
-  <template v-if="stageModelRenderer === 'live2d'">
-    <Live2DScene
-      ref="live2dSceneRef"
-      v-model:state="live2dComponentState"
-      :model-src="stageModelSelectedUrl"
-      :model-id="stageModelSelected"
-      :theme-colors-hue="themeColorsHue"
-      :theme-colors-hue-dynamic="themeColorsHueDynamic"
-    />
-  </template>
-  <template v-if="stageModelRenderer === 'vrm'">
-    <ThreeScene ref="vrmSceneRef" :model-src="stageModelSelectedUrl" />
-  </template>
-  <template v-if="stageModelRenderer === 'spine'">
-    <SpineScene
-      ref="spineSceneRef"
-      v-model:state="spineComponentState"
-      :model-src="stageModelSelectedUrl"
-      :model-id="stageModelSelected"
-      :premultiplied-alpha="spinePremultipliedAlpha"
-      :default-mix-duration="spineDefaultMixDuration"
-      :idle-animation-enabled="spineIdleAnimationEnabled"
-      :max-fps="spineMaxFps"
-      :render-scale="spineRenderScale"
-    />
+  <template v-if="currentRenderer">
+    <component :is="currentRenderer.stage" ref="stageRef" v-model:state="componentState" />
   </template>
 </template>

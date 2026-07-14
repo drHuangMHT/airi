@@ -95,7 +95,7 @@ const trackingMode = useLocalStorage('settings/stage-ui-three/trackingMode', 'no
  */
 const trackingSource: Ref<ComputedRef<{ x: number, y: number }> | null> = ref(null)
 
-export const useModelStore = defineStore('modelStore', () => {
+export const useRuntimeStateStore = defineStore('modelStore', () => {
   const { post, data } = useBroadcastChannel<BroadcastChannelEvents, BroadcastChannelEvents>({ name: 'airi-stores-stage-ui-three-vrm' })
   const shouldUpdateViewHooks = ref(new Set<() => void>())
 

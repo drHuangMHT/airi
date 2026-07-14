@@ -8,18 +8,11 @@ import { sleep } from '@moeru/std'
 import { createLive2DLipSync } from '@proj-airi/model-driver-lipsync'
 import { wlipsyncProfile } from '@proj-airi/model-driver-lipsync/shared/wlipsync'
 import { normalizeActPayload } from '@proj-airi/pipelines-audio'
-import { Live2DScene, useLive2dParams } from '@proj-airi/stage-ui-live2d'
-import { SpineScene } from '@proj-airi/stage-ui-spine'
-import { ThreeScene } from '@proj-airi/stage-ui-three'
-import { animations } from '@proj-airi/stage-ui-three/assets/vrm'
 import { createQueue } from '@proj-airi/stream-kit'
-import { Callout } from '@proj-airi/ui'
 import { useBroadcastChannel } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
-import { onMounted, onUnmounted, ref, watch } from 'vue'
+import { onUnmounted, ref, useTemplateRef, watch } from 'vue'
 
-import { useSettingsLive2d } from '../../../../stage-ui-live2d/src/composables/live2d/live2d'
-import { useDuckDb } from '../../composables/use-duck-db'
 import { initIOTracer } from '../../composables/use-io-tracer'
 import { useSpeechPipelineAnalytics } from '../../composables/use-speech-pipeline-analytics'
 import { Emotion, EMOTION_EmotionMotionName_value, EMOTION_VRMExpressionName_value, EmotionThinkMotionName } from '../../constants/emotions'
@@ -27,7 +20,7 @@ import { useAudioContext, useSpeakingStore } from '../../stores/audio'
 import { useBackgroundStore } from '../../stores/background'
 import { useChatOrchestrator } from '../../stores/chat-minimized'
 import { useLlmStreamingControlStore } from '../../stores/llm-streaming-control'
-import { useSettings } from '../../stores/settings'
+import { useSettings, useSettingsStage } from '../../stores/settings'
 
 const props = withDefaults(defineProps<{
   paused?: boolean
@@ -35,37 +28,17 @@ const props = withDefaults(defineProps<{
 
 const componentState = defineModel<'pending' | 'loading' | 'mounted'>('state', { default: 'pending' })
 
-const { getDb } = useDuckDb()
-// const transformersProvider = createTransformers({ embedWorkerURL })
-
-const vrmViewerRef = ref<InstanceType<typeof ThreeScene>>()
-const live2dSceneRef = ref<InstanceType<typeof Live2DScene>>()
-const spineSceneRef = ref<InstanceType<typeof SpineScene>>()
+const { currentRenderer } = storeToRefs(useSettingsStage())
 
 const settingsStore = useSettings()
 const {
   stageModelRenderer,
   stageViewControlsEnabled,
-  stageModelSelectedUrl,
-  stageModelSelected,
   themeColorsHue,
   themeColorsHueDynamic,
 } = storeToRefs(settingsStore)
-const {
-  live2dShadowEnabled,
-  live2dMaxFps,
-  live2dRenderScale,
-} = storeToRefs(useSettingsLive2d())
-const {
-  spinePremultipliedAlpha,
-  spineDefaultMixDuration,
-  spineIdleAnimationEnabled,
-  spineMaxFps,
-  spineRenderScale,
-} = storeToRefs(settingsStore)
 const { mouthOpenSize, nowSpeaking } = storeToRefs(useSpeakingStore())
 const { audioContext } = useAudioContext()
-const currentAudioSource = ref<AudioBufferSourceNode>()
 
 const { onBeforeMessageComposed, onBeforeSend } = useChatOrchestrator()
 const chatHookCleanups: Array<() => void> = []
@@ -73,7 +46,6 @@ const chatHookCleanups: Array<() => void> = []
 //             We keep per-hook disposers instead of wiping the global chat hooks to play nicely with
 //             cross-window broadcast wiring.
 
-const live2dStore = useLive2dParams()
 const showStage = ref(true)
 const viewUpdateCleanups: Array<() => void> = []
 
@@ -89,23 +61,17 @@ type PresentEvent
     | { type: 'assistant-append', text: string }
 const { post: postPresent } = useBroadcastChannel<PresentEvent, PresentEvent>({ name: 'airi-chat-present' })
 
-viewUpdateCleanups.push(live2dStore.onShouldUpdateView(async () => {
-  showStage.value = false
-  await settingsStore.updateStageModel()
-  setTimeout(() => {
-    showStage.value = true
-  }, 100)
-}))
-
 const lipSyncStarted = ref(false)
 const lipSyncLoopId = ref<number>()
 const live2dLipSync = ref<Live2DLipSync>()
 const live2dLipSyncOptions: Live2DLipSyncOptions = { mouthUpdateIntervalMs: 50, mouthLerpWindowMs: 50 }
 
+const stageRef = useTemplateRef('stageRef')
+
 const backgroundStore = useBackgroundStore()
 const { activeBackgroundUrl } = storeToRefs(backgroundStore)
 
-const { currentMotion } = storeToRefs(useLive2dParams())
+const currentMotion = ref<any>(null)
 
 const emotionsQueue = createQueue<EmotionPayload>({
   handlers: [
@@ -116,13 +82,13 @@ const emotionsQueue = createQueue<EmotionPayload>({
         if (!value)
           return
 
-        await vrmViewerRef.value!.setExpression(value, ctx.data.intensity)
+        await (stageRef.value! as any).setExpression(value, ctx.data.intensity)
       }
       else if (stageModelRenderer.value === 'live2d') {
         currentMotion.value = { group: EMOTION_EmotionMotionName_value[ctx.data.name] }
       }
       else if (stageModelRenderer.value === 'spine') {
-        spineSceneRef.value?.setEmotion(ctx.data.name, ctx.data.intensity)
+        (stageRef.value! as any).setEmotion!(ctx.data.name, ctx.data.intensity)
       }
     },
   ],
@@ -302,10 +268,6 @@ if (typeof window !== 'undefined') {
   })
 }
 
-onMounted(async () => {
-  await getDb() // stub for future update
-})
-
 watch([stageModelRenderer, () => props.paused], ([renderer]) => {
   if (renderer === 'godot') {
     componentState.value = 'mounted'
@@ -319,30 +281,15 @@ watch([stageModelRenderer, () => props.paused], ([renderer]) => {
   syncLipSyncLoop()
 }, { immediate: true })
 
-function canvasElement() {
-  if (stageModelRenderer.value === 'live2d')
-    return live2dSceneRef.value?.canvasElement()
-
-  else if (stageModelRenderer.value === 'vrm')
-    return vrmViewerRef.value?.canvasElement()
-
-  else if (stageModelRenderer.value === 'spine')
-    return spineSceneRef.value?.canvasElement()
-}
-
 function readRenderTargetRegionAtClientPoint(clientX: number, clientY: number, radius: number) {
   if (stageModelRenderer.value !== 'vrm')
     return null
 
-  return vrmViewerRef.value?.readRenderTargetRegionAtClientPoint?.(clientX, clientY, radius) ?? null
+  return (stageRef.value! as any).readRenderTargetRegionAtClientPoint?.(clientX, clientY, radius) ?? null
 }
 
 async function captureFrame() {
-  const charBlob = await (stageModelRenderer.value === 'live2d'
-    ? live2dSceneRef.value?.captureFrame()
-    : stageModelRenderer.value === 'vrm'
-      ? vrmViewerRef.value?.captureFrame()
-      : spineSceneRef.value?.captureFrame())
+  const charBlob = await stageRef.value?.captureFrame()
 
   if (!activeBackgroundUrl.value || !charBlob)
     return charBlob
@@ -396,7 +343,7 @@ onUnmounted(() => {
 })
 
 defineExpose({
-  canvasElement,
+  canvasElement: () => stageRef.value?.canvasElement(),
   captureFrame,
   readRenderTargetRegionAtClientPoint,
 })
@@ -419,37 +366,9 @@ defineExpose({
       }"
     />
 
-    <div relative h-full w-full>
-      <Live2DScene
-        v-if="stageModelRenderer === 'live2d' && showStage"
-        ref="live2dSceneRef"
-        v-model:state="componentState"
-        min-w="50% <lg:full" min-h="100 sm:100"
-        h-full w-full flex-1
-        :model-src="stageModelSelectedUrl"
-        :model-id="stageModelSelected"
-        :mouth-open-size="mouthOpenSize"
-        :now-speaking="nowSpeaking"
-        :paused="paused"
-        :theme-colors-hue="themeColorsHue"
-        :theme-colors-hue-dynamic="themeColorsHueDynamic"
-        :live2d-shadow-enabled="live2dShadowEnabled"
-        :live2d-max-fps="live2dMaxFps"
-        :live2d-render-scale="live2dRenderScale"
-      />
-      <ThreeScene
-        v-if="stageModelRenderer === 'vrm' && showStage"
-        ref="vrmViewerRef"
-        v-model:state="componentState"
-        min-w="50% <lg:full" min-h="100 sm:100" h-full w-full flex-1
-        :model-src="stageModelSelectedUrl"
-        :idle-animation="animations.idleLoop.toString()"
-        :paused="paused"
-        :show-axes="stageViewControlsEnabled"
-        :current-audio-source="currentAudioSource"
-        @error="console.error"
-      />
-      <SpineScene
+    <div v-if="currentRenderer" relative h-full w-full>
+      <component :is="currentRenderer.stage" ref="stageRef" v-model:state="componentState">
+      <!-- <SpineScene
         v-if="stageModelRenderer === 'spine' && showStage"
         ref="spineSceneRef"
         v-model:state="componentState"
@@ -483,7 +402,8 @@ defineExpose({
             <p>Godot Stage (experimental) is running...</p>
           </Callout>
         </div>
-      </div>
+      </div> -->
+      </component>
     </div>
   </div>
 </template>
