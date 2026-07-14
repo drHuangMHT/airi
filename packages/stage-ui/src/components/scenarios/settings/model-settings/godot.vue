@@ -8,10 +8,9 @@ import type {
 
 import type { ModelSettingsRuntimeSnapshot } from './runtime'
 
-import { Callout } from '@proj-airi/ui'
+import { Callout, Container, PropertyNumber } from '@proj-airi/ui'
 import { computed, ref, shallowRef, watch } from 'vue'
 
-import { Container, PropertyNumber } from '../../../data-pane'
 import { cloneStageViewStateForDraft, resolveGodotCameraPositionRange } from './runtime'
 
 interface GodotModelSettingsProps {

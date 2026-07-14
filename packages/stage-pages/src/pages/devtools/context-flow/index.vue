@@ -6,9 +6,8 @@ import type { FlowDirection, FlowEntry, SparkNotifyEntryState } from './context-
 
 import { errorMessageFrom } from '@moeru/std'
 import { ContextUpdateStrategy } from '@proj-airi/server-sdk'
-import { Section } from '@proj-airi/stage-ui/components'
 import { useCharacterOrchestratorStore, useCharacterStore } from '@proj-airi/stage-ui/stores/character'
-import { useChatOrchestratorStore } from '@proj-airi/stage-ui/stores/chat-minimized'
+import { useChatOrchestrator } from '@proj-airi/stage-ui/stores/chat-minimized'
 import { CHAT_STREAM_CHANNEL_NAME, CONTEXT_CHANNEL_NAME } from '@proj-airi/stage-ui/stores/chat/constants'
 import { formatContextPromptText } from '@proj-airi/stage-ui/stores/chat/context-prompt'
 import { useChatContextStore } from '@proj-airi/stage-ui/stores/chat/context-store'
@@ -16,6 +15,7 @@ import { useChatSessionStore } from '@proj-airi/stage-ui/stores/chat/session-sto
 import { useContextObservabilityStore } from '@proj-airi/stage-ui/stores/devtools/context-observability'
 import { useModsServerChannelStore } from '@proj-airi/stage-ui/stores/mods/api/channel-server'
 import { getEventSourceKey } from '@proj-airi/stage-ui/utils'
+import { Section } from '@proj-airi/ui'
 import { useBroadcastChannel } from '@vueuse/core'
 import { nanoid } from 'nanoid'
 import { storeToRefs } from 'pinia'
@@ -41,7 +41,7 @@ const {
   truncateText,
 } = useContextFlowFormatters()
 
-const chatStore = useChatOrchestratorStore()
+const chatStore = useChatOrchestrator()
 const chatContextStore = useChatContextStore()
 const chatSessionStore = useChatSessionStore()
 const characterStore = useCharacterStore()

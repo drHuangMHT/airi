@@ -2,12 +2,10 @@
 import type { ModelSettingsRuntimeSnapshot } from './runtime'
 
 import { useModelStore } from '@proj-airi/stage-ui-three'
-import { Button, Callout, Container, PropertyColor, PropertyNumber, PropertyPoint, SelectTab } from '@proj-airi/ui'
+import { Button, Callout, ColorPalette, Container, PropertyColor, PropertyNumber, PropertyPoint, SelectTab } from '@proj-airi/ui'
 import { storeToRefs } from 'pinia'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-
-import { ColorPalette } from '../../../widgets'
 
 const props = withDefaults(defineProps<{
   palette: string[]

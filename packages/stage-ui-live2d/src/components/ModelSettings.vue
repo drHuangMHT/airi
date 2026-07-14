@@ -3,14 +3,10 @@ import type { ModelSettingsRuntimeSnapshot } from './runtime'
 
 import { defaultModelParameters, useExpressionStore, useLive2dParams, useSettingsLive2d } from '@proj-airi/stage-ui-live2d'
 import { OPFSCache } from '@proj-airi/stage-ui-live2d/utils/opfs-loader'
-import { Button, Checkbox, FieldCheckbox, FieldCombobox, FieldRange, SelectTab } from '@proj-airi/ui'
+import { Button, Checkbox, ColorPalette, FieldCheckbox, FieldCombobox, FieldRange, PropertyPoint, Section, SelectTab } from '@proj-airi/ui'
 import { storeToRefs } from 'pinia'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-
-import { PropertyPoint } from '../../../data-pane'
-import { Section } from '../../../layouts'
-import { ColorPalette } from '../../../widgets'
 
 const props = withDefaults(defineProps<{
   palette: string[]

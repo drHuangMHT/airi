@@ -4,9 +4,8 @@ import type {
   PluginManifestSummary,
 } from '@proj-airi/stage-ui/stores/devtools/plugin-host-debug'
 
-import { Section } from '@proj-airi/stage-ui/components'
 import { usePluginHostInspectorStore } from '@proj-airi/stage-ui/stores/devtools/plugin-host-debug'
-import { Button, Callout, Input } from '@proj-airi/ui'
+import { Button, Callout, Input, Section } from '@proj-airi/ui'
 import { computed, onMounted, ref } from 'vue'
 import { toast } from 'vue-sonner'
 

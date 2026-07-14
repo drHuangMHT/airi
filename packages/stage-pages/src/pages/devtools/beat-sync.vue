@@ -2,8 +2,7 @@
 import type { BeatSyncStyleName } from '@proj-airi/stage-ui-live2d'
 
 import { createBeatSyncController } from '@proj-airi/stage-ui-live2d'
-import { Section } from '@proj-airi/stage-ui/components'
-import { Button, Callout, FieldCheckbox, FieldCombobox, FieldRange } from '@proj-airi/ui'
+import { Button, Callout, FieldCheckbox, FieldCombobox, FieldRange, Section } from '@proj-airi/ui'
 import { useRafFn } from '@vueuse/core'
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 
