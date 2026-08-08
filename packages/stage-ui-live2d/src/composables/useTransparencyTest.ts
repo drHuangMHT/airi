@@ -1,8 +1,8 @@
-import type { MaybeRefOrGetter, Ref } from 'vue'
+import type { MaybeRefOrGetter } from 'vue'
 
 import { toRef, unrefElement, useElementBounding, useThrottleFn } from '@vueuse/core'
 import { clamp } from 'es-toolkit/math'
-import { computed, ref, watchEffect } from 'vue'
+import { ref, toValue, watch } from 'vue'
 
 interface CircleHitTestInput {
   gl: WebGL2RenderingContext | WebGLRenderingContext
@@ -92,83 +92,22 @@ export function isCanvasRegionTransparent({
   return true
 }
 
-export function useCanvasPixelAtPoint(
-  canvas: MaybeRefOrGetter<HTMLCanvasElement | undefined>,
-  pointX: MaybeRefOrGetter<number>,
-  pointY: MaybeRefOrGetter<number>,
-): {
-  inCanvas: Ref<boolean>
-  pixel: Ref<Uint8Array | number[]>
-} {
-  const canvasRef = toRef(canvas)
-
-  const { left, top, width, height } = useElementBounding(canvasRef)
-  const xRef = toRef(pointX)
-  const yRef = toRef(pointY)
-
-  const inCanvas = computed(() => {
-    if (canvasRef.value == null) {
-      return false
-    }
-
-    const xIn = xRef.value - left.value
-    const yIn = yRef.value - top.value
-    return xIn >= 0 && yIn >= 0 && xIn < width.value && yIn < height.value
-  })
-
-  const pixel = computed(() => {
-    const el = unrefElement(canvasRef)
-    if (!el || !inCanvas.value)
-      return new Uint8Array([0, 0, 0, 0])
-
-    const gl = (el.getContext('webgl2') || el.getContext('webgl')) as WebGL2RenderingContext | WebGLRenderingContext | null
-    if (!gl)
-      return new Uint8Array([0, 0, 0, 0])
-
-    const xIn = xRef.value - left.value
-    const yIn = yRef.value - top.value
-
-    const scaleX = gl.drawingBufferWidth / width.value
-    const scaleY = gl.drawingBufferHeight / height.value
-    const pixelX = Math.floor(xIn * scaleX)
-    // Flip Y; subtract 1 to avoid top-edge off-by-one
-    const pixelY = Math.floor(gl.drawingBufferHeight - 1 - yIn * scaleY)
-
-    const data = new Uint8Array(4)
-    try {
-      gl.readPixels(pixelX, pixelY, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, data)
-    }
-    catch {
-      return new Uint8Array([0, 0, 0, 0])
-    }
-
-    return data
-  })
-
-  return {
-    inCanvas,
-    pixel,
-  }
-}
-
-export function useCanvasPixelIsTransparent(
-  pixel: Ref<Uint8Array | number[]>,
-  threshold = 10,
-): Ref<boolean> {
-  return computed(() => pixel.value[3] < threshold)
-}
-
 type TransparencyTestFn = (...args: Parameters<typeof isCanvasRegionTransparent>) => void
 
+// NOTICE: In real-world use cases of Fade on Hover feature, the cursor may move around the edge of the
+// model rapidly, causing flickering effects when checking pixel transparency strictly.
+// Here we use render-target pixel sampling to keep detection aligned with the actual render output.
 export function useCanvasPixelIsTransparentAtPoint(
   canvas: MaybeRefOrGetter<HTMLCanvasElement | undefined>,
-  clientPos: MaybeRefOrGetter<{ x: number, y: number }>,
+  canvasClientX: MaybeRefOrGetter<number>,
+  canvasClientY: MaybeRefOrGetter<number>,
   options: { threshold?: number, regionRadius?: number, throttleMs?: number },
-): Ref<boolean> {
+) {
   const { threshold = 10, regionRadius = 1, throttleMs = 0 } = options
 
   const radius = Math.max(1, regionRadius)
-  const pos = toRef(clientPos)
+  const clientX = toRef(canvasClientX)
+  const clientY = toRef(canvasClientY)
   const transparentState = ref(false)
   const { left, top, width, height } = useElementBounding(canvas)
   let testFn: TransparencyTestFn = (...args: Parameters<typeof isCanvasRegionTransparent>) => {
@@ -177,15 +116,18 @@ export function useCanvasPixelIsTransparentAtPoint(
   if (throttleMs > 0) {
     testFn = useThrottleFn(testFn)
   }
-  watchEffect(() => {
+  const watcher = watch([clientX, clientY, canvas], () => {
     const el = unrefElement(canvas)
     const gl = (el?.getContext('webgl2') ?? el?.getContext('webgl') ?? null)
-    if (!gl)
+    if (!el || !gl)
+      return transparentState.value = true
+    // already guarded by `isCanvasRegionTransparent` but here to skip the throttled test
+    if (clientX.value < 0 || clientY.value < 0 || clientX.value > el.clientWidth || clientY.value > el.clientHeight)
       return transparentState.value = true
     testFn({
       gl,
-      clientX: pos.value.x,
-      clientY: pos.value.y,
+      clientX: clientX.value,
+      clientY: clientY.value,
       left: left.value,
       top: top.value,
       width: width.value,
@@ -193,6 +135,33 @@ export function useCanvasPixelIsTransparentAtPoint(
       radius,
       threshold,
     })
+  })
+  return { transparentState, watcher }
+}
+
+export function useTransparencyTest(
+  canvas: MaybeRefOrGetter<HTMLCanvasElement | undefined>,
+  canvasClientX: MaybeRefOrGetter<number>,
+  canvasClientY: MaybeRefOrGetter<number>,
+  testEnabled: MaybeRefOrGetter<boolean>,
+  emit: any,
+) {
+  const { transparentState, watcher } = useCanvasPixelIsTransparentAtPoint(canvas, canvasClientX, canvasClientY, {
+    threshold: 10,
+    throttleMs: 100,
+    regionRadius: 15,
+  })
+  watch([testEnabled], () => {
+    const enabled = toValue(testEnabled)
+    if (enabled)
+      watcher.resume()
+    else
+      watcher.pause()
+  }, { immediate: true })
+  watch(transparentState, (oldVal, newVal) => {
+    if (oldVal !== newVal) {
+      emit('transparencyChange', newVal)
+    }
   })
   return transparentState
 }

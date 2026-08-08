@@ -26,7 +26,11 @@ const props = withDefaults(defineProps<{
   paused?: boolean
 }>(), { paused: false, scale: 1 })
 
+const emit = defineEmits<{
+  transparencyChange: [isTransparent: boolean]
+}>()
 const componentState = defineModel<'pending' | 'loading' | 'mounted'>('state', { default: 'pending' })
+const isCursorPosTransparent = defineModel<boolean>('isCursorPosTransparent', { default: false })
 
 const { currentRenderer } = storeToRefs(useSettingsStage())
 
@@ -367,7 +371,12 @@ defineExpose({
     />
 
     <div v-if="currentRenderer" relative h-full w-full>
-      <component :is="currentRenderer.stage" ref="stageRef" v-model:state="componentState">
+      <component
+        :is="currentRenderer.stage" ref="stageRef"
+        v-model:state="componentState"
+        v-model:is-cursor-pos-transparent="isCursorPosTransparent"
+        @transparency-change="(v:boolean) => emit('transparencyChange', v)"
+      >
       <!-- <SpineScene
         v-if="stageModelRenderer === 'spine' && showStage"
         ref="spineSceneRef"
