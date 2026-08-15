@@ -41,7 +41,7 @@ const modelValue = defineModel<string>({ required: false })
           props.layout === 'horizontal' ? 'col-span-2' : 'row-span-2',
         ]"
       >
-        <div :class="['flex', 'items-center', 'gap-1', 'break-words', 'text-sm', 'font-medium', 'text-left']">
+        <div :class="['flex', 'items-center', 'gap-1', 'break-words', 'text-md', 'font-medium', 'text-left']">
           <slot name="label">
             {{ props.label }}
           </slot>
