@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { Screen } from '@proj-airi/ui'
-import { useMouse } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, inject, onMounted, ref, useTemplateRef, watch } from 'vue'
 
 import SliderControls from '../ViewControls/SliderControls.vue'
 import Live2DCanvas from './live2d/Canvas.vue'
@@ -10,29 +9,35 @@ import Live2DModel from './live2d/Model.vue'
 
 import { useEyeTracking, useSettingsLive2d } from '../../composables/live2d'
 import { useModelsStore } from '../../composables/model'
+import { useTransparencyTest } from '../../composables/useTransparencyTest'
 
 import '../../utils/live2d-zip-loader'
 import '../../utils/live2d-opfs-registration'
 
-withDefaults(defineProps<{
+const props = withDefaults(defineProps<{
   paused?: boolean
   mouthOpenSize?: number
   nowSpeaking?: boolean
   themeColorsHue?: number
   themeColorsHueDynamic?: boolean
+  transparencyWatcherEnabled?: boolean
 }>(), {
   paused: false,
   mouthOpenSize: 0,
   nowSpeaking: false,
   themeColorsHue: 220.44,
   themeColorsHueDynamic: false,
+  transparencyWatcherEnabled: true,
 })
 
+const emit = defineEmits<{
+  transparencyChange: [isTransparent: boolean]
+}>()
 const componentState = defineModel<'pending' | 'loading' | 'mounted'>('state', { default: 'pending' })
 const componentStateCanvas = defineModel<'pending' | 'loading' | 'mounted'>('canvasState', { default: 'pending' })
 const componentStateModel = defineModel<'pending' | 'loading' | 'mounted'>('modelState', { default: 'pending' })
 
-const live2dCanvasRef = ref<InstanceType<typeof Live2DCanvas>>()
+const live2dCanvasRef = useTemplateRef('live2dCanvasRef')
 const live2dModelRef = ref<InstanceType<typeof Live2DModel>>()
 
 const {
@@ -73,12 +78,19 @@ defineExpose({
     return live2dCanvasRef.value?.captureFrame()
   },
 })
+const transparencyTestPos = inject('transparencyTestPos', computed(() => ({ x: 0, y: 0 })))
+const isTransparent = useTransparencyTest(
+  () => live2dCanvasRef.value?.canvasElement(),
+  () => transparencyTestPos.value.x,
+  () => transparencyTestPos.value.y,
+  () => props.transparencyWatcherEnabled,
+  emit,
+)
+watch([isTransparent], () => {
+  console.info(`isTransparent: ${isTransparent.value}`)
+})
 
-const { x: mouseX, y: mouseY } = useMouse()
-live2dEyeTrackingSource.value = computed(() => ({
-  x: mouseX.value,
-  y: mouseY.value,
-}))
+live2dEyeTrackingSource.value = inject('eye-tracking-source', computed(() => ({ x: 0, y: 0 })))
 
 onMounted(async () => {
   await modelsStore.initialize()
@@ -91,34 +103,18 @@ onMounted(async () => {
       <SliderControls />
     </div>
     <Live2DCanvas
-      ref="live2dCanvasRef"
-      v-slot="{ app }"
-      v-model:state="componentStateCanvas"
-      :width="width"
-      :height="height"
-      :resolution="live2dRenderScale"
-      :max-fps="live2dMaxFps"
-      max-h="100dvh"
+      ref="live2dCanvasRef" v-slot="{ app }" v-model:state="componentStateCanvas" :width="width"
+      :height="height" :resolution="live2dRenderScale" :max-fps="live2dMaxFps" max-h="100dvh"
     >
       <Live2DModel
-        ref="live2dModelRef"
-        v-model:state="componentStateModel"
-        :app="app"
-        :mouth-open-size="mouthOpenSize"
-        :now-speaking="nowSpeaking"
-        :width="width"
-        :height="height"
-        :paused="paused"
-        :focus-at="mouseFocus"
-        :eye-tracking="live2dEyeTracking"
-        :theme-colors-hue="themeColorsHue"
-        :theme-colors-hue-dynamic="themeColorsHueDynamic"
-        :live2d-idle-animation-enabled="live2dIdleAnimationEnabled"
+        ref="live2dModelRef" v-model:state="componentStateModel" :app="app" :mouth-open-size="mouthOpenSize"
+        :now-speaking="nowSpeaking" :width="width" :height="height" :paused="paused" :focus-at="mouseFocus"
+        :eye-tracking="live2dEyeTracking" :theme-colors-hue="themeColorsHue"
+        :theme-colors-hue-dynamic="themeColorsHueDynamic" :live2d-idle-animation-enabled="live2dIdleAnimationEnabled"
         :live2d-force-idle-eye-animation="live2dForceIdleEyeAnimation"
         :live2d-auto-blink-enabled="live2dAutoBlinkEnabled"
         :live2d-force-auto-blink-enabled="live2dForceAutoBlinkEnabled"
-        :live2d-expression-enabled="live2dExpressionEnabled"
-        :live2d-shadow-enabled="live2dShadowEnabled"
+        :live2d-expression-enabled="live2dExpressionEnabled" :live2d-shadow-enabled="live2dShadowEnabled"
       />
     </Live2DCanvas>
   </Screen>
