@@ -44,8 +44,6 @@ export async function loadLive2DModelPreview(file: File): Promise<Blob | null> {
 
   const modelInstance = new Live2DModel()
   const objUrl = URL.createObjectURL(file)
-  const res = await fetch(objUrl)
-  const blob = await res.blob()
 
   const cleanup = () => {
     app.destroy()
@@ -55,7 +53,7 @@ export async function loadLive2DModelPreview(file: File): Promise<Blob | null> {
   }
 
   try {
-    await Live2DFactory.setupLive2DModel(modelInstance, [new File([blob], file.name)], { autoInteract: false })
+    await Live2DFactory.setupLive2DModel(modelInstance, { url: objUrl, id: file.name }, { autoInteract: false })
     app.stage.addChild(modelInstance)
 
     modelInstance.x = 275
