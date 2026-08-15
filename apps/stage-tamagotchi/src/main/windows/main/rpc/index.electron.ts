@@ -1,4 +1,4 @@
-import type { BrowserWindow } from 'electron'
+import type { BrowserWindow, PowerMonitor } from 'electron'
 
 import type { I18n } from '../../../libs/i18n'
 import type { WindowAuthManager } from '../../../services/airi/auth'
@@ -38,6 +38,7 @@ export async function setupMainWindowElectronInvokes(params: {
   i18n: I18n
   onboardingWindowManager: OnboardingWindowManager
   windowAuthManager: WindowAuthManager
+  powerMonitor: PowerMonitor
 }) {
   // TODO: once we refactored eventa to support window-namespaced contexts,
   // we can remove the setMaxListeners call below since eventa will be able to dispatch and
@@ -46,7 +47,7 @@ export async function setupMainWindowElectronInvokes(params: {
 
   const { context } = createContext(ipcMain, params.window)
 
-  await setupBaseWindowElectronInvokes({ context, window: params.window, serverChannel: params.serverChannel, i18n: params.i18n })
+  await setupBaseWindowElectronInvokes({ context, window: params.window, serverChannel: params.serverChannel, i18n: params.i18n, powerMonitor: params.powerMonitor })
   createWidgetsService({ context, widgetsManager: params.widgetsManager, window: params.window })
   createAutoUpdaterService({ context, window: params.window, service: params.autoUpdater })
   createMcpServersService({ context, manager: params.mcpStdioManager })

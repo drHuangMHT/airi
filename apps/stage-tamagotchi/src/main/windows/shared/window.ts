@@ -1,6 +1,6 @@
 import type { createContext } from '@moeru/eventa/adapters/electron/main'
 import type { ResizeDirection } from '@proj-airi/electron-eventa'
-import type { BrowserWindow, BrowserWindowConstructorOptions } from 'electron'
+import type { BrowserWindow, BrowserWindowConstructorOptions, PowerMonitor } from 'electron'
 
 import type { I18n } from '../../libs/i18n'
 import type { ServerChannel } from '../../services/airi/channel-server'
@@ -95,9 +95,10 @@ export async function setupBaseWindowElectronInvokes(params: {
   window: BrowserWindow
   serverChannel: ServerChannel
   i18n: I18n
+  powerMonitor?: PowerMonitor
 }) {
   createScreenService({ context: params.context, window: params.window })
-  createWindowService({ context: params.context, window: params.window })
+  createWindowService({ context: params.context, window: params.window, powerMonitor: params.powerMonitor })
   createAppService({ context: params.context, window: params.window })
   createPowerMonitorService({ context: params.context, window: params.window })
 

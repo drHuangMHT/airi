@@ -311,7 +311,7 @@ export function setupCaptionWindowManager(params: {
     const { context } = createContext(ipcMain, window)
     eventaContext = context
 
-    await setupBaseWindowElectronInvokes({ context, window, serverChannel: params.serverChannel, i18n: params.i18n })
+    await setupBaseWindowElectronInvokes({ context, window, serverChannel: params.serverChannel, i18n: params.i18n, powerMonitor: undefined as any })
 
     applyIgnoreMouseEvents(window, isFollowing)
 

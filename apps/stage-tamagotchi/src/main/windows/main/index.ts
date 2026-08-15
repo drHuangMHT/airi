@@ -1,4 +1,4 @@
-import type { Rectangle } from 'electron'
+import type { PowerMonitor, Rectangle } from 'electron'
 import type { InferOutput } from 'valibot'
 
 import type { I18n } from '../../libs/i18n'
@@ -62,6 +62,7 @@ export async function setupMainWindow(params: {
   i18n: I18n
   onboardingWindowManager: OnboardingWindowManager
   windowAuthManager: WindowAuthManager
+  powerMonitor: PowerMonitor
 }) {
   const {
     setup: setupConfig,
@@ -189,6 +190,7 @@ export async function setupMainWindow(params: {
     i18n: params.i18n,
     onboardingWindowManager: params.onboardingWindowManager,
     windowAuthManager: params.windowAuthManager,
+    powerMonitor: params.powerMonitor,
   })
 
   await load(window, baseUrl(resolve(getElectronMainDirname(), '..', 'renderer')))

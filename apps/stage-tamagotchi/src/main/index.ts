@@ -14,7 +14,7 @@ import { Format, LogLevel, setGlobalFormat, setGlobalHookPostLog, setGlobalLogLe
 import { createContext } from '@moeru/eventa/adapters/electron/main'
 import { initScreenCaptureForMain } from '@proj-airi/electron-screen-capture/main'
 import { PluginRegistry } from '@proj-airi/plugin-host'
-import { app, ipcMain } from 'electron'
+import { app, ipcMain, powerMonitor } from 'electron'
 import { noop } from 'es-toolkit'
 import { createLoggLogger, injeca, lifecycle } from 'injeca'
 import { isLinux } from 'std-env'
@@ -216,6 +216,7 @@ app.whenReady().then(async () => {
     dependsOn: { settingsWindow, chatWindow, widgetsManager, noticeWindow, beatSync, autoUpdater, serverChannel, godotStageManager, mcpStdioManager, i18n, onboardingWindowManager, windowAuthManager },
     build: async ({ dependsOn }) => setupMainWindow({
       ...dependsOn,
+      powerMonitor,
       onWindowCreated: (window) => {
         userFacingMainWindow = window
       },

@@ -1,5 +1,5 @@
 import type { createContext } from '@moeru/eventa/adapters/electron/main'
-import type { BrowserWindow } from 'electron'
+import type { BrowserWindow, PowerMonitor } from 'electron'
 
 import type { ElectronWindowLifecycleState } from '../../../shared/eventa'
 
@@ -17,7 +17,7 @@ import {
 import { onAppBeforeQuit, onAppWindowAllClosed } from '../../libs/bootkit/lifecycle'
 import { resizeWindowByDelta } from '../../windows/shared/window'
 
-export function createWindowService(params: { context: ReturnType<typeof createContext>['context'], window: BrowserWindow }) {
+export function createWindowService(params: { context: ReturnType<typeof createContext>['context'], window: BrowserWindow, powerMonitor?: PowerMonitor }) {
   function getWindowLifecycleState(reason: ElectronWindowLifecycleState['reason']): ElectronWindowLifecycleState {
     return {
       focused: params.window.isFocused(),
@@ -25,6 +25,7 @@ export function createWindowService(params: { context: ReturnType<typeof createC
       reason,
       updatedAt: Date.now(),
       visible: params.window.isVisible(),
+      screenLocked: (params.powerMonitor?.getSystemIdleState(60) ?? 'unlocked') === 'locked',
     }
   }
 
@@ -53,6 +54,8 @@ export function createWindowService(params: { context: ReturnType<typeof createC
   params.window.on('restore', () => emitWindowLifecycle('restore'))
   params.window.on('focus', () => emitWindowLifecycle('focus'))
   params.window.on('blur', () => emitWindowLifecycle('blur'))
+  params.powerMonitor?.on('lock-screen', () => emitWindowLifecycle('lock-screen'))
+  params.powerMonitor?.on('unlock-screen', () => emitWindowLifecycle('unlock-screen'))
 
   defineInvokeHandler(params.context, electron.window.getBounds, (_, options) => {
     if (params.window.webContents.id === options?.raw.ipcMainEvent.sender.id) {
