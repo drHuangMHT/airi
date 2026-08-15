@@ -13,6 +13,7 @@ const props = withDefaults(defineProps<{
   description?: string
   handleWheel?: boolean
   formatValue?: (value: number) => string
+  defaultValue?: number
   as?: 'label' | 'div'
 }>(), {
   as: 'label',
@@ -28,12 +29,15 @@ useWheelAdjust(props, modelValue, numericInput)
 </script>
 
 <template>
-  <props.as :class="['flex flex-col gap-4']">
-    <div flex flex-row items-center justify-between gap-2>
+  <props.as :class="['flex flex-col gap-2']">
+    <div flex>
       <slot name="label">
         <TextTitleDescription :label="props.label" :description="props.description" />
       </slot>
-      <span ref="numericInput" font-mono hover:cursor-ns-resize>{{ props.formatValue?.(modelValue) ?? modelValue }}</span>
+      <output ref="numericInput" m-l-a font-mono hover:cursor-ns-resize>{{ props.formatValue?.(modelValue) ?? modelValue }}</output>
+      <button v-if="props.defaultValue != null" px-2 text-xs outline-none title="Reset value to default" @click="() => modelValue = props.defaultValue!">
+        <div i-solar:restart-outline transform-scale-x--100 text="neutral-500 dark:neutral-400" />
+      </button>
     </div>
     <div :class="['flex', 'flex-row', 'items-center', 'gap-2']">
       <Range
