@@ -1,2 +1,6 @@
+export * from './config'
 export * from './errors'
+export * from './message'
+export * from './middleware'
+export * from './peer'
 export * from './types'

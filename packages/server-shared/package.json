@@ -37,6 +37,11 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@guiiai/logg": "catalog:",
+    "@moeru/eventa": "catalog:",
     "@proj-airi/plugin-protocol": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^24.12.2"
   }
 }

@@ -1,5 +1,5 @@
 import type { ChatAssistantMessage, ChatHistoryItem } from '@proj-airi/core-agent'
-import type { NewMessagesPayload, WireMessage } from '@proj-airi/server-sdk-shared'
+import type { NewMessagesPayload, WireMessage } from '@proj-airi/server-shared'
 
 /**
  * Extract a plain-text payload from a local `ChatHistoryItem` for upload.
