@@ -1,29 +1,7 @@
+import type { AuthenticatedPeer, RouteMiddleware, RoutingPolicy } from '@proj-airi/server-shared'
 import type { RouteTargetExpression, WebSocketEvent } from '@proj-airi/server-shared/types'
 
-import type { AuthenticatedPeer } from '../types'
-
 import { matchesDestinations, matchesLabelSelectors } from './route/match-expression'
-
-export type RouteDecision
-  = | { type: 'drop' }
-    | { type: 'broadcast' }
-    | { type: 'targets', targetIds: Set<string> }
-
-export interface RoutingPolicy {
-  allowPlugins?: string[]
-  denyPlugins?: string[]
-  allowLabels?: string[]
-  denyLabels?: string[]
-}
-
-export interface RouteContext {
-  event: WebSocketEvent
-  fromPeer: AuthenticatedPeer
-  peers: Map<string, AuthenticatedPeer>
-  destinations?: Array<string | RouteTargetExpression>
-}
-
-export type RouteMiddleware = (context: RouteContext) => RouteDecision | void
 
 type DestinationList = Array<string | RouteTargetExpression>
 

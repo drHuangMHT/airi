@@ -1,3 +1,5 @@
+import type { Peer } from '@proj-airi/server-shared'
+
 /**
  * Delivery settings used by the reusable websocket gateway.
  *
@@ -107,29 +109,6 @@ export interface ServerWsGatewayHandler<TPeer = unknown, TMessage = unknown, TCl
   close?: (peer: TPeer, details?: TCloseDetails) => void
 }
 
-/**
- * Minimal websocket peer shape used by the reusable gateway.
- */
-export interface ServerWsPeer {
-  /** Stable peer id assigned by the websocket runtime. */
-  get id(): string
-  /** Sends one payload to the peer. */
-  send: (data: unknown, options?: { compress?: boolean }) => number | void | undefined
-  /** Closes the peer connection when the runtime exposes an explicit close hook. */
-  close?: () => void
-  /** WebSocket ready state when exposed by the runtime. */
-  readyState?: number
-  /** Request metadata associated with the websocket upgrade. */
-  request?: {
-    /** Request URL associated with the websocket upgrade. */
-    url?: string
-    /** Request headers associated with the websocket upgrade. */
-    headers?: Headers
-  }
-  /** Remote peer address when exposed by the runtime. */
-  remoteAddress?: string
-}
-
 /** Default heartbeat read timeout used by the websocket gateway. */
 export const serverWsDefaultHeartbeatTtlMs = 60_000
 
@@ -233,7 +212,7 @@ export function resolveServerWsHealthCheckIntervalMs(heartbeatTtlMs: number) {
  * Returns:
  * - A small registry over peers keyed by peer id
  */
-export function createServerWsPeerStore<TState extends { peer: ServerWsPeer }>() {
+export function createServerWsPeerStore<TState extends { peer: Peer }>() {
   const peers = new Map<string, TState>()
 
   return {

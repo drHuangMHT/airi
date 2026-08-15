@@ -1,7 +1,6 @@
-import type { AppOptions } from '..'
+import type { ServerOptions } from '@proj-airi/server-shared'
 
-import { isIP } from 'node:net'
-import { networkInterfaces } from 'node:os'
+import type { Server, ServerInstance } from '../types'
 
 import { useLogg } from '@guiiai/logg'
 import { merge } from '@moeru/std'
@@ -9,86 +8,7 @@ import { plugin as ws } from 'crossws/server'
 import { serve } from 'h3'
 
 import { normalizeLoggerConfig, setupApp } from '..'
-
-export interface ServerOptions extends AppOptions {
-  port?: number
-  hostname?: string
-  tlsConfig?: {
-    cert?: string
-    key?: string
-    passphrase?: string
-  } | null
-}
-
-interface ServerInstance {
-  close: (closeActiveConnections?: boolean) => Promise<void>
-}
-
-export interface Server {
-  getConnectionHost: () => string[]
-  start: () => Promise<void>
-  stop: () => Promise<void>
-  restart: () => Promise<void>
-  updateConfig: (newOptions: ServerOptions) => void
-}
-
-function isAddressInUseError(error: unknown) {
-  return typeof error === 'object'
-    && error !== null
-    && 'code' in error
-    && (error as NodeJS.ErrnoException).code === 'EADDRINUSE'
-}
-
-/**
- * Collects local IP addresses that can be used to reach the server from the LAN.
- *
- * Use when:
- * - Building connection hints for `0.0.0.0` listeners
- * - Showing reachable addresses in logs or UI
- *
- * Expects:
- * - Virtual interfaces should be ignored to reduce noisy or misleading addresses
- *
- * Returns:
- * - A de-duplicated list of valid IP addresses discovered from the host network interfaces
- */
-export function getLocalIPs(): string[] {
-  const interfaces = networkInterfaces()
-  const addresses = new Set<string>()
-
-  const VIRTUAL_INTERFACE_PREFIXES = [
-    'vboxnet',
-    'vmnet',
-    'docker',
-    'br-',
-    'veth',
-    'utun',
-    'wg',
-    'tap',
-    'tun',
-  ]
-  const isVirtualInterface = (name: string) =>
-    VIRTUAL_INTERFACE_PREFIXES.some(prefix => name.startsWith(prefix))
-
-  for (const [name, entries] of Object.entries(interfaces)) {
-    if (!entries)
-      continue
-    if (isVirtualInterface(name))
-      continue
-
-    for (const entry of entries) {
-      const rawAddress = entry.address
-      if (!rawAddress)
-        continue
-
-      const address = rawAddress.includes('%') ? rawAddress.split('%')[0] : rawAddress
-      if (isIP(address))
-        addresses.add(address)
-    }
-  }
-
-  return [...addresses]
-}
+import { getLocalIPs } from '../utils/local_addresses'
 
 /**
  * Creates the websocket server controller for the AIRI runtime.
@@ -225,10 +145,8 @@ export function createServer(opts?: ServerOptions): Server {
 
   return {
     getConnectionHost: () => {
-      if (options.hostname && options.hostname !== '0.0.0.0' && options.hostname !== '::') {
+      if (options.hostname && options.hostname !== '0.0.0.0' && options.hostname !== '::')
         return [options.hostname]
-      }
-
       return getLocalIPs()
     },
     start,
@@ -236,4 +154,11 @@ export function createServer(opts?: ServerOptions): Server {
     restart,
     updateConfig,
   }
+}
+
+function isAddressInUseError(error: unknown) {
+  return typeof error === 'object'
+    && error !== null
+    && 'code' in error
+    && (error as NodeJS.ErrnoException).code === 'EADDRINUSE'
 }

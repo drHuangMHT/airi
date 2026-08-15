@@ -1,6 +1,5 @@
+import type { AuthenticatedPeer } from '@proj-airi/server-shared'
 import type { RouteTargetExpression, WebSocketBaseEvent, WebSocketEventOf, WebSocketEvents } from '@proj-airi/server-shared/types'
-
-import type { AuthenticatedPeer } from '../types'
 
 import { describe, expect, it } from 'vitest'
 

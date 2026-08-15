@@ -1,11 +1,5 @@
+import type { Peer, RouteContext, RouteDecision, RouteMiddleware } from '@proj-airi/server-shared'
 import type { DeliveryConfig, MessageHeartbeat, MetadataEventSource, WebSocketBaseEvent, WebSocketEvent } from '@proj-airi/server-shared/types'
-
-import type {
-  RouteContext,
-  RouteDecision,
-  RouteMiddleware,
-} from '../../middlewares'
-import type { Peer } from '../../types'
 
 import { ServerErrorMessages } from '@proj-airi/server-shared'
 import {

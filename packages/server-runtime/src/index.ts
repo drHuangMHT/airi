@@ -1,3 +1,4 @@
+import type { AppOptions, AuthenticatedPeer, Peer } from '@proj-airi/server-shared'
 import type {
   DeliveryConfig,
   MetadataEventSource,
@@ -5,12 +6,7 @@ import type {
   WebSocketEvent,
 } from '@proj-airi/server-shared/types'
 
-import type {
-  RouteMiddleware,
-  RoutingPolicy,
-} from './middlewares'
 import type { ServerWsConsumerSelectionCandidate, ServerWsStickyAssignment } from './server-ws/core'
-import type { AuthenticatedPeer, Peer } from './types'
 
 import { Buffer } from 'node:buffer'
 import { timingSafeEqual } from 'node:crypto'
@@ -19,6 +15,7 @@ import { availableLogLevelStrings, Format, LogLevelString, logLevelStringToLogLe
 import { errorMessageFrom } from '@moeru/std'
 import {
   createInvalidJsonServerErrorMessage,
+
   ServerErrorMessages,
 } from '@proj-airi/server-shared'
 import {
@@ -190,26 +187,6 @@ function timingSafeCompare(a: string, b: string): boolean {
  */
 function send(peer: Peer, event: WebSocketBaseEvent<string, unknown> | string) {
   peer.send(stringifyEvent(event))
-}
-
-export interface AppOptions {
-  instanceId?: string
-  auth?: {
-    token: string
-  }
-  logger?: {
-    app?: { level?: LogLevelString, format?: Format }
-    websocket?: { level?: LogLevelString, format?: Format }
-  }
-  routing?: {
-    middleware?: RouteMiddleware[]
-    allowBypass?: boolean
-    policy?: RoutingPolicy
-  }
-  heartbeat?: {
-    readTimeout?: number
-    message?: MessageHeartbeat | string
-  }
 }
 
 /**
