@@ -1,0 +1,26 @@
+diff --git a/dist/pixi.js b/dist/pixi.js
+index c5246c29c8092220082389dd2d71eccd8351cb7d..437c1a9bcd05b21fb7e7cdd2b8dc14f1d631d01f 100644
+--- a/dist/pixi.js
++++ b/dist/pixi.js
+@@ -2606,7 +2606,7 @@ var PIXI = (function (exports) {
+         if (this._x !== x || this._y !== y) {
+           this._x = x;
+           this._y = y;
+-          this._observer._onUpdate(this);
++          this._observer?._onUpdate(this);
+         }
+         return this;
+       }
+diff --git a/lib/maths/point/ObservablePoint.mjs b/lib/maths/point/ObservablePoint.mjs
+index 7077692d1f249fe595d1f1dd549a67c236aa2412..d62667a3ae0109bec80e9d3d106550a14a6ee7bf 100644
+--- a/lib/maths/point/ObservablePoint.mjs
++++ b/lib/maths/point/ObservablePoint.mjs
+@@ -59,7 +59,7 @@ class ObservablePoint {
+     if (this._x !== x || this._y !== y) {
+       this._x = x;
+       this._y = y;
+-      this._observer._onUpdate(this);
++      this._observer?._onUpdate(this);
+     }
+     return this;
+   }
