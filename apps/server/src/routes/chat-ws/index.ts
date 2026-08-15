@@ -6,7 +6,7 @@ import type { ChatService } from '../../services/domain/chats'
 
 import { useLogger } from '@guiiai/logg'
 import { defineInvokeHandler } from '@moeru/eventa'
-import { newMessages, pullMessages, sendMessages } from '@proj-airi/server-sdk-shared'
+import { newMessages, pullMessages, sendMessages } from '@proj-airi/server-shared'
 
 import { createPeerHooks, wsDisconnectedEvent } from '../../libs/eventa-hono-adapter'
 import { createChatBroadcastMessage, parseChatBroadcastMessage } from '../../utils/chat-broadcast'

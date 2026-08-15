@@ -1,10 +1,10 @@
 import type { IntentHandle } from '@proj-airi/pipelines-audio'
 
+import { useLlmmarkerParser } from '@proj-airi/core-agent'
 import { nanoid } from 'nanoid'
 import { defineStore, storeToRefs } from 'pinia'
 import { computed, reactive, ref } from 'vue'
 
-import { useLlmmarkerParser } from '../../composables/llm-marker-parser'
 import { useAiriCardStore } from '../modules'
 import { useSpeechRuntimeStore } from '../speech-runtime'
 

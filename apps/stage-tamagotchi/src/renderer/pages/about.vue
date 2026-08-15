@@ -7,10 +7,9 @@ import semver from 'semver'
 
 import { useElectronAutoUpdater, useElectronEventaInvoke } from '@proj-airi/electron-vueuse'
 import { AboutContent, BugReportDialog, createBugReportPageContext, MarkdownRenderer } from '@proj-airi/stage-ui/components'
-import { useBreakpoints } from '@proj-airi/stage-ui/composables'
 import { useSharedAnalyticsStore } from '@proj-airi/stage-ui/stores/analytics'
 import { Button, ContainerError, DoubleCheckButton, FieldSelect, Progress } from '@proj-airi/ui'
-import { useClipboard } from '@vueuse/core'
+import { breakpointsTailwind, useBreakpoints, useClipboard } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
 import { DialogContent, DialogDescription, DialogOverlay, DialogPortal, DialogRoot, DialogTitle } from 'reka-ui'
 import { DrawerContent, DrawerDescription, DrawerHandle, DrawerOverlay, DrawerPortal, DrawerRoot, DrawerTitle } from 'vaul-vue'
@@ -55,7 +54,7 @@ const updaterErrorMessage = computed(() => {
 
 const showChangelog = ref(false)
 const showBugReportDialog = ref(false)
-const { isDesktop } = useBreakpoints()
+const isDesktop = useBreakpoints(breakpointsTailwind).greater('md')
 const updateChannelOptions = ['auto', 'latest', 'stable', 'alpha', 'beta', 'nightly', 'canary'] as const
 type UpdateChannelOption = typeof updateChannelOptions[number]
 const updateChannelSelectOptions = computed(() => updateChannelOptions.map(channel => ({

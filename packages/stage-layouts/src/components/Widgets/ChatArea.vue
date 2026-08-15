@@ -1,14 +1,10 @@
 <script setup lang="ts">
-import type { ChatProvider } from '@xsai-ext/providers/utils'
-
+import { AudioAnalyzer } from '@proj-airi/multimodal-core'
 import { isStageTamagotchi } from '@proj-airi/stage-shared'
 import { ChatSessionsDrawer } from '@proj-airi/stage-ui/components/scenarios/chat'
 import { HearingConfig } from '@proj-airi/stage-ui/components/scenarios/dialogs/audio-input/index'
-import { useAudioAnalyzer } from '@proj-airi/stage-ui/composables'
-import { useProvidersStore } from '@proj-airi/stage-ui/stores'
 import { useAudioContext } from '@proj-airi/stage-ui/stores/audio'
-import { useChatOrchestratorStore } from '@proj-airi/stage-ui/stores/chat-minimized'
-import { useConsciousnessStore } from '@proj-airi/stage-ui/stores/modules/consciousness'
+import { useChatOrchestrator } from '@proj-airi/stage-ui/stores/chat-minimized'
 import { useSettings, useSettingsAudioDevice } from '@proj-airi/stage-ui/stores/settings'
 import { BasicTextarea } from '@proj-airi/ui'
 import { useLocalStorage } from '@vueuse/core'
@@ -32,14 +28,12 @@ type SendMode = (typeof SEND_MODES)[number]
 const sendMode = useLocalStorage<SendMode>('ui/chat/settings/send-mode', 'enter')
 const lastEnterTime = ref(0)
 
-const providersStore = useProvidersStore()
-const { activeProvider, activeModel } = storeToRefs(useConsciousnessStore())
 const { themeColorsHueDynamic } = storeToRefs(useSettings())
 
 const { askPermission } = useSettingsAudioDevice()
 const { enabled, stream } = storeToRefs(useSettingsAudioDevice())
-const chatOrchestrator = useChatOrchestratorStore()
-const { ingest, onAfterMessageComposed } = chatOrchestrator
+const chatOrchestrator = useChatOrchestrator()
+const { ingest } = chatOrchestrator
 const { audioContext } = useAudioContext()
 const { t } = useI18n()
 const sendModeLabels = computed<Record<SendMode, string>>(() => ({
@@ -65,13 +59,7 @@ async function handleSend() {
   messageInput.value = ''
 
   try {
-    const providerConfig = providersStore.getProviderConfig(activeProvider.value)
-
-    await ingest(textToSend, {
-      chatProvider: await providersStore.getProviderInstance(activeProvider.value) as ChatProvider,
-      model: activeModel.value,
-      providerConfig,
-    })
+    await ingest(textToSend)
   }
   catch {
     // // preserve any user input when failed to send the message
@@ -132,10 +120,7 @@ watch(hearingPopoverOpen, async (value) => {
   }
 })
 
-onAfterMessageComposed(async () => {
-})
-
-const { startAnalyzer, stopAnalyzer } = useAudioAnalyzer()
+const { startAnalyzer, stopAnalyzer } = new AudioAnalyzer()
 let analyzerSource: MediaStreamAudioSourceNode | undefined
 
 function teardownAnalyzer() {

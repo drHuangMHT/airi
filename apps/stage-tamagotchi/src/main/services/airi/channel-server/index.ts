@@ -1,4 +1,3 @@
-import type { Server, ServerOptions } from '@proj-airi/server-runtime/server'
 import type { Lifecycle } from 'injeca'
 
 import type { ElectronServerChannelConfig } from '../../../../shared/eventa'
@@ -13,7 +12,7 @@ import { useLogg } from '@guiiai/logg'
 import { defineInvokeHandler } from '@moeru/eventa'
 import { createContext } from '@moeru/eventa/adapters/electron/main'
 import { errorMessageFrom } from '@moeru/std'
-import { createServer, getLocalIPs } from '@proj-airi/server-runtime/server'
+import { createServer } from '@proj-airi/server-runtime/server'
 import { createServerChannelQrPayload } from '@proj-airi/stage-shared/server-channel-qr'
 import { Mutex } from 'async-mutex'
 import { app, ipcMain, session } from 'electron'
@@ -172,14 +171,14 @@ async function normalizeChannelServerOptions(payload: unknown, fallback?: Electr
 }
 
 function getCertificateDomains(): string[] {
-  const localIPs = getLocalIPs()
+  // const localIPs = getLocalIPs()
   const hostname = channelServerConfigStore.get()?.hostname || env.SERVER_RUNTIME_HOSTNAME
   return Array.from(new Set([
     'localhost',
     '127.0.0.1',
     '::1',
     ...(hostname ? [hostname] : []),
-    ...localIPs,
+    // ...localIPs,
   ]))
 }
 

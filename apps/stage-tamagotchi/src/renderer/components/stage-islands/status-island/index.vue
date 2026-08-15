@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { useElectronEventaInvoke } from '@proj-airi/electron-vueuse'
-import { useLampFlickerAnimation } from '@proj-airi/stage-ui/composables/use-lamp-flicker-animation'
 import { useModsServerChannelStore } from '@proj-airi/stage-ui/stores/mods/api/channel-server'
-import { lampFlickerAnimationClass } from '@proj-airi/ui'
 import { storeToRefs } from 'pinia'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -15,8 +13,6 @@ import { electronOpenSettings } from '../../../../shared/eventa'
 const { t } = useI18n()
 const { connected } = storeToRefs(useModsServerChannelStore())
 const openSettings = useElectronEventaInvoke(electronOpenSettings)
-
-const { flickerStyle, onAnimationIteration } = useLampFlickerAnimation(() => !connected.value)
 
 const statusIslandSize = {
   border: 'border-2',
@@ -37,9 +33,8 @@ const buttonStyle = computed(() => {
 
 const iconClasses = computed(() => {
   return [
-    connected.value ? 'i-ph:wifi-high' : `i-ph:wifi-slash ${lampFlickerAnimationClass}`,
+    connected.value ? 'i-ph:wifi-high' : `i-ph:wifi-slash`,
     statusIslandSize.icon,
-    'shrink-0 transition-colors duration-300 ease-in-out',
     connected.value
       ? 'text-emerald-600 dark:text-emerald-300'
       : 'text-amber-600 dark:text-amber-300',
@@ -63,10 +58,9 @@ const tooltipLabel = computed(() => {
       <ControlButton
         :button-style="buttonStyle.join(' ')"
         :aria-label="tooltipLabel"
-        :title="tooltipLabel"
         @click="openSettings({ route: '/settings/connection' })"
       >
-        <div :class="iconClasses" :style="flickerStyle" @animationiteration="onAnimationIteration" />
+        <div :class="iconClasses" />
       </ControlButton>
       <template #tooltip>
         {{ tooltipLabel }}

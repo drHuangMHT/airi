@@ -197,6 +197,7 @@ export function sharedUnoConfig() {
       }],
 
       [/drag-region/, () => ({ 'app-region': 'drag' })],
+      [/drag-region-none/, () => ({ 'app-region': 'no-drag' })],
     ],
     theme: {
       fontFamily: {

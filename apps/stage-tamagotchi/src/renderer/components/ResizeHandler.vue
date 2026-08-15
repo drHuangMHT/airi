@@ -1,15 +1,11 @@
 <script setup lang="ts">
-import { electron } from '@proj-airi/electron-eventa'
-import { useElectronEventaInvoke, useElectronWindowResize } from '@proj-airi/electron-vueuse'
-import { useAsyncState } from '@vueuse/core'
+import { useElectronWindowResize } from '@proj-airi/electron-vueuse'
 
-const isWindows = useElectronEventaInvoke(electron.app.isWindows)
 const { handleResizeStart } = useElectronWindowResize()
-const isWindowsRef = useAsyncState(() => isWindows(), false)
 </script>
 
 <template>
-  <div v-if="isWindowsRef" class="resize-handles">
+  <div class="resize-handles">
     <div class="handle n" @mousedown="handleResizeStart($event, 'n')" />
     <div class="handle s" @mousedown="handleResizeStart($event, 's')" />
     <div class="handle e" @mousedown="handleResizeStart($event, 'e')" />

@@ -7,6 +7,10 @@ defineProps<{
 }>()
 
 const { platform } = useAppRuntime()
+
+function closeWindow() {
+  window.close()
+}
 </script>
 
 <template>
@@ -33,7 +37,7 @@ const { platform } = useAppRuntime()
         transition="all duration-200 ease-in-out"
         flex cursor-pointer items-center gap-2 rounded-md px-1.5 py-0.5
       >
-        <div i-solar:info-circle-bold text="neutral-400 dark:neutral-500" whitespace-nowrap />
+        <div i-solar:close-circle-outline text="neutral-500 dark:neutral-400" whitespace-nowrap drag-region-none @click="closeWindow" />
       </div>
     </div>
   </div>

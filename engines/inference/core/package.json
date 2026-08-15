@@ -15,5 +15,10 @@
 
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+
+  "dependencies": {
+    "async-mutex": "catalog:",
+    "gpuu": "^1.0.7"
   }
 }

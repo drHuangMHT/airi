@@ -33,6 +33,7 @@
     "@moeru/std": "catalog:",
     "@proj-airi/ccc": "workspace:*",
     "@proj-airi/i18n": "workspace:*",
+    "@proj-airi/multimodal-core": "workspace:*",
     "@proj-airi/server-sdk": "workspace:*",
     "@proj-airi/stage-ui": "workspace:*",
     "@proj-airi/stage-ui-three": "workspace:*",

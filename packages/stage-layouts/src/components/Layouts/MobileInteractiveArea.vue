@@ -1,16 +1,11 @@
 <script setup lang="ts">
-import type { ChatProvider } from '@xsai-ext/providers/utils'
-
 import { isStageTamagotchi } from '@proj-airi/stage-shared'
-import { useThreeViewControl } from '@proj-airi/stage-ui-three'
 import { ChatHistory, HearingConfigDialog } from '@proj-airi/stage-ui/components'
 import { ChatSessionsDrawer } from '@proj-airi/stage-ui/components/scenarios/chat'
-import { useProvidersStore } from '@proj-airi/stage-ui/stores'
 import { useAudioContext } from '@proj-airi/stage-ui/stores/audio'
 import { useChatOrchestrator } from '@proj-airi/stage-ui/stores/chat-minimized'
 import { useChatSession } from '@proj-airi/stage-ui/stores/chat/session-store-minimized'
 import { useChatStreamStore } from '@proj-airi/stage-ui/stores/chat/stream-store'
-import { useL2dViewControl } from '@proj-airi/stage-ui/stores/live2d'
 import { useConsciousnessStore } from '@proj-airi/stage-ui/stores/modules/consciousness'
 import { useSettings, useSettingsAudioDevice } from '@proj-airi/stage-ui/stores/settings'
 import { BasicTextarea, useTheme } from '@proj-airi/ui'
@@ -20,7 +15,6 @@ import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
 
-import ViewControls from '../Layouts/InteractiveArea/Actions/ViewControls.vue'
 import IndicatorMicVolume from '../Widgets/IndicatorMicVolume.vue'
 import ActionAbout from './InteractiveArea/Actions/About.vue'
 
@@ -31,7 +25,7 @@ const { isDark, toggleDark } = useTheme()
 const chatOrchestrator = useChatOrchestrator()
 const chatSession = useChatSession()
 const chatStream = useChatStreamStore()
-const { session, sessionId } = chatSession
+const { session, sessionId, sendloc } = chatSession
 const { streamingMessage } = storeToRefs(chatStream)
 const historyMessages = computed(() => session?.value?.messages ?? [])
 
@@ -41,12 +35,10 @@ const backgroundDialogOpen = ref(false)
 const sessionsDrawerOpen = ref(false)
 
 const screenSafeArea = useScreenSafeArea()
-const providersStore = useProvidersStore()
 const { activeProvider, activeModel } = storeToRefs(useConsciousnessStore())
 
 useResizeObserver(document.documentElement, () => screenSafeArea.update())
 const { themeColorsHueDynamic } = storeToRefs(useSettings())
-const { viewControlsEnabled: l2dViewCtrlEnabled } = useL2dViewControl()
 const { viewControlsEnabled: threeViewCtrlEnabled } = useThreeViewControl()
 const settingsAudioDevice = useSettingsAudioDevice()
 const { enabled, stream } = storeToRefs(settingsAudioDevice)
@@ -82,13 +74,7 @@ async function handleSend() {
   messageInput.value = ''
 
   try {
-    const providerConfig = providersStore.getProviderConfig(activeProvider.value)
-
-    await ingest(textToSend, {
-      chatProvider: await providersStore.getProviderInstance(activeProvider.value) as ChatProvider,
-      model: activeModel.value,
-      providerConfig,
-    }, activeSessionId.value)
+    await ingest(textToSend)
   }
   catch (e) {
     console.error(e)
@@ -111,10 +97,8 @@ onMounted(() => {
     <KeepAlive>
       <Transition name="fade">
         <ChatHistory
-          v-if="!threeViewCtrlEnabled && !l2dViewCtrlEnabled"
           variant="mobile"
           :messages="historyMessages"
-          :sending="sending"
           :streaming-message="streamingMessage"
           max-w="[calc(100%-3.5rem)]"
           w-full self-start pb-3 pl-3
@@ -187,7 +171,7 @@ onMounted(() => {
           >
             <div class="i-solar:trash-bin-2-bold-duotone" />
           </button>
-          <ViewControls />
+          <!-- <ViewControls /> -->
         </div>
       </div>
       <div bg="white dark:neutral-800" max-h-100dvh max-w-100dvw w-full flex gap-1 overflow-auto px-3 pt-2 :style="{ paddingBottom: `${Math.max(Number.parseFloat(screenSafeArea.bottom.value.replace('px', '')), 12)}px` }">

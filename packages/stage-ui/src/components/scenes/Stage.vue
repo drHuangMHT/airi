@@ -33,9 +33,6 @@ const { currentRenderer } = storeToRefs(useSettingsStage())
 const settingsStore = useSettings()
 const {
   stageModelRenderer,
-  stageViewControlsEnabled,
-  themeColorsHue,
-  themeColorsHueDynamic,
 } = storeToRefs(settingsStore)
 const { mouthOpenSize, nowSpeaking } = storeToRefs(useSpeakingStore())
 const { audioContext } = useAudioContext()
@@ -45,8 +42,6 @@ const chatHookCleanups: Array<() => void> = []
 // WORKAROUND: clear previous handlers on unmount to avoid duplicate calls when this component remounts.
 //             We keep per-hook disposers instead of wiping the global chat hooks to play nicely with
 //             cross-window broadcast wiring.
-
-const showStage = ref(true)
 const viewUpdateCleanups: Array<() => void> = []
 
 // Caption + Presentation broadcast channels
@@ -367,7 +362,7 @@ defineExpose({
     />
 
     <div v-if="currentRenderer" relative h-full w-full>
-      <component :is="currentRenderer.stage" ref="stageRef" v-model:state="componentState">
+      <component :is="currentRenderer.stage" ref="stageRef" v-model:state="componentState" :paused>
       <!-- <SpineScene
         v-if="stageModelRenderer === 'spine' && showStage"
         ref="spineSceneRef"

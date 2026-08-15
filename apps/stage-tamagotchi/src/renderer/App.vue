@@ -3,7 +3,6 @@ import { useElectronEventaContext, useElectronEventaInvoke } from '@proj-airi/el
 import { themeColorFromValue, useThemeColor } from '@proj-airi/stage-layouts/composables/theme-color'
 import { artistrySyncConfig, IS_DEV } from '@proj-airi/stage-shared'
 import { ToasterRoot } from '@proj-airi/stage-ui/components'
-import { useInferencePreload } from '@proj-airi/stage-ui/composables'
 import { useSharedAnalyticsStore } from '@proj-airi/stage-ui/stores/analytics'
 import { useModelsStore } from '@proj-airi/stage-ui/stores/display-models'
 import { useArtistryStore } from '@proj-airi/stage-ui/stores/modules/artistry'
@@ -19,7 +18,6 @@ import ResizeHandler from './components/ResizeHandler.vue'
 
 import {
   electronGetServerChannelConfig,
-  electronGodotStageGetStatus,
   electronGodotStageStatusChanged,
   electronSettingsNavigate,
   i18nGetLocale,
@@ -42,7 +40,6 @@ const serverChannelSettingsStore = useServerChannelSettingsStore()
 const router = useRouter()
 const route = useRoute()
 const analyticsStore = useSharedAnalyticsStore()
-const inferencePreload = useInferencePreload()
 const mcpToolsStore = useTamagotchiMcpToolsStore()
 const pluginToolsStore = useTamagotchiPluginToolsStore()
 const stageWindowLifecycleStore = useStageWindowLifecycleStore()
@@ -57,9 +54,7 @@ void stageWindowLifecycleStore.initializeWindowLifecycleBridge()
 const getServerChannelConfig = useElectronEventaInvoke(electronGetServerChannelConfig)
 const getMainLocale = useElectronEventaInvoke(i18nGetLocale)
 const setLocale = useElectronEventaInvoke(i18nSetLocale)
-const getGodotStageStatus = useElectronEventaInvoke(electronGodotStageGetStatus)
 const syncArtistryConfig = useElectronEventaInvoke(artistrySyncConfig)
-const isGodotStageRoute = () => route.path === '/' || route.path.startsWith('/settings')
 const { onMountedHooks: pluginHostMountedHooks } = useSetupPluginHost()
 
 function syncGodotStageRenderer(state: { state: 'stopped' | 'starting' | 'running' | 'stopping' | 'error' }) {
@@ -134,22 +129,11 @@ onMounted(async () => {
   await settingsStore.initializeStageModel()
   await settingsAudioDeviceStore.initialize()
 
-  if (isGodotStageRoute()) {
-    try {
-      syncGodotStageRenderer(await getGodotStageStatus())
-    }
-    catch (error) {
-      console.warn('[App] Failed to fetch Godot stage status:', error)
-    }
-  }
   pluginHostMountedHooks(context)
   const serverChannelConfig = await getServerChannelConfig()
   serverChannelSettingsStore.tlsConfig = serverChannelConfig.tlsConfig ?? null
   serverChannelSettingsStore.hostname = serverChannelConfig.hostname
   serverChannelSettingsStore.authToken = serverChannelConfig.authToken
-
-  // Preload local inference models (Kokoro TTS, etc.) in background after a delay
-  inferencePreload.triggerPreload()
 })
 
 watch(themeColorsHue, () => {

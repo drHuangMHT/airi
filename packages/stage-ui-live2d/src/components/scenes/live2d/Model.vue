@@ -28,6 +28,7 @@ import {
 } from '../../../composables/live2d'
 import { useFitModel } from '../../../composables/live2d/fit-model'
 import { useModelsStore } from '../../../composables/model'
+import { useParameterWatchers } from '../../../composables/useLive2dParameterWatchers'
 import { Emotion, EmotionNeutralMotionName } from '../../../constants/emotions'
 import { useL2dViewControl, useLive2dParams } from '../../../stores'
 
@@ -454,7 +455,7 @@ async function loadModel(modelUrl: string, modelId: string) {
 }
 
 /**
- * Initialise the expression controller by reading expression definitions from
+ * Initialize the expression controller by reading expression definitions from
  * the model settings (model3.json) and parsing each referenced exp3.json file.
  *
  * This is intentionally fire-and-forget from loadModel so that a failure in
@@ -563,16 +564,12 @@ watch([themeColorsHueDynamic, live2dShadowEnabled], ([dynamic, shadowEnabled]) =
 }, { immediate: true })
 
 watch(currentMotion, value => setMotion(value.group, value.index))
-watch(paused, value => value ? pixiApp.value?.stop() : pixiApp.value?.start())
-
-// Watch and apply model parameters
-watch(() => modelParameters.value.angleX, (value) => {
-  if (model.value) {
-    const internalModel = model.value.internalModel
-    internalModel.coreModel.setParameterValueById('ParamAngleX', value)
-  }
+watch(paused, (value) => {
+  console.info(`stage pause state changed, paused? ${value}`)
+  value ? pixiApp.value?.stop() : pixiApp.value?.start()
 })
 
+// Watch and apply model parameters
 watch(() => modelParameters.value.angleY, (value) => {
   if (model.value) {
     const internalModel = model.value.internalModel
@@ -785,6 +782,19 @@ import.meta.hot?.dispose(() => {
   console.warn('[Dev] Reload on HMR dispose is active for this component. Performing a full reload.')
   window.location.reload()
 })
+
+useParameterWatchers({
+  ParamAngleX: {
+    getter: () => modelParameters.value.angleX,
+  },
+}, setModelParam)
+
+function setModelParam(v: number, k: string) {
+  if (model.value) {
+    const internalModel = model.value.internalModel
+    internalModel.coreModel.setParameterValueById(k, v)
+  }
+}
 </script>
 
 <template>

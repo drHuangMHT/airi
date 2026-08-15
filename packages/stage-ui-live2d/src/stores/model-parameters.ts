@@ -12,29 +12,131 @@ interface BroadcastChannelEventShouldUpdateView {
   type: 'live2d-should-update-view'
 }
 
-export const defaultModelParameters = {
-  angleX: 0,
-  angleY: 0,
-  angleZ: 0,
-  leftEyeOpen: 1,
-  rightEyeOpen: 1,
-  leftEyeSmile: 0,
-  rightEyeSmile: 0,
-  leftEyebrowLR: 0,
-  rightEyebrowLR: 0,
-  leftEyebrowY: 0,
-  rightEyebrowY: 0,
-  leftEyebrowAngle: 0,
-  rightEyebrowAngle: 0,
-  leftEyebrowForm: 0,
-  rightEyebrowForm: 0,
-  mouthOpen: 0,
-  mouthForm: 0,
-  cheek: 0,
-  bodyAngleX: 0,
-  bodyAngleY: 0,
-  bodyAngleZ: 0,
-  breath: 0,
+interface Parameter {
+  defaultValue: number
+  min: number
+  max: number
+}
+
+export const defaultModelParameters: Record<string, Parameter> = {
+  angleX: {
+    defaultValue: 0,
+    min: -30,
+    max: 30,
+  },
+  angleY: {
+    defaultValue: 0,
+    min: -30,
+    max: 30,
+  },
+  angleZ: {
+    defaultValue: 0,
+    min: -30,
+    max: 30,
+  },
+  leftEyeOpen: {
+    defaultValue: 1,
+    min: 0,
+    max: 1,
+  },
+  rightEyeOpen: {
+    defaultValue: 1,
+    min: 0,
+    max: 1,
+  },
+  leftEyeSmile: {
+    defaultValue: 0,
+    min: 0,
+    max: 1,
+  },
+  rightEyeSmile: {
+    defaultValue: 0,
+    min: 0,
+    max: 1,
+  },
+  leftEyebrowLR: {
+    defaultValue: 0,
+    min: -1,
+    max: 1,
+  },
+  rightEyebrowLR: {
+    defaultValue: 0,
+    min: -1,
+    max: 1,
+  },
+  leftEyebrowY: {
+    defaultValue: 0,
+    min: -1,
+    max: 1,
+  },
+  rightEyebrowY: {
+    defaultValue: 0,
+    min: -1,
+    max: 1,
+  },
+  leftEyebrowAngle: {
+    defaultValue: 0,
+    min: -1,
+    max: 1,
+  },
+  rightEyebrowAngle: {
+    defaultValue: 0,
+    min: -1,
+    max: 1,
+  },
+  leftEyebrowForm: {
+    defaultValue: 0,
+    min: -1,
+    max: 1,
+  },
+  rightEyebrowForm: {
+    defaultValue: 0,
+    min: -1,
+    max: 1,
+  },
+  mouthOpen: {
+    defaultValue: 0,
+    min: 0,
+    max: 1,
+  },
+  mouthForm: {
+    defaultValue: 0,
+    min: -1,
+    max: 1,
+  },
+  cheek: {
+    defaultValue: 0,
+    min: 0,
+    max: 1,
+  },
+  bodyAngleX: {
+    defaultValue: 0,
+    min: -1,
+    max: 1,
+  },
+  bodyAngleY: {
+    defaultValue: 0,
+    min: -1,
+    max: 1,
+  },
+  bodyAngleZ: {
+    defaultValue: 0,
+    min: -1,
+    max: 1,
+  },
+  breath: {
+    defaultValue: 0,
+    min: 0,
+    max: 1,
+  },
+}
+
+function stripMinMax(record: Record<string, Parameter>) {
+  const stripped: Record<string, number> = {}
+  Object.keys(record).forEach((k) => {
+    stripped[k] = record[k].defaultValue
+  })
+  return stripped
 }
 
 export const useLive2dParams = defineStore('live2d', () => {
@@ -65,14 +167,14 @@ export const useLive2dParams = defineStore('live2d', () => {
   const { position, scale, set: setViewControl } = useL2dViewControl()
 
   // Live2D model parameters
-  const modelParameters = useLocalStorageWithDefault<Record<string, number>>('settings/live2d/parameters', defaultModelParameters)
+  const modelParameters = useLocalStorageWithDefault<Record<string, number>>('settings/live2d/parameters', stripMinMax(defaultModelParameters))
 
   function resetState() {
     supportedControl.forEach(c => setViewControl(c))
     currentMotion.reset()
     availableMotions.reset()
     motionMap.reset()
-    modelParameters.reset()
+    modelParameters.value = stripMinMax(defaultModelParameters)
     shouldUpdateView()
   }
 
@@ -87,6 +189,7 @@ export const useLive2dParams = defineStore('live2d', () => {
     onShouldUpdateView,
     shouldUpdateView,
     resetState,
+    resetModelParameters: () => modelParameters.value = stripMinMax(defaultModelParameters),
   }
 })
 export { useL2dViewControl }

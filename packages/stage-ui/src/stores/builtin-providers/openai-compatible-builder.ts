@@ -259,9 +259,9 @@ export function buildOpenAICompatibleProvider(
     ...(resolvedCategory === 'transcription'
       ? {
           transcriptionFeatures: transcriptionFeatures ?? {
-            supportsGenerate: true,
-            supportsStreamOutput: false,
-            supportsStreamInput: false,
+            generation: true,
+            streamOutput: false,
+            streamInput: false,
           },
         }
       : {}),

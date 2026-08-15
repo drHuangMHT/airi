@@ -43,8 +43,6 @@
     "@opentelemetry/sdk-trace-node": "^2.7.0",
     "@opentelemetry/semantic-conventions": "^1.40.0",
     "@proj-airi/drizzle-orm-browser-migrator": "^0.1.6",
-    "@proj-airi/server-schema": "workspace:*",
-    "@proj-airi/server-sdk-shared": "workspace:*",
     "better-auth": "catalog:",
     "cac": "catalog:",
     "drizzle-orm": "catalog:",

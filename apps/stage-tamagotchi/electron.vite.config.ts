@@ -81,8 +81,7 @@ export default defineConfig({
     build: {
       lib: {
         entry: {
-          'index': resolve(join(import.meta.dirname, 'src', 'preload', 'index.ts')),
-          'beat-sync': resolve(join(import.meta.dirname, 'src', 'preload', 'beat-sync.ts')),
+          index: resolve(join(import.meta.dirname, 'src', 'preload', 'index.ts')),
         },
       },
     },
@@ -98,8 +97,7 @@ export default defineConfig({
     build: {
       rolldownOptions: {
         input: {
-          'main': resolve(join(import.meta.dirname, 'src', 'renderer', 'index.html')),
-          'beat-sync': resolve(join(import.meta.dirname, 'src', 'renderer', 'beat-sync.html')),
+          main: resolve(join(import.meta.dirname, 'src', 'renderer', 'index.html')),
         },
       },
     },

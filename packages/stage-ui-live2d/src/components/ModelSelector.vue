@@ -106,11 +106,20 @@ onMounted(() => {
       v-model:open="showReportModal" :report="validationReport" @confirm="confirmImport"
       @fix-error="handleFixError"
     />
+    <div flex justify-between>
+      <h2 text-xl>
+        {{ t('settings.model-select.select-model.title') }}
+      </h2>
+      <Button>
+        <div i-solar:add-circle-bold />
+        <div>Add Model</div>
+      </Button>
+    </div>
     <div
       class="flex-1 overflow-x-auto overflow-y-hidden md:flex-none sm:overflow-x-hidden sm:overflow-y-scroll" h-full
       w-full
     >
-      <div class="w-full flex gap-2 md:grid lg:grid-cols-2 md:grid-cols-1 lg:max-h-80dvh">
+      <div class="h-full w-full flex gap-2 md:grid lg:grid-cols-2 md:grid-cols-1 lg:max-h-80dvh">
         <div
           v-for="(model) of loadedModels" :key="model.metadata.identifier" v-auto-animate relative gap-2
           class="block h-full w-full md:flex md:flex-row" @click="() => selectedModel = model.metadata.identifier"

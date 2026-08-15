@@ -7,9 +7,9 @@ import type {
 
 import type { ModelSettingsRuntimeSnapshot } from './runtime'
 
-import { Button, Callout } from '@proj-airi/ui'
+import { Button, Callout, FieldCombobox, Section } from '@proj-airi/ui'
 import { storeToRefs } from 'pinia'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { useSettingsStage } from '../../../../stores/settings'
@@ -37,8 +37,10 @@ const _props = withDefaults(defineProps<ModelSettingsPanelProps>(), {
 })
 
 const emit = defineEmits<ModelSettingsPanelEmits>()
+const modelStore = useSettingsStage()
+const { currentRenderer, selectedRenderer } = storeToRefs(modelStore)
 
-const { currentRenderer } = storeToRefs(useSettingsStage())
+const rendererOptions = computed(() => modelStore.registeredStage.map(r => ({ label: r.name, value: r.identifier })))
 
 const { t } = useI18n()
 const modelSelectorOpen = ref(false)
@@ -68,14 +70,36 @@ const modelSelectorOpen = ref(false)
         {{ t('settings.model-select.panel-callout.model-type-example') }}
       </p>
     </Callout>
-    <div :class="['flex flex-wrap items-center gap-2']">
-      <ModelSelectorDialog v-model:show="modelSelectorOpen">
-        <Button variant="secondary">
-          {{ t('settings.model-select.select-model.button') }}
-        </Button>
-      </ModelSelectorDialog>
-      <slot name="actions" />
-    </div>
+    <Section
+      title="Renderer"
+      icon="i-solar:screencast-bold" inner-class="text-sm" :class="[
+        'rounded-xl',
+        'bg-white/80  dark:bg-black/75',
+        'backdrop-blur-lg',
+      ]" :expand="true"
+    >
+      <p text="neutral-500 dark:neutral-400">
+        Select renderer and models
+      </p>
+      <FieldCombobox
+        v-model="selectedRenderer" label="Renderer"
+        :options="rendererOptions" placeholder="Select Renderer"
+        :select-class="['w-full']" :content-min-width="256"
+      >
+        <template #empty>
+          {{ 'No renderer registered' }}
+        </template>
+      </FieldCombobox>
+      <div :class="['flex flex-wrap items-center gap-2']">
+        <ModelSelectorDialog v-model:show="modelSelectorOpen">
+          <Button variant="secondary">
+            {{ t('settings.model-select.select-model.button') }}
+          </Button>
+        </ModelSelectorDialog>
+        <slot name="actions" />
+      </div>
+    </Section>
+
     <template v-if="currentRenderer">
       <component
         :is="currentRenderer.modelSettings"

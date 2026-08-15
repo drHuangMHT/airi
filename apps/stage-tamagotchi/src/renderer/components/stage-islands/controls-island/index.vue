@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { defineInvoke } from '@moeru/eventa'
-import { useElectronEventaContext, useElectronEventaInvoke, useElectronMouseInElement } from '@proj-airi/electron-vueuse'
+import { useElectronEventaInvoke, useElectronMouseInElement } from '@proj-airi/electron-vueuse'
 import { useSettings, useSettingsAudioDevice } from '@proj-airi/stage-ui/stores/settings'
 import { useTheme } from '@proj-airi/ui'
 import { refDebounced, useIntervalFn } from '@vueuse/core'
@@ -16,11 +15,9 @@ import ControlsIslandProfilePicker from './controls-island-profile-picker.vue'
 import IndicatorMicVolume from './indicator-mic-volume.vue'
 
 import {
-  electron,
   electronAppQuit,
   electronOpenChat,
   electronOpenSettings,
-  electronStartDraggingWindow,
   electronWindowSetAlwaysOnTop,
 } from '../../../../shared/eventa'
 
@@ -29,12 +26,10 @@ const { t } = useI18n()
 
 const settingsAudioDeviceStore = useSettingsAudioDevice()
 const settingsStore = useSettings()
-const context = useElectronEventaContext()
 const { enabled } = storeToRefs(settingsAudioDeviceStore)
 const { alwaysOnTop, controlsIslandIconSize } = storeToRefs(settingsStore)
 const openSettings = useElectronEventaInvoke(electronOpenSettings)
 const openChat = useElectronEventaInvoke(electronOpenChat)
-const isLinux = useElectronEventaInvoke(electron.app.isLinux)
 const closeWindow = useElectronEventaInvoke(electronAppQuit)
 const setAlwaysOnTop = useElectronEventaInvoke(electronWindowSetAlwaysOnTop)
 
@@ -111,14 +106,6 @@ const adjustStyleClasses = computed(() => {
   return { icon, border, padding, button: `${border} ${padding}` }
 })
 
-/**
- * This is a know issue (or expected behavior maybe) to Electron.
- * We don't use this approach on Linux because it's not working.
- *
- * See `apps/stage-tamagotchi/src/main/windows/main/index.ts` for handler definition
- */
-const startDraggingWindow = !isLinux() ? defineInvoke(context.value, electronStartDraggingWindow) : undefined
-
 function refreshWindow() {
   window.location.reload()
 }
@@ -135,11 +122,12 @@ function refreshWindow() {
         leave-to-class="opacity-0 translate-y-8 scale-90 blur-sm"
       >
         <div v-if="expanded" border="1 neutral-200 dark:neutral-800" mb-2 flex flex-col gap-1 rounded-2xl p-2 backdrop-blur-xl class="bg-neutral-100/80 shadow-2xl shadow-black/20 dark:bg-neutral-900/80">
+          <!--
           <ControlsIslandAuthButton
             :button-style="adjustStyleClasses.button"
             :icon-class="adjustStyleClasses.icon"
           />
-
+          -->
           <div grid grid-cols-3 gap-2>
             <ControlButtonTooltip disable-hoverable-content>
               <ControlButton :button-style="adjustStyleClasses.button" @click="openSettings({ route: '/settings' })">
@@ -249,7 +237,7 @@ function refreshWindow() {
         </ControlButtonTooltip>
 
         <ControlButtonTooltip side="left">
-          <ControlButton :button-style="adjustStyleClasses.button" cursor-move :class="{ 'drag-region': isLinux }" @mousedown="startDraggingWindow?.()">
+          <ControlButton :button-style="adjustStyleClasses.button" cursor-move class="drag-region">
             <div i-ph:arrows-out-cardinal :class="adjustStyleClasses.icon" text="neutral-800 dark:neutral-300" />
           </ControlButton>
           <template #tooltip>

@@ -32,6 +32,8 @@ import '@fontsource/kiwi-maru/index.css'
 import '@fontsource/m-plus-rounded-1c/index.css'
 import '@fontsource-variable/nunito/index.css'
 
+import ('../../../../packages/stage-ui-live2d-c5/src/index').then(m => (void m))
+
 const pinia = createPinia()
 
 const router = createRouter({

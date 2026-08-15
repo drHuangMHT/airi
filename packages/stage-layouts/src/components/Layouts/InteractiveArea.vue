@@ -1,10 +1,8 @@
 <script setup lang="ts">
 import { ChatHistory } from '@proj-airi/stage-ui/components'
-import { useChatOrchestratorStore } from '@proj-airi/stage-ui/stores/chat-minimized'
-import { useChatSessionStore } from '@proj-airi/stage-ui/stores/chat/session-store-minimized'
-import { useChatStreamStore } from '@proj-airi/stage-ui/stores/chat/stream-store'
+import { useChatOrchestrator } from '@proj-airi/stage-ui/stores/chat-minimized'
+import { useChatSession } from '@proj-airi/stage-ui/stores/chat/session-store-minimized'
 import { useDeferredMount } from '@proj-airi/ui'
-import { storeToRefs } from 'pinia'
 import { computed, ref } from 'vue'
 
 import ChatActionButtons from '../Widgets/ChatActionButtons.vue'
@@ -12,12 +10,11 @@ import ChatArea from '../Widgets/ChatArea.vue'
 import ChatContainer from '../Widgets/ChatContainer.vue'
 
 const { isReady } = useDeferredMount()
-const { sending } = useChatOrchestratorStore()
-const { activeSession } = useChatSessionStore()
-const { streamingMessage } = storeToRefs(useChatStreamStore())
+const { sendLocked } = useChatOrchestrator()
+const { session } = useChatSession()
 
 const isLoading = ref(true)
-const historyMessages = computed(() => activeSession?.value?.[1].messages ?? [])
+const historyMessages = computed(() => session?.value?.messages ?? [])
 </script>
 
 <template>
@@ -35,8 +32,7 @@ const historyMessages = computed(() => activeSession?.value?.[1].messages ?? [])
           <ChatHistory
             v-if="isReady"
             :messages="historyMessages"
-            :sending="sending"
-            :streaming-message="streamingMessage"
+            :sending="sendLocked"
             h-full
             variant="desktop"
             @vue:mounted="isLoading = false"

@@ -27,6 +27,7 @@ export enum Task {
   // TO_*: conversion with fidelity
   TO_TEXT,
   TO_SPEECH,
+  TO_EMBED,
 }
 
 type Provider = ChatProvider
@@ -50,7 +51,6 @@ export interface ProviderFactory {
   }
   startupValidations?: ProviderValidationCheck[]
   validators: {
-    availableOnPlatform?: () => Promise<boolean>
     /**
      * Validate a provider's configuration.
      *
@@ -77,20 +77,19 @@ export interface ProviderFactory {
   }
 }
 
+type ProviderTag = 'free' | 'paid' | 'internal' | 'local' | 'cloud'
+
 export interface ProviderMetadata {
   /** Globally unique provider identifier. */
   id: string
   /** Placement in a list, highest first. */
-  displayPriority: number
-  /** Type of the provider. */
-  category: 'chat' | 'embed' | 'speech' | 'transcription'
+  ordering: number
   /** Capability of the provider */
   tasks: Task[]
   i18nNameKey: string // i18n key for provider name
   i18nDescriptionKey: string
   name: string // Default name (fallback)
   description: string // Default description (fallback)
-  configured?: boolean
 
   /**
    * Iconify JSON icon name for the provider.
@@ -98,11 +97,7 @@ export interface ProviderMetadata {
    * Icons are available for most of the AI provides under @proj-airi/lobe-icons.
    */
   icon?: string
-  iconColor?: string
-  /**
-   * In case of having image instead of icon, you can specify the image URL here.
-   */
-  iconImage?: URL
+
   defaultOptions?: Record<string, unknown>
 
   /**
@@ -110,15 +105,10 @@ export interface ProviderMetadata {
    * Used for official/built-in providers that authenticate via session.
    */
   requiresCredentials?: boolean
-  transcriptionFeatures?: {
-    supportsGenerate: boolean
-    supportsStreamOutput: boolean
-    supportsStreamInput: boolean
-  }
-  pricing?: 'free' | 'paid' | 'internal'
-  deployment?: 'local' | 'cloud'
+  providerTag: (ProviderTag | string)[]
   beginnerRecommended?: boolean
   additionalHeaders?: Record<string, string>
+  models: string[]
 }
 
 export interface ModelInfo {
@@ -126,13 +116,11 @@ export interface ModelInfo {
   name: string
   providerId: string
   description?: string
-  deprecated: boolean
-  contextLength: number
+  tags: string[]
 }
 
 export interface LlmModelInfo extends ModelInfo {
   capabilities: string[]
-
 }
 
 export interface TtsModelInfo extends ModelInfo {
@@ -164,9 +152,16 @@ function _baseUrlValidator(baseUrl: unknown) {
 
 export const useProvidersStore = defineStore('providers', () => {
   const providerCredentials = useLocalStorage<Record<string, Record<string, unknown>>>('settings/credentials/providers', {})
-  const availableProviders = useLocalStorage<Record<string, ProviderMetadata>>('settings/providers/added', {})
+  const availableProviders = ref<Record<string, ProviderMetadata>>({})
   const providerFactories = ref<Record<string, ProviderFactory>>({})
   const providerInstanceCache = ref<Record<string, unknown>>({})
+
+  function getProviderMetadata(id: string): ProviderMetadata | undefined {
+    const maybeProvider = availableProviders.value[id]
+    if (maybeProvider != null) {
+      return maybeProvider
+    }
+  }
 
   // Centralized provider metadata with provider factory functions
 
@@ -185,7 +180,7 @@ export const useProvidersStore = defineStore('providers', () => {
 
   // Configuration validation functions
   async function validateProvider(providerId: string, options: { force?: boolean } = {}): Promise<boolean> {
-    const metadata = availableProviders.value[providerId]
+    const metadata = getProviderMetadata(providerId)
     if (!metadata)
       return false
 
@@ -205,14 +200,12 @@ export const useProvidersStore = defineStore('providers', () => {
     const cacheKey = `${providerId}:${configString}`
     const forceValidation = options.force === true
 
-    if (!forceValidation && runtimeState?.validatedCredentialHash === configString && typeof runtimeState.configured === 'boolean')
+    if (!forceValidation)
       return runtimeState.configured
 
-    if (!forceValidation) {
-      const pending = providerValidationInFlight.get(cacheKey)
-      if (pending) {
-        return pending
-      }
+    const pending = providerValidationInFlight.get(cacheKey)
+    if (pending) {
+      return pending
     }
 
     const runValidation = async () => {
@@ -233,10 +226,6 @@ export const useProvidersStore = defineStore('providers', () => {
       }
 
       return validationResult.valid
-    }
-
-    if (forceValidation) {
-      return runValidation()
     }
 
     const task = runValidation()
@@ -322,18 +311,6 @@ export const useProvidersStore = defineStore('providers', () => {
     delete availableProviders.value[providerId]
   }
 
-  function forceProviderConfigured(providerId: string) {
-    if (providerState.value[providerId]) {
-      providerState.value[providerId].configured = true
-      // Also cache the current config to prevent re-validation from overwriting
-      const config = providerCredentials.value[providerId]
-      if (config) {
-        providerState.value[providerId].validatedCredentialHash = JSON.stringify(config)
-      }
-    }
-    providerState.value[providerId].configured = true
-  }
-
   function setProviderUnconfigured(providerId: string) {
     if (providerState.value[providerId]) {
       providerState.value[providerId].configured = false
@@ -345,6 +322,7 @@ export const useProvidersStore = defineStore('providers', () => {
   async function resetProviderSettings() {
     providerCredentials.value = {}
     availableProviders.value = {}
+
     providerState.value = {}
 
     Object.keys(availableProviders.value).forEach(initializeProvider)
@@ -377,8 +355,6 @@ export const useProvidersStore = defineStore('providers', () => {
             id: model.id,
             name: model.name,
             description: model.description,
-            contextLength: model.contextLength,
-            deprecated: model.deprecated,
             providerId,
           }))
         return runtimeState.models
@@ -399,20 +375,6 @@ export const useProvidersStore = defineStore('providers', () => {
     }
   }
 
-  // Get models for a specific provider
-  function getModelsForProvider(providerId: string) {
-    return providerState.value[providerId]?.models || []
-  }
-
-  // Get all available models across all configured providers
-  const allAvailableModels = computed(() => {
-    const models: ModelInfo[] = []
-    for (const providerId of configuredProviders.value) {
-      models.push(...(providerState.value[providerId]?.models || []))
-    }
-    return models
-  })
-
   // Load models for all configured providers
   async function loadModelsForConfiguredProviders() {
     for (const providerId of configuredProviders.value) {
@@ -421,51 +383,13 @@ export const useProvidersStore = defineStore('providers', () => {
       }
     }
   }
-  const previousCredentialHashes = ref<Record<string, string>>({})
-
-  // Watch for credential changes and refetch models accordingly
-  watch(providerCredentials, (newCreds) => {
-    const changedProviders: string[] = []
-
-    for (const providerId in newCreds) {
-      const currentConfig = newCreds[providerId]
-      const currentHash = JSON.stringify(currentConfig)
-      const previousHash = previousCredentialHashes.value[providerId]
-
-      if (currentHash !== previousHash) {
-        changedProviders.push(providerId)
-        previousCredentialHashes.value[providerId] = currentHash
-      }
-    }
-
-    for (const providerId of changedProviders) {
-      // Since credentials changed, dispose the cached instance so new creds take effect.
-      void disposeProviderInstance(providerId)
-
-      // If the provider is configured and has the capability, refetch its models
-      if (providerState.value[providerId]?.configured && providerFactories.value[providerId]?.capabilities.listModels) {
-        fetchModelsForProvider(providerId)
-      }
-    }
-  }, { deep: true, immediate: true })
 
   const allProvidersMetadata = computed(() => {
-    const ordered = []
-      .filter(d => availableProviders.value[d.id])
+    const ordered = [{ id: 'test' }]
+      .filter(d => getProviderMetadata(d.id))
 
     return [...ordered]
   })
-
-  function getTranscriptionFeatures(providerId: string) {
-    const metadata = availableProviders.value[providerId]
-    const features = metadata?.transcriptionFeatures
-
-    return {
-      supportsGenerate: features?.supportsGenerate ?? true,
-      supportsStreamOutput: features?.supportsStreamOutput ?? false,
-      supportsStreamInput: features?.supportsStreamInput ?? false,
-    }
-  }
 
   // Function to get provider object by provider id
   async function getProviderInstance<R extends
@@ -522,7 +446,7 @@ export const useProvidersStore = defineStore('providers', () => {
   }
 
   return {
-    getProviderMetadata: (..._args: any[]) => undefined,
+    getProviderMetadata,
     providers: providerCredentials,
     providerFactories,
     getProviderConfig,
@@ -530,20 +454,16 @@ export const useProvidersStore = defineStore('providers', () => {
     deleteProvider,
     configuredProviders,
     providerRuntimeState: providerState,
-    getTranscriptionFeatures,
     allProvidersMetadata,
     initializeProvider,
     validateProvider,
     availableModels,
     isLoadingModels,
     fetchModelsForProvider,
-    getModelsForProvider,
-    allAvailableModels,
     loadModelsForConfiguredProviders,
     getProviderInstance,
     disposeProviderInstance,
     resetProviderSettings,
-    forceProviderConfigured,
     setProviderUnconfigured,
   }
 })

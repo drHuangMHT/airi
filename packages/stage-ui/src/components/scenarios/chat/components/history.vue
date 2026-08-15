@@ -56,20 +56,7 @@ function shouldShowPlaceholder(message: ChatHistoryItem) {
 
   return message.context?.createdAt === ts || message.createdAt === ts
 }
-const renderMessages = computed<ChatHistoryItem[]>(() => {
-  if (!props.sending)
-    return props.messages
-
-  const streamTs = streamingTs.value
-  if (!streamTs)
-    return props.messages
-
-  const hasStreamAlready = streamTs && props.messages.some(msg => msg?.role === 'assistant' && msg?.createdAt === streamTs)
-  if (hasStreamAlready)
-    return props.messages
-
-  return [...props.messages, streaming.value]
-})
+const renderMessages = computed<ChatHistoryItem[]>(() => props.messages)
 
 useChatHistoryScroll({
   containerRef: chatHistoryRef,

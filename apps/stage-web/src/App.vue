@@ -3,16 +3,14 @@ import { OnboardingDialog, OnboardingStepAnalyticsNotice, ToasterRoot } from '@p
 import { useInferencePreload } from '@proj-airi/stage-ui/composables'
 import { isPosthogAvailableInBuild, useSharedAnalyticsStore } from '@proj-airi/stage-ui/stores/analytics'
 import { useCharacterOrchestratorStore } from '@proj-airi/stage-ui/stores/character'
-import { useChatSessionStore } from '@proj-airi/stage-ui/stores/chat/session-store-minimized'
-import { useDisplayModelsStore } from '@proj-airi/stage-ui/stores/display-models'
+import { useModelsStore } from '@proj-airi/stage-ui/stores/display-models'
 import { useModsServerChannelStore } from '@proj-airi/stage-ui/stores/mods/api/channel-server'
-import { useContextBridgeStore } from '@proj-airi/stage-ui/stores/mods/api/context-bridge'
 import { useAiriCardStore } from '@proj-airi/stage-ui/stores/modules/airi-card'
 import { useOnboardingStore } from '@proj-airi/stage-ui/stores/onboarding'
 import { useSettings, useSettingsAudioDevice } from '@proj-airi/stage-ui/stores/settings'
 import { ErrorBoundary } from '@proj-airi/ui'
 import { storeToRefs } from 'pinia'
-import { computed, onMounted, onUnmounted, watch } from 'vue'
+import { computed, onMounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterView } from 'vue-router'
 import { toast, Toaster } from 'vue-sonner'
@@ -23,13 +21,11 @@ import { usePWAStore } from './stores/pwa'
 
 usePWAStore()
 
-const contextBridgeStore = useContextBridgeStore()
 const i18n = useI18n()
-const displayModelsStore = useDisplayModelsStore()
+const displayModelsStore = useModelsStore()
 const settingsStore = useSettings()
 const settings = storeToRefs(settingsStore)
 const onboardingStore = useOnboardingStore()
-const chatSessionStore = useChatSessionStore()
 const serverChannelStore = useModsServerChannelStore()
 const characterOrchestratorStore = useCharacterOrchestratorStore()
 const settingsAudioDeviceStore = useSettingsAudioDevice()
@@ -89,9 +85,7 @@ onMounted(async () => {
     onboardingStore.showingSetup = true
   }
 
-  await chatSessionStore.initialize()
   await serverChannelStore.initialize({ possibleEvents: ['ui:configure'] }).catch(err => console.error('Failed to initialize Mods Server Channel in App.vue:', err))
-  contextBridgeStore.initialize()
   characterOrchestratorStore.initialize()
 
   await displayModelsStore.loadDisplayModelsFromIndexedDB()
@@ -100,10 +94,6 @@ onMounted(async () => {
 
   // Preload local inference models (Kokoro TTS, etc.) in background after a delay
   inferencePreload.triggerPreload()
-})
-
-onUnmounted(() => {
-  contextBridgeStore.dispose()
 })
 
 // Handle first-time setup events

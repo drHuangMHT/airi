@@ -12,13 +12,20 @@ type BuiltInStageModelRenderer = Exclude<StageModelRenderer, 'godot'>
 
 const SELECTED_RENDERER_STORAGE_KEY = 'settings.stage.selectedRenderer'
 
-const registeredStage = [
+const registeredRenderer = [
   {
     identifier: 'plugin.airi_plugin_stage_live2d',
-    name: 'Live2D',
+    name: 'Live2D - pixi6',
     stage: defineAsyncComponent(() => import('../../../../stage-ui-live2d/src/components/scenes/Live2D.vue')),
     modelSelector: defineAsyncComponent(() => import('../../../../stage-ui-live2d/src/components/ModelSelector.vue')),
     modelSettings: defineAsyncComponent(() => import('../../../../stage-ui-live2d/src/components/ModelSettings.vue')),
+  },
+  {
+    identifier: 'plugin.airi_plugin_stage_live2d_cubism5',
+    name: 'Live2D - cubism5',
+    stage: defineAsyncComponent(() => import('../../../../stage-ui-live2d-c5/src/components/scenes/Live2D.vue')),
+    modelSelector: defineAsyncComponent(() => import('../../../../stage-ui-live2d-c5/src/components/ModelSelector.vue')),
+    modelSettings: defineAsyncComponent(() => import('../../../../stage-ui-live2d-c5/src/components/ModelSettings.vue')),
   },
   {
     identifier: 'plugin.airi_plugin_stage_three',
@@ -31,12 +38,12 @@ const registeredStage = [
 
 export const useSettingsStage = defineStore('settings-stage', () => {
   const selectedRenderer = useLocalStorageWithDefault(SELECTED_RENDERER_STORAGE_KEY, 'plugin.airi_plugin_stage_live2d')
-  const currentRenderer = computed(() => registeredStage.find(s => s.identifier === selectedRenderer.value))
+  const currentRenderer = computed(() => registeredRenderer.find(s => s.identifier === selectedRenderer.value))
 
   return {
     selectedRenderer,
     currentRenderer,
-    registeredStage,
+    registeredStage: registeredRenderer,
   }
 })
 

@@ -9,7 +9,7 @@ import { useCharacterNotebookStore, useCharacterStore } from '../'
 import { useLLM } from '../../llm'
 import { useModsServerChannelStore } from '../../mods/api/channel-server'
 import { useConsciousnessStore } from '../../modules/consciousness'
-import { useProvidersStore } from '../../providers'
+import { useProvidersStore } from '../../providers-minimized'
 
 export { sparkNotifyCommandSchema } from '@proj-airi/core-agent/agents/spark-notify'
 
