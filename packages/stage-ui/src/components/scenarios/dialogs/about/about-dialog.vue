@@ -1,14 +1,12 @@
 <script setup lang="ts">
-import { useResizeObserver, useScreenSafeArea } from '@vueuse/core'
+import { breakpointsTailwind, useBreakpoints, useResizeObserver, useScreenSafeArea } from '@vueuse/core'
 import { DialogContent, DialogOverlay, DialogPortal, DialogRoot } from 'reka-ui'
 import { DrawerContent, DrawerHandle, DrawerOverlay, DrawerPortal, DrawerRoot } from 'vaul-vue'
 import { onMounted } from 'vue'
 
-import { useBreakpoints } from '../../../../composables/use-breakpoints'
-
 const showDialog = defineModel({ type: Boolean, default: false, required: false })
 
-const { isDesktop } = useBreakpoints()
+const isDesktop = useBreakpoints(breakpointsTailwind).greater('md')
 const screenSafeArea = useScreenSafeArea()
 
 useResizeObserver(document.documentElement, () => screenSafeArea.update())

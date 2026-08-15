@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { SessionMeta } from '../../../../types/chat-session-minimized'
 
-import { useResizeObserver, useScreenSafeArea } from '@vueuse/core'
+import { breakpointsTailwind, useBreakpoints, useResizeObserver, useScreenSafeArea } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
 import { DialogContent, DialogOverlay, DialogPortal, DialogRoot, DialogTitle } from 'reka-ui'
 import { DrawerContent, DrawerHandle, DrawerOverlay, DrawerPortal, DrawerRoot, DrawerTitle } from 'vaul-vue'
@@ -9,7 +9,6 @@ import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { useAnalytics } from '../../../../composables/use-analytics'
-import { useBreakpoints } from '../../../../composables/use-breakpoints'
 import { extractMessageText } from '../../../../libs/chat-sync'
 import { useChatSession } from '../../../../stores/chat/session-store-minimized'
 import { useConsciousnessStore } from '../../../../stores/modules/consciousness'
@@ -36,11 +35,11 @@ import { useConsciousnessStore } from '../../../../stores/modules/consciousness'
 
 const showDialog = defineModel({ type: Boolean, default: false, required: false })
 
-const { isDesktop } = useBreakpoints()
+const isDesktop = useBreakpoints(breakpointsTailwind).greater('md')
 const screenSafeArea = useScreenSafeArea()
 const { t } = useI18n()
 
-const { sessionId: activeSessionId, createSession } = useChatSession()
+const { sessionId: activeSessionId, createSession, session } = useChatSession()
 const { activeModel } = storeToRefs(useConsciousnessStore())
 const { trackChatSessionStarted } = useAnalytics()
 
@@ -76,7 +75,7 @@ function previewFor(meta: SessionMeta): string {
   if (meta.title)
     return meta.title
 
-  const messages = sessionMessages.value ?? []
+  const messages = session.value?.messages ?? []
   for (const message of messages) {
     if (message.role === 'system')
       continue

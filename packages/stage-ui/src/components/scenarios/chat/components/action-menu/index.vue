@@ -5,7 +5,6 @@ import type { ComponentPublicInstance } from 'vue'
 import type { ChatActionMenuAction } from '.'
 
 import { errorMessageFrom } from '@moeru/std'
-import { isStageCapacitor, isStageWeb } from '@proj-airi/stage-shared'
 import { useElementVisibility, useIntervalFn } from '@vueuse/core'
 import { createTimeline } from 'animejs'
 import { clamp } from 'es-toolkit'
@@ -26,7 +25,6 @@ import { useI18n } from 'vue-i18n'
 import { useWebHaptics } from 'web-haptics/vue'
 
 import { createChatActionMenuItems, createChatActionMenuTriggerState } from '.'
-import { useBreakpoints } from '../../../../../composables/use-breakpoints'
 import { useElementScroll } from '../../composables/use-element-scroll'
 import { chatScrollContainerKey } from '../../constants'
 
@@ -84,9 +82,8 @@ const bottomSentinelVisible = useElementVisibility(bottomSentinelRef, {
 })
 
 const { trigger } = useWebHaptics()
-const { isMobile } = useBreakpoints()
 const { t } = useI18n()
-const shouldDisableDropdownMenu = computed(() => (isStageWeb() || isStageCapacitor()) && isMobile.value)
+const shouldDisableDropdownMenu = useMediaQuery('(min-width: 768px)')
 const copyFeedbackActive = shallowRef(false)
 
 const menuItems = computed(() => createChatActionMenuItems({
