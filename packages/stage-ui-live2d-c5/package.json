@@ -1,0 +1,65 @@
+{
+  "name": "@proj-airi/stage-ui-live2d-c5",
+  "type": "module",
+  "private": true,
+  "description": "Live2D scene components and stores for Project AIRI",
+  "author": {
+    "name": "Moeru AI Project AIRI Team",
+    "email": "airi@moeru.ai",
+    "url": "https://github.com/moeru-ai"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/moeru-ai/airi.git",
+    "directory": "packages/stage-ui-live2d"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./components": "./src/components/index.ts",
+    "./components/scenes": "./src/components/scenes/index.ts",
+    "./components/scenes/Live2D.vue": "./src/components/scenes/Live2D.vue",
+    "./components/scenes/live2d": "./src/components/scenes/live2d/index.ts",
+    "./composables/live2d": "./src/composables/live2d/index.ts",
+    "./constants/emotions": "./src/constants/emotions.ts",
+    "./stores": "./src/stores/index.ts",
+    "./stores/model-parameters": "./src/stores/model-parameters.ts",
+    "./stores/expression-store": "./src/stores/expression-store.ts",
+    "./tools/expression-tools": "./src/tools/expression-tools.ts",
+    "./utils/eye-motions": "./src/utils/eye-motions.ts",
+    "./utils/live2d-preview": "./src/utils/live2d-preview.ts",
+    "./utils/live2d-zip-loader": "./src/utils/live2d-zip-loader.ts",
+    "./utils/live2d-opfs-registration": "./src/utils/live2d-opfs-registration.ts",
+    "./utils/opfs-loader": "./src/utils/opfs-loader.ts"
+  },
+  "scripts": {
+    "typecheck": "vue-tsc --noEmit"
+  },
+  "dependencies": {
+    "@lemonneko/crop-empty-pixels": "0.1.1",
+    "@proj-airi/stage-shared": "workspace:^",
+    "@proj-airi/ui": "workspace:^",
+    "@vueuse/core": "^14.2.1",
+    "@xsai/tool": "catalog:",
+    "animejs": "^4.3.6",
+    "async-mutex": "catalog:",
+    "culori": "^4.0.2",
+    "es-toolkit": "catalog:",
+    "jszip": "^3.10.1",
+    "localforage": "^1.10.0",
+    "nanoid": "catalog:",
+    "pinia": "^3.0.4",
+    "pixi.js": "^8.13.1",
+    "reka-ui": "catalog:",
+    "untitled-pixi-live2d-engine": "workspace:",
+    "vue": "catalog:",
+    "vue-i18n": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@types/culori": "^4.0.1",
+    "@types/three": "^0.184.0",
+    "vitest": "catalog:vitest",
+    "vue-tsc": "^3.2.6"
+  }
+}

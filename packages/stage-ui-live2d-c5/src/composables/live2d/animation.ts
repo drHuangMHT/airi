@@ -1,0 +1,39 @@
+import type { InternalModel } from 'untitled-pixi-live2d-engine'
+
+import { CubismFramework } from 'untitled-pixi-live2d-engine'
+
+import { randomSaccadeInterval } from '../../utils'
+
+const lerp = (a: number, b: number, t: number) => a + (b - a) * t
+const randomFloat = (lower: number, upper: number) => Math.random() * (upper - lower) + lower
+
+/**
+ * This is to simulate idle eye saccades and focus (head) movements in a *pretty* naive way.
+ * Not using any reactivity here as it's not yet needed.
+ * Keeping it here as a composable for future extension.
+ */
+export function useLive2DIdleEyeFocus() {
+  let nextSaccadeAfter = -1
+  let focusTarget: [number, number] | undefined
+  let lastSaccadeAt = -1
+
+  // Function to handle idle eye saccades and focus (head) movements
+  function update(model: InternalModel, now: number) {
+    if (now >= nextSaccadeAfter || now < lastSaccadeAt) {
+      focusTarget = [randomFloat(-1, 1), randomFloat(-1, 0.7)]
+      lastSaccadeAt = now
+      nextSaccadeAfter = now + (randomSaccadeInterval() / 1000)
+      model.focusController.focus(focusTarget![0] * 0.5, focusTarget![1] * 0.5, false)
+    }
+
+    model.focusController.update(now - lastSaccadeAt)
+    const coreModel = model.coreModel as any
+    // TODO: After emotion mapper, stage editor, eye related parameters should be take cared to be dynamical instead of hardcoding
+    const eyeBallX = CubismFramework.getIdManager().getId('ParamEyeBallX')
+    const eyeBallY = CubismFramework.getIdManager().getId('ParamEyeBallY')
+    coreModel.setParameterValueById(eyeBallX, lerp(coreModel.getParameterValueById(eyeBallX), focusTarget![0], 0.3))
+    coreModel.setParameterValueById(eyeBallY, lerp(coreModel.getParameterValueById(eyeBallY), focusTarget![1], 0.3))
+  }
+
+  return { update }
+}
