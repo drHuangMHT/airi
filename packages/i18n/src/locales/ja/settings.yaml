@@ -156,8 +156,23 @@ live2d:
       description: レンダリングフレームレートを制限
       options:
         unlimited: '∞'
+    shadow: Drop shadow
+    reset-parameters: デフォルトのパラメータにリセット
+  clear-model-cache: Clear model cache
   expressions:
-    title: 表情
+    title: Expressions
+    override-toggle: Expression system
+    sdk-preset-preserved-notice: >
+      SDK expression manager and eye blink are preserved when disabled.
+    no-expression: No expressions available for this model.
+    llm-integration-wip: LLM tool integration is not yet wired up.
+    save-default: Save expression defaults
+    reset: Reset all expressions
+    expose-to-llm-toggle: Expose to LLM
+    expose-to-llm-options:
+      none: 無し
+      all: すべて
+      custom: Custom
 microphone: マイク
 models: モデル
 pages:
@@ -191,16 +206,16 @@ pages:
       title: Connected accounts
       description: Sign in to AIRI through these providers. Unlink to revoke access, then link again to switch to a different account.
       status:
-        linked: Linked
+        linked: リンク済
         notLinked: Not linked
         linkedSince: Linked on {date}
       action:
         link: Link
-        unlink: Unlink
+        unlink: リンク解除
       message:
-        loading: Loading connected accounts...
-        unlinked: '{provider} disconnected.'
-        linked: '{provider} connected.'
+        loading: 接続されたアカウントを読み込んでいます...
+        unlinked: '{provider} は切断されました。'
+        linked: '{provider} が接続されました。'
         linkStarted: Redirecting to {provider}…
       error:
         listFailed: Could not load connected accounts.
@@ -216,8 +231,8 @@ pages:
         label: Current password
         placeholder: Enter your current password
       newPassword:
-        label: New password
-        placeholder: At least 8 characters
+        label: 新しいパスワード
+        placeholder: 8文字以上で設定してください
       confirmPassword:
         label: Confirm new password
         placeholder: Repeat your new password
@@ -469,7 +484,7 @@ pages:
           name: None
           description: Bypass and disable the image generation module globally.
         comfyui:
-          name: ComfyUI (Local)
+          name: ComfyUI (ローカル)
           description: Use a local ComfyUI instance via WSL for image generation.
         replicate:
           name: Replicate.ai (Cloud)
@@ -515,7 +530,7 @@ pages:
         label: Widget System Prompt
         description: Custom instructions for the AI on how to use the generation capabilities.
     categories:
-      essential: Essential
+      essential: 必須
       messaging: Messaging
       gaming: Gaming
       artistry: Artistry
@@ -688,7 +703,7 @@ pages:
       access-token-secret-placeholder: あなたのX / Twitterアクセストークンシークレットを入力
       configured: X / Twitterは適切に設定されています！
     mcp-server:
-      title: MCP servers
+      title: MCPサーバー
       description: Configure MCP servers and bring their tools into AIRI.
       config-path: Config file
       runtime-title: ランタイムの状態
@@ -707,9 +722,9 @@ pages:
         unknown: not loaded
       actions:
         open-config: Reveal in file manager
-        apply-and-restart: Save and restart
-        restart: Restart MCP
-        add-server: Add server
+        apply-and-restart: 変更を保存して再起動
+        restart: MCP を再起動
+        add-server: サーバーを追加
         add-env: Add var
         remove: Remove
         test: Test
@@ -904,11 +919,11 @@ pages:
       free: Free
       paid: Paid
       internal: Internal
-      local: Local
-      cloud: Cloud
+      local: ローカル
+      cloud: クラウド
     categories:
       chat:
-        title: Chat
+        title: チャット
         description: Text generation model providers. e.g. OpenRouter, OpenAI, Ollama.
       speech:
         title: Speech
@@ -1028,9 +1043,9 @@ pages:
               value: Model downloads & node installs are your job.
           connection:
             title: Connection
-            connected: Connected
-            failed: Connection failed
-            error_prefix: Error
+            connected: 接続済み
+            failed: 接続に失敗しました
+            error_prefix: エラー
             test: Test
             testing: Testing...
             unknown_error: Unknown connection error
@@ -1056,7 +1071,7 @@ pages:
             paste_hint: Paste this into your AIRI Card artistry config to override these nodes.
           upload:
             prompt: Drop or select a workflow_api.json file
-            invalid_json: Invalid JSON
+            invalid_json: 無効なJSON形式です
             workflow_name:
               label: Workflow Name
               description: Give this workflow a recognizable name
@@ -1070,7 +1085,7 @@ pages:
           heading: Replicate.ai Configuration
           description: Configure your cloud image generation settings.
           api_key:
-            label: API Key
+            label: APIキー
             description: Your Replicate API token (starts with r8_)
             placeholder: r8_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
           default_model:
@@ -1087,10 +1102,10 @@ pages:
       nanobanana:
         settings:
           title: Nano Banana
-          heading: Nano Banana (Google AI Studio)
+          heading: Nano Banana (Google AIスタジオ)
           description: Configure Google Gemini's native image generation capabilities.
           api_key:
-            label: API Key
+            label: APIキー
             description: Your Google AI Studio API Key
             placeholder: AIpk...
           preferred_model:
@@ -1328,11 +1343,11 @@ pages:
       advanced-description: >-
         Use a specific hostname or IP address when you need manual network binding.
       options:
-        this-device: This device
+        this-device: この端末
         all: All
         advanced: Advanced
     server-auth-token:
-      label: Auth Token
+      label: 認証トークン
       description: >-
         Security token required by remote clients that connect to this gateway. When left empty, AIRI generates a new token automatically.
       placeholder: Auto-generate
