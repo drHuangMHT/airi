@@ -120,7 +120,7 @@ watch(hearingPopoverOpen, async (value) => {
   }
 })
 
-const { startAnalyzer, stopAnalyzer } = new AudioAnalyzer()
+const audioAnalyzer = new AudioAnalyzer()
 let analyzerSource: MediaStreamAudioSourceNode | undefined
 
 function teardownAnalyzer() {
@@ -129,19 +129,19 @@ function teardownAnalyzer() {
   }
   catch {}
   analyzerSource = undefined
-  stopAnalyzer()
+  audioAnalyzer.stopAnalyzer()
 }
 
 async function setupAnalyzer() {
   teardownAnalyzer()
   if (!hearingPopoverOpen.value || !enabled.value || !stream.value)
     return
-  if (audioContext.state === 'suspended')
-    await audioContext.resume()
-  const analyser = startAnalyzer(audioContext)
+  if (audioContext.value.state === 'suspended')
+    await audioContext.value.resume()
+  const analyser = audioAnalyzer.startAnalyzer(audioContext.value)
   if (!analyser)
     return
-  analyzerSource = audioContext.createMediaStreamSource(stream.value)
+  analyzerSource = audioContext.value.createMediaStreamSource(stream.value)
   analyzerSource.connect(analyser)
 }
 

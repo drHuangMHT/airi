@@ -7,12 +7,10 @@ import MobileInteractiveArea from '@proj-airi/stage-layouts/components/Layouts/M
 import { BackgroundProvider } from '@proj-airi/stage-layouts/components/Backgrounds'
 import { useBackgroundThemeColor } from '@proj-airi/stage-layouts/composables/theme-color'
 import { useBackgroundStore } from '@proj-airi/stage-layouts/stores/background'
-import { useSettingsLive2d } from '@proj-airi/stage-ui-live2d'
-import { useModelStore } from '@proj-airi/stage-ui-three'
 import { WidgetStage } from '@proj-airi/stage-ui/components/scenes'
 import { breakpointsTailwind, useBreakpoints, useMouse } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
-import { computed, onMounted, ref, useTemplateRef } from 'vue'
+import { computed, onMounted, provide, ref, useTemplateRef } from 'vue'
 
 const paused = ref(false)
 
@@ -30,17 +28,14 @@ const backgroundSurface = useTemplateRef<InstanceType<typeof BackgroundProvider>
 const { syncBackgroundTheme } = useBackgroundThemeColor({ backgroundSurface, selectedOption, sampledColor })
 onMounted(() => syncBackgroundTheme())
 
-const { live2dEyeTrackingSource } = storeToRefs(useSettingsLive2d())
 const { x: mouseX, y: mouseY } = useMouse()
-live2dEyeTrackingSource.value = computed(() => ({
+const trackingSource = computed(() => ({
   x: mouseX.value,
   y: mouseY.value,
 }))
-const { trackingSource } = storeToRefs(useModelStore())
-trackingSource.value = computed(() => ({
-  x: mouseX.value,
-  y: mouseY.value,
-}))
+
+provide('eye-tracking-source', trackingSource)
+provide('transparencyTestPos', trackingSource)
 </script>
 
 <template>
@@ -65,7 +60,6 @@ trackingSource.value = computed(() => ({
         <InteractiveArea v-if="!isMobile" h="85dvh" absolute right-4 flex flex-1 flex-col max-w="500px" min-w="30%" />
         <MobileInteractiveArea v-if="isMobile" @settings-open="handleSettingsOpen" />
       </div>
-      <HoloCoupon />
     </div>
   </BackgroundProvider>
 </template>

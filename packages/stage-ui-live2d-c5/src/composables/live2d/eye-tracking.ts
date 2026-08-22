@@ -6,7 +6,7 @@ import { computed, toValue } from 'vue'
 import { useL2dViewControl } from '../../stores'
 import { useSettingsLive2d } from './live2d'
 
-const { live2dRenderScale, live2dModelEyeOffset, live2dEyeTrackingSource } = storeToRefs(useSettingsLive2d())
+const { live2dModelEyeOffset, live2dEyeTrackingSource } = storeToRefs(useSettingsLive2d())
 const { scale } = useL2dViewControl()
 
 /**
@@ -29,16 +29,17 @@ export function useEyeTracking(
     const trackingSource = live2dEyeTrackingSource.value as { x: number, y: number } | null
     const canvasRect = toValue(canvas)?.getBoundingClientRect()
     if (!trackingSource || !(canvasRect)) {
-      return { x: 1000, y: 1000 }
+      return { x: modelWidth * normalizedScale * scale.value, y: modelHeight * normalizedScale * scale.value }
     }
     const eyeOffset = {
       x: live2dModelEyeOffset.value.x / 100 * modelWidth * normalizedScale * scale.value,
       y: live2dModelEyeOffset.value.y / 100 * modelHeight * normalizedScale * scale.value,
     }
-    return {
+    const finalTrackingTarget = {
       x: (trackingSource.x - canvasRect.left + eyeOffset.x),
       y: (trackingSource.y - canvasRect.top + eyeOffset.y),
     }
+    return finalTrackingTarget
   })
 
   return mouseFocus

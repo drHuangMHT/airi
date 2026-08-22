@@ -78,17 +78,15 @@ defineExpose({
     return live2dCanvasRef.value?.captureFrame()
   },
 })
+
 const transparencyTestPos = inject('transparencyTestPos', computed(() => ({ x: 0, y: 0 })))
-const isTransparent = useTransparencyTest(
+useTransparencyTest(
   () => live2dCanvasRef.value?.canvasElement(),
   () => transparencyTestPos.value.x,
   () => transparencyTestPos.value.y,
   () => props.transparencyWatcherEnabled,
   emit,
 )
-watch([isTransparent], () => {
-  console.info(`isTransparent: ${isTransparent.value}`)
-})
 
 live2dEyeTrackingSource.value = inject('eye-tracking-source', computed(() => ({ x: 0, y: 0 })))
 

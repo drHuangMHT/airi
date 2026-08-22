@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import type { animate } from 'animejs'
-import type { Application } from 'pixi.js'
+import type { Application, Container } from 'pixi.js'
 import type { CubismModel, InternalModel } from 'untitled-pixi-live2d-engine'
 
-import { until, useThrottleFn } from '@vueuse/core'
+import { until } from '@vueuse/core'
 import { Mutex } from 'es-toolkit'
 import { storeToRefs } from 'pinia'
 import { Matrix } from 'pixi.js'
@@ -83,10 +83,10 @@ const modelLoadMutex = new Mutex()
 const pixiApp = toRef(() => props.app)
 const paused = toRef(() => props.paused)
 const focusAt = toRef(() => props.focusAt)
-const model = ref<Live2DModel<InternalModel>>()
+let model: Live2DModel<InternalModel> | null = null
 const initialModelWidth = ref<number>(0)
 const initialModelHeight = ref<number>(0)
-const initialModelTransform = ref<Matrix | null>(null)
+const modelContainer = ref<Container | null>(null)
 const mouthOpenSize = computed(() => Math.max(0, Math.min(100, props.mouthOpenSize)))
 const nowSpeaking = toRef(() => props.nowSpeaking)
 const lastUpdateTime = ref(0)
@@ -100,20 +100,26 @@ const modelNormalizeParams = useFitModel(
   () => ({ width: initialModelWidth.value, height: initialModelHeight.value }),
 )
 
-const setScaleAndPosition = useThrottleFn(() => {
-  if (!model.value)
+function setScaleAndPosition() {
+  if (!model)
     return
-  const offsetX = (position.value.x / 100) * initialModelWidth.value * modelNormalizeParams.value.scale
-  const offsetY = -(position.value.y / 100) * initialModelHeight.value * modelNormalizeParams.value.scale
-  // const normalized = modelNormalizeParams.value
   const normalizedScale = modelNormalizeParams.value.scale * scale.value
-  pixiApp.value?.stage.localTransform.copyFrom(
+  const canvasRect = pixiApp.value!.canvas.getBoundingClientRect()
+  const toCenterOffsetX = ((canvasRect.width / 2) - (initialModelWidth.value * normalizedScale / 2))
+  const toCenterOffsetY = -(canvasRect.height - (initialModelHeight.value / 2) * normalizedScale)
+  // const toCenterOffsetX = 0
+  // const toCenterOffsetY = 0
+  const canvasCenterOffsetX = (position.value.x / 100) * canvasRect.width
+  const canvasCenterOffsetY = -(position.value.y / 100) * canvasRect.height
+  model.groupTransform.copyFrom(
     new Matrix()
-      .scale(normalizedScale, normalizedScale),
-  )
-})
+      .scale(normalizedScale, normalizedScale)
+      .translate(toCenterOffsetX + canvasCenterOffsetX, toCenterOffsetY + canvasCenterOffsetY),
 
-watch([scale, modelNormalizeParams], () => {
+  )
+}
+
+watch([position, scale, modelNormalizeParams], () => {
   setScaleAndPosition()
 })
 
@@ -173,19 +179,19 @@ async function loadModel(modelUrl: string, modelId: string) {
   }
 
   // REVIEW: here as await until(...) guarded the pixiApp and stage to be valid.
-  if (model.value && pixiApp.value?.stage) {
+  if (model && pixiApp.value?.stage) {
     // Dispose expression controller before destroying the old model
     expressionController.dispose()
     internalModelRef.value = undefined
 
     try {
-      pixiApp.value.stage.removeChild(model.value)
-      model.value.destroy()
+      pixiApp.value.stage.removeChild(model)
+      model.destroy()
     }
     catch (error) {
       console.warn('Error removing old model:', error)
     }
-    model.value = undefined
+    model = null
   }
   if (!selectedModelData) {
     console.warn('No Live2D model source provided.')
@@ -214,24 +220,25 @@ async function loadModel(modelUrl: string, modelId: string) {
 
     // --- Scene
 
-    model.value = live2DModel
+    model = live2DModel
+
+    model.automator.autoFocus = false
     // REVIEW: pixiApp and stage are guaranteed to be valid here due to the until(...) above.
-    pixiApp.value!.stage.addChild(model.value)
-    initialModelWidth.value = model.value.width
-    initialModelHeight.value = model.value.height
-    initialModelTransform.value = pixiApp.value!.stage.localTransform.clone()
+    initialModelWidth.value = model.width
+    initialModelHeight.value = model.height
+    pixiApp.value!.stage.addChild(model)
     setScaleAndPosition()
 
     // --- Interaction
 
-    model.value.on('hit', (hitAreas) => {
-      if (model.value && hitAreas.includes('body'))
-        model.value.motion('tap_body')
+    model.on('hit', (hitAreas) => {
+      if (model && hitAreas.includes('body'))
+        model.motion('tap_body')
     })
 
     // --- Motion
 
-    const internalModel = model.value.internalModel
+    const internalModel = model.internalModel
     const coreModel = internalModel.coreModel as CubismModel
     const motionManager = internalModel.motionManager
 
@@ -274,19 +281,19 @@ async function loadModel(modelUrl: string, modelId: string) {
       }, 300)
     }
 
-    // Remove eye ball movements from idle motion group to prevent conflicts
-    // This is too hacky
-    // FIXME: it cannot blink if loading a model only have idle motion
-    if (motionManager.groups.idle) {
-      motionManager.motionGroups[motionManager.groups.idle]?.forEach((motion: any) => {
-        motion._motionData.curves.forEach((curve: any) => {
-          // TODO: After emotion mapper, stage editor, eye related parameters should be take cared to be dynamical instead of hardcoding
-          if (curve.id === 'ParamEyeBallX' || curve.id === 'ParamEyeBallY') {
-            curve.id = `_${curve.id}`
-          }
-        })
-      })
-    }
+    // // Remove eye ball movements from idle motion group to prevent conflicts
+    // // This is too hacky
+    // // FIXME: it cannot blink if loading a model only have idle motion
+    // if (motionManager.groups.idle) {
+    //   motionManager.motionGroups[motionManager.groups.idle]?.forEach((motion: any) => {
+    //     motion._motionData.curves.forEach((curve: any) => {
+    //       // TODO: After emotion mapper, stage editor, eye related parameters should be take cared to be dynamical instead of hardcoding
+    //       if (curve.id === 'ParamEyeBallX' || curve.id === 'ParamEyeBallY') {
+    //         curve.id = `_${curve.id}`
+    //       }
+    //     })
+    //   })
+    // }
 
     // This is hacky too
     const motionManagerUpdate = useLive2DMotionManagerUpdate({
@@ -414,14 +421,14 @@ async function initExpressionController(internalModel?: InternalModel) {
 
 async function setMotion(motionName: string, index?: number) {
   // TODO: motion? Not every Live2D model has motion, we do need to help users to set motion
-  if (!model.value) {
+  if (!model) {
     console.warn('Cannot set motion: model not loaded')
     return
   }
 
   console.info('Setting motion:', motionName, 'index:', index)
   try {
-    await model.value.motion(motionName, index, MotionPriority.FORCE)
+    await model.motion(motionName, index, MotionPriority.FORCE)
     console.info('Motion started successfully:', motionName)
   }
   catch (error) {
@@ -451,8 +458,8 @@ watch(paused, (value) => {
 
 // Watch for idle animation setting changes and stop motions if disabled
 watch(live2dIdleAnimationEnabled, (enabled) => {
-  if (!enabled && model.value) {
-    const internalModel = model.value.internalModel
+  if (!enabled && model) {
+    const internalModel = model.internalModel
     if (internalModel?.motionManager) {
       internalModel.motionManager.stopAllMotions()
     }
@@ -461,9 +468,9 @@ watch(live2dIdleAnimationEnabled, (enabled) => {
 
 // Watch for expression system toggle — nullify/restore SDK managers at runtime
 watch(live2dExpressionEnabled, (enabled) => {
-  if (!model.value)
+  if (!model)
     return
-  const im = model.value.internalModel
+  const im = model.internalModel
   const mm = im.motionManager
   if (enabled) {
     if (mm.expressionManager) {
@@ -487,12 +494,11 @@ watch(live2dExpressionEnabled, (enabled) => {
 })
 
 watch(focusAt, (value) => {
-  if (!model.value)
+  if (!model)
     return
   if (!props.eyeTracking)
     return
-
-  model.value.focus(value.x, value.y)
+  model.focus(value.x, value.y)
 })
 
 onUnmounted(() => {
@@ -543,9 +549,9 @@ useParameterWatchers({
 }, setModelParam)
 
 function setModelParam(v: number, k: string) {
-  if (model.value) {
+  if (model) {
     const id = CubismFramework.getIdManager().getId(k)
-    const coreModel = model.value.internalModel.coreModel as CubismModel
+    const coreModel = model.internalModel.coreModel as CubismModel
     coreModel.setParameterValueById(id, v)
     coreModel.update()
   }

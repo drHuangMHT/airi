@@ -1,70 +1,52 @@
 import cropImg from '@lemonneko/crop-empty-pixels'
 
-import { Application, extensions, Ticker, TickerPlugin } from 'pixi.js'
-import { Live2DFactory, Live2DModel } from 'untitled-pixi-live2d-engine'
+import { Application, DOMAdapter, extensions, WebWorkerAdapter } from 'pixi.js'
+import { Live2DFactory, Live2DModel, Live2DPlugin } from 'untitled-pixi-live2d-engine'
 
+const previewWidth = 1440
+const previewHeight = 2560
+const previewResolution = 2
 /**
  * Render a Live2D zip/file to an offscreen canvas and return a padded preview data URL.
  */
 export async function loadLive2DModelPreview(file: File): Promise<Blob | null> {
-  Live2DModel.registerTicker(Ticker)
-  extensions.add(TickerPlugin)
+  DOMAdapter.set(WebWorkerAdapter)
+  extensions.add(Live2DPlugin)
 
-  const previewWidth = 1440
-  const previewHeight = 2560
-  const previewResolution = 2
+  const app = new Application()
 
-  const offscreenCanvas = document.createElement('canvas')
-  offscreenCanvas.width = previewWidth * previewResolution
-  offscreenCanvas.height = previewHeight * previewResolution
-  offscreenCanvas.style.position = 'absolute'
-  offscreenCanvas.style.top = '0'
-  offscreenCanvas.style.left = '0'
-  offscreenCanvas.style.objectFit = 'cover'
-  offscreenCanvas.style.display = 'block'
-  offscreenCanvas.style.zIndex = '10000000000'
-  offscreenCanvas.style.opacity = '0'
-  document.body.appendChild(offscreenCanvas)
-
-  const app = new Application({
-    view: offscreenCanvas,
-    width: offscreenCanvas.width,
-    height: offscreenCanvas.height,
+  await app.init({
+    width: previewWidth,
+    height: previewHeight,
     // Ensure the drawing buffer persists so toDataURL() can read pixels
     preserveDrawingBuffer: true,
     backgroundAlpha: 0,
     autoDensity: false,
-    resolution: 1,
+    resolution: previewResolution,
     autoStart: false,
   })
-  app.stage.scale.set(previewResolution)
-  app.ticker.stop()
+  app.renderer.resolution = previewResolution
 
-  const modelInstance = new Live2DModel()
+  const model = new Live2DModel()
   const objUrl = URL.createObjectURL(file)
 
   const cleanup = () => {
     app.destroy()
-    if (offscreenCanvas.isConnected)
-      document.body.removeChild(offscreenCanvas)
     URL.revokeObjectURL(objUrl)
   }
 
   try {
-    await Live2DFactory.setupLive2DModel(modelInstance, { url: objUrl, id: file.name }, { autoInteract: false })
-    app.stage.addChild(modelInstance)
+    await Live2DFactory.setupLive2DModel(model, { url: objUrl, id: file.name }, { autoInteract: false })
+    app.stage.addChild(model)
 
-    modelInstance.x = 275
-    modelInstance.y = 450
-    modelInstance.width = previewWidth
-    modelInstance.height = previewHeight
-    modelInstance.scale.set(0.1, 0.1)
-    modelInstance.anchor.set(0.5, 0.5)
+    model.width = previewWidth
+    model.height = previewHeight
+    model.scale.set(0.1, 0.1)
+    model.anchor.set(0.5, 0.5)
 
-    await new Promise(resolve => setTimeout(resolve, 500))
     app.renderer.render(app.stage)
 
-    const croppedCanvas = cropImg(offscreenCanvas)
+    const croppedCanvas = cropImg(app.canvas)
 
     // padding to 12:16
     const paddingCanvas = document.createElement('canvas')

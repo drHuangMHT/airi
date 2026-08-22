@@ -110,7 +110,7 @@ onMounted(() => {
       <h2 text-xl>
         {{ t('settings.model-select.select-model.title') }}
       </h2>
-      <Button>
+      <Button @click="live2dDialog.open">
         <div i-solar:add-circle-bold />
         <div>Add Model</div>
       </Button>

@@ -2,11 +2,9 @@
 import { isStageTamagotchi } from '@proj-airi/stage-shared'
 import { ChatHistory, HearingConfigDialog } from '@proj-airi/stage-ui/components'
 import { ChatSessionsDrawer } from '@proj-airi/stage-ui/components/scenarios/chat'
-import { useAudioContext } from '@proj-airi/stage-ui/stores/audio'
 import { useChatOrchestrator } from '@proj-airi/stage-ui/stores/chat-minimized'
 import { useChatSession } from '@proj-airi/stage-ui/stores/chat/session-store-minimized'
 import { useChatStreamStore } from '@proj-airi/stage-ui/stores/chat/stream-store'
-import { useConsciousnessStore } from '@proj-airi/stage-ui/stores/modules/consciousness'
 import { useSettings, useSettingsAudioDevice } from '@proj-airi/stage-ui/stores/settings'
 import { BasicTextarea, useTheme } from '@proj-airi/ui'
 import { useResizeObserver, useScreenSafeArea } from '@vueuse/core'
@@ -35,16 +33,13 @@ const backgroundDialogOpen = ref(false)
 const sessionsDrawerOpen = ref(false)
 
 const screenSafeArea = useScreenSafeArea()
-const { activeProvider, activeModel } = storeToRefs(useConsciousnessStore())
 
 useResizeObserver(document.documentElement, () => screenSafeArea.update())
 const { themeColorsHueDynamic } = storeToRefs(useSettings())
-const { viewControlsEnabled: threeViewCtrlEnabled } = useThreeViewControl()
 const settingsAudioDevice = useSettingsAudioDevice()
-const { enabled, stream } = storeToRefs(settingsAudioDevice)
+const { enabled } = storeToRefs(settingsAudioDevice)
 const { ingest, onAfterMessageComposed } = chatOrchestrator
 const { t } = useI18n()
-const { volume } = useAudioContext()
 
 function isMobileDevice() {
   return /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
@@ -82,9 +77,6 @@ async function handleSend() {
     historyMessages.value?.pop()
   }
 }
-
-onAfterMessageComposed(async () => {
-})
 
 onMounted(() => {
   screenSafeArea.update()

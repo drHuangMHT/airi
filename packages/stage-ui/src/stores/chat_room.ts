@@ -157,7 +157,7 @@ export class Participant<M extends GenericMessage> {
    */
   leave(): void {
     if (this.currentRoom === null) {
-      throw new Error(`Participant ${this.id} is not in any chatroom.`)
+      return
     }
     this.currentRoom.leave()
     this.currentRoom = null

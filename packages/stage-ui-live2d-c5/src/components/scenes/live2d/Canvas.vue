@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Application, extensions } from 'pixi.js'
-import { Live2DPlugin } from 'untitled-pixi-live2d-engine'
+import { configureCubismSDK, Live2DPlugin } from 'untitled-pixi-live2d-engine'
 import { onMounted, onUnmounted, ref, watch } from 'vue'
 
 const props = withDefaults(defineProps<{
@@ -18,7 +18,6 @@ const componentState = defineModel<'pending' | 'loading' | 'mounted'>('state', {
 const containerRef = ref<HTMLDivElement>()
 const isPixiCanvasReady = ref(false)
 const pixiApp = ref<Application>()
-const pixiAppCanvas = ref<HTMLCanvasElement>()
 
 function resolveMaxFps(limit?: number) {
   if (!limit || limit <= 0)
@@ -27,25 +26,11 @@ function resolveMaxFps(limit?: number) {
   return Math.max(1, Math.round(limit))
 }
 
-function installRenderGuard(app: Application) {
-  // const guardedRender = () => {
-  //   try {
-  //     app.render()
-  //   }
-  //   catch (error) {
-  //     console.error('[Live2D] Pixi render error.', error)
-  //     app.ticker.stop()
-  //   }
-  // }
-
-  // app.ticker.remove(app.render, app)
-  // app.ticker.add(guardedRender)
-  app.ticker.maxFPS = resolveMaxFps(props.maxFps)
-}
-
 async function initLive2DPixiStage(parent: HTMLDivElement) {
   componentState.value = 'loading'
   isPixiCanvasReady.value = false
+
+  configureCubismSDK({ memorySizeMB: 128 })
 
   // // https://guansss.github.io/pixi-live2d-display/#package-importing
   // Live2DModel.registerTicker(Ticker)
@@ -62,18 +47,17 @@ async function initLive2DPixiStage(parent: HTMLDivElement) {
     preserveDrawingBuffer: true,
     autoDensity: false,
     resolution: props.resolution,
-  })
+  });
 
+  (globalThis as any).__PIXI_APP__ = app
   pixiApp.value = app
 
-  installRenderGuard(pixiApp.value)
-
-  pixiAppCanvas.value = pixiApp.value.canvas
+  const pixiAppCanvas = pixiApp.value.canvas
 
   // Set CSS styles to make canvas responsive to container
-  pixiAppCanvas.value.style.width = '100%'
-  pixiAppCanvas.value.style.height = '100%'
-  pixiAppCanvas.value.style.display = 'block'
+  pixiAppCanvas.style.width = '100%'
+  pixiAppCanvas.style.height = '100%'
+  pixiAppCanvas.style.display = 'block'
 
   parent.appendChild(pixiApp.value.canvas)
 
@@ -101,7 +85,7 @@ onUnmounted(() => pixiApp.value?.destroy())
 
 async function captureFrame() {
   const frame = new Promise<Blob | null>((resolve) => {
-    if (!pixiAppCanvas.value || !pixiApp.value)
+    if (!pixiApp.value)
       return resolve(null)
 
     try {
@@ -112,14 +96,14 @@ async function captureFrame() {
       return resolve(null)
     }
 
-    pixiAppCanvas.value.toBlob(resolve)
+    pixiApp.value.canvas.toBlob(resolve)
   })
 
   return frame
 }
 
 function canvasElement() {
-  return pixiAppCanvas.value
+  return pixiApp.value?.canvas ?? null
 }
 
 defineExpose({

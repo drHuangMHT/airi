@@ -7,10 +7,10 @@ import { ref, watch } from 'vue'
 
 import { loadLive2DModelPreview } from '../utils'
 
-const METADATA_STORAGE_KEY = 'plugin.airi_plugin_stage_live2d.model.metadata.'
-const FILE_STORAGE_KEY = 'plugin.airi_plugin_stage_live2d.model.file.'
-const PREVIEW_STORAGE_KEY = 'plugin.airi_plugin_stage_live2d.model.preview.'
-const SELECTED_MODEL_STORAGE_KEY = 'plugin.airi_plugin_stage_live2d.model.selected_model.'
+const METADATA_STORAGE_KEY = 'plugin.airi_plugin_stage_live2d_cubism5.model.metadata.'
+const FILE_STORAGE_KEY = 'plugin.airi_plugin_stage_live2d_cubism5.model.file.'
+const PREVIEW_STORAGE_KEY = 'plugin.airi_plugin_stage_live2d_cubism5.model.preview.'
+const SELECTED_MODEL_STORAGE_KEY = 'plugin.airi_plugin_stage_live2d_cubism5.model.selected_model.'
 
 export interface ModelMetadata {
   name: string

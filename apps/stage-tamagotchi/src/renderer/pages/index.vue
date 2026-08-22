@@ -144,12 +144,12 @@ onMounted(() => {
     openOnboarding()
   }
 })
-
-provide('eye-tracking-source', computed(() => ({
+const trackingSource = computed(() => ({
   x: relativeMouseX.value,
   y: relativeMouseY.value,
-})))
-provide('transparencyTestPos', computed(() => ({ x: relativeMouseX.value, y: relativeMouseY.value })))
+}))
+provide('eye-tracking-source', trackingSource)
+provide('transparencyTestPos', trackingSource)
 </script>
 
 <template>
