@@ -1,7 +1,6 @@
 <script setup lang="ts">
+import type { ModelMetadata } from '@proj-airi/stage-shared/composables'
 import type { Live2DValidationReport } from '@proj-airi/stage-ui-live2d-c5'
-
-import type { ModelMetadata } from '../composables/model'
 
 import { validateLive2DZip } from '@proj-airi/stage-ui-live2d-c5'
 import { Button } from '@proj-airi/ui'
@@ -95,8 +94,8 @@ const live2dDialog = useFileDialog({ accept: '.zip', multiple: false, reset: tru
 
 live2dDialog.onChange(handleAddLive2DModel)
 
-onMounted(() => {
-  modelStore.initialize()
+onMounted(async () => {
+  await modelStore.initialize()
 })
 </script>
 

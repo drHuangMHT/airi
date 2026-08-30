@@ -77,7 +77,7 @@ import {
 import { loadVrm } from '../../composables/vrm/core'
 import { useVRMEmote } from '../../composables/vrm/expression'
 import { resolveInternalVrmHooks } from '../../composables/vrm/internal-hooks'
-import { useModelsStore } from '../../model'
+import { useModelsStore } from '../../stores/display-models'
 import {
   createThreeRendererMemorySnapshot,
   createVrmSceneSummarySnapshot,

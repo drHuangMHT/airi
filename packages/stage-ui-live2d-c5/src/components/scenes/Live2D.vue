@@ -95,6 +95,7 @@ live2dEyeTrackingSource.value = inject('eye-tracking-source', computed(() => ({ 
 
 onMounted(async () => {
   await modelsStore.initialize()
+  console.info(`modelStore initialization complete`)
 })
 </script>
 

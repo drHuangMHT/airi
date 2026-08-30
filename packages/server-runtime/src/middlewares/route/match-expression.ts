@@ -1,6 +1,5 @@
+import type { AuthenticatedPeer } from '@proj-airi/server-shared'
 import type { RouteTargetExpression } from '@proj-airi/server-shared/types'
-
-import type { AuthenticatedPeer } from '../../types'
 
 function globToRegExp(glob: string) {
   const escaped = glob.replace(/[.+^${}()|[\]\\]/g, '\\$&')

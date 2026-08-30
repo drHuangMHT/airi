@@ -31,7 +31,9 @@
   "dependencies": {
     "@moeru/std": "catalog:",
     "@vueuse/core": "catalog:",
+    "async-mutex": "catalog:",
     "gpuu": "^1.0.7",
+    "localforage": "^1.10.0",
     "pinia": "catalog:",
     "valibot": "catalog:",
     "vue": "catalog:"

@@ -39,6 +39,7 @@
     "@lemonneko/crop-empty-pixels": "0.1.1",
     "@proj-airi/stage-shared": "workspace:^",
     "@proj-airi/ui": "workspace:^",
+    "@proj-airi/unplugin-fetch": "catalog:",
     "@vueuse/core": "^14.2.1",
     "@xsai/tool": "catalog:",
     "animejs": "^4.3.6",

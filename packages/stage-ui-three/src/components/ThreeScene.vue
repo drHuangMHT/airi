@@ -31,7 +31,7 @@ import { computed, nextTick, onMounted, onUnmounted, ref, shallowRef, watch } fr
 
 // From stage-ui-three package
 import { useRenderTargetRegionAtClientPoint } from '../composables/render-target'
-import { useModelsStore } from '../model'
+import { useModelsStore } from '../stores/display-models'
 // pinia store
 import { useRuntimeStateStore } from '../stores/model-store'
 import {
