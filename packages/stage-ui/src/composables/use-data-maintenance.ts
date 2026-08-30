@@ -1,7 +1,6 @@
 import type { ChatSessionsExport } from '../types/chat-session'
 
 import { isStageTamagotchi } from '@proj-airi/stage-shared'
-import { useModelStore } from '@proj-airi/stage-ui-three'
 
 import { useChatSessionStore } from '../stores/chat/session-store'
 import { useMcpStore } from '../stores/mcp'
@@ -20,7 +19,6 @@ export function useDataMaintenance() {
   const providersStore = useProvidersStore()
   const settingsStore = useSettings()
   const audioSettingsStore = useSettingsAudioDevice()
-  const threeStore = useModelStore()
   const hearingStore = useHearingStore()
   const speechStore = useSpeechStore()
   const consciousnessStore = useConsciousnessStore()
@@ -29,11 +27,6 @@ export function useDataMaintenance() {
   const mcpStore = useMcpStore()
   const onboardingStore = useOnboardingStore()
   const airiCardStore = useAiriCardStore()
-
-  async function deleteAllModels() {
-    settingsStore.stageModelSelected = 'preset-live2d-1'
-    await settingsStore.updateStageModel()
-  }
 
   async function resetProvidersSettings() {
     await providersStore.resetProviderSettings()
@@ -71,14 +64,12 @@ export function useDataMaintenance() {
   async function resetSettingsState() {
     await settingsStore.resetState()
     audioSettingsStore.resetState()
-    threeStore.resetModelStore()
     mcpStore.resetState()
     onboardingStore.resetSetupState()
     airiCardStore.resetState()
   }
 
   async function deleteAllData() {
-    await deleteAllModels()
     await resetProvidersSettings()
     resetModulesSettings()
     deleteAllChatSessions()
@@ -94,7 +85,6 @@ export function useDataMaintenance() {
   }
 
   return {
-    deleteAllModels,
     resetProvidersSettings,
     resetModulesSettings,
     deleteAllChatSessions,

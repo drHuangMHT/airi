@@ -1,16 +1,13 @@
 <script setup lang="ts">
 import type { ModelSettingsRuntimeSnapshot } from '@proj-airi/stage-ui/components/scenarios/settings/model-settings'
-import type { StageModelRenderer } from '@proj-airi/stage-ui/stores'
 
 import ModelSettingsPanel from '@proj-airi/stage-ui/components/scenarios/settings/model-settings/panel.vue'
 import ModelSettingsPreviewStage from '@proj-airi/stage-ui/components/scenarios/settings/model-settings/preview-stage.vue'
 
 import { isStageTamagotchi } from '@proj-airi/stage-shared'
 import { createEmptyModelSettingsRuntimeSnapshot } from '@proj-airi/stage-ui/components/scenarios/settings/model-settings/runtime'
-import { useSettings } from '@proj-airi/stage-ui/stores'
 import { Vibrant } from 'node-vibrant/browser'
-import { storeToRefs } from 'pinia'
-import { provide, ref, useTemplateRef, watch } from 'vue'
+import { ref, useTemplateRef } from 'vue'
 
 const palette = ref<string[]>([])
 
@@ -36,18 +33,6 @@ async function extractColorsFromModel() {
     URL.revokeObjectURL(frameUrl)
   }
 }
-
-const { stageModelRenderer } = storeToRefs(useSettings())
-const localRenderer = ref(stageModelRenderer.value)
-const globalRendererWatcher = watch(stageModelRenderer, n => localRenderer.value = n)
-function updateLocation(val: StageModelRenderer) {
-  localRenderer.value = val; globalRendererWatcher.stop()
-}
-
-provide('local-renderer', {
-  localRenderer,
-  updateLocation,
-})
 
 function handleRuntimeSnapshotChanged(nextSnapshot: ModelSettingsRuntimeSnapshot) {
   runtimeSnapshot.value = nextSnapshot

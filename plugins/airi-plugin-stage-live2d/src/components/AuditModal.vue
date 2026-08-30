@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import type { Live2DValidationReport } from '@proj-airi/stage-ui-live2d'
+import type { Live2DValidationReport } from '@proj-airi/airi-plugin-stage-live2d'
 
 import { Button } from '@proj-airi/ui'
 import { useMediaQuery, useResizeObserver, useScreenSafeArea } from '@vueuse/core'
 import { DialogContent, DialogOverlay, DialogPortal, DialogRoot, DialogTitle, DrawerContent, DrawerHandle, DrawerOverlay, DrawerPortal, DrawerRoot } from 'reka-ui'
 import { onMounted } from 'vue'
 
-const props = defineProps<{
+defineProps<{
   report: Live2DValidationReport | null
 }>()
 

@@ -5,6 +5,8 @@ import { defineStore } from 'pinia'
 
 import { getLive2DModelPreview } from '../utils'
 
+export type { ModelMetadata } from '@proj-airi/stage-shared/composables'
+
 const builtinModels: (ModelMetadata & { modelUrl: string, previewUrl: string })[] = [
   {
     name: 'Hiyori Free',

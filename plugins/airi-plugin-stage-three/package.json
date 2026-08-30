@@ -1,5 +1,5 @@
 {
-  "name": "@proj-airi/airi-plugin-stage-three",
+  "name": "@proj-airi/stage-ui-three",
   "type": "module",
   "private": true,
   "description": "A collection of 3D scene components that used by Project AIRI",
@@ -31,16 +31,21 @@
     "@pixiv/three-vrm-core": "^3.5.2",
     "@proj-airi/stage-shared": "workspace:*",
     "@proj-airi/ui": "workspace:*",
+    "@proj-airi/unplugin-fetch": "catalog:",
     "@tresjs/cientos": "^5.7.0",
     "@tresjs/core": "^5.8.0",
     "@tresjs/post-processing": "^3.7.1",
     "@vueuse/core": "^14.2.1",
+    "async-mutex": "catalog:",
     "culori": "^4.0.2",
     "es-toolkit": "catalog:",
+    "nanoid": "catalog:",
     "pinia": "^3.0.4",
     "postprocessing": "^6.39.1",
+    "reka-ui": "catalog:",
     "three": "^0.184.0",
     "vue": "catalog:",
+    "vue-i18n": "catalog:",
     "wlipsync": "^1.3.0"
   },
   "devDependencies": {

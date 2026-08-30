@@ -68,7 +68,7 @@ export async function loadVrmModelPreview(file: File) {
   try {
     const vrmData = await loadVrm(objUrl, { scene, lookAt: true })
     if (!vrmData)
-      return
+      return null
 
     vrmInstance = vrmData._vrm
     vrmGroup = vrmData._vrmGroup
@@ -96,8 +96,9 @@ export async function loadVrmModelPreview(file: File) {
     updatePreviewVrmMaterials(vrmInstance, previewDelta)
     renderer.render(scene, camera)
 
-    const dataUrl = offscreenCanvas.toDataURL()
-    return dataUrl
+    return new Promise<Blob | null>((resolve, _reject) => {
+      offscreenCanvas.toBlob(b => resolve(b))
+    })
   }
   finally {
     mixer?.stopAllAction()

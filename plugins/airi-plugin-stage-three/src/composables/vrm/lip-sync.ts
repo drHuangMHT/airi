@@ -8,11 +8,12 @@ import { createWLipSyncNode } from 'wlipsync'
 
 import profile from '../../assets/lip-sync-profile.json' with { type: 'json' }
 
-import { useAudioContext } from '../../../../stage-ui/src/stores/audio'
+// TODO: use package reference
+import { useAudioContext } from '../../../../../packages/stage-ui/src/stores/audio'
 
 export function useVRMLipSync(audioNode: Ref<AudioBufferSourceNode | undefined, AudioBufferSourceNode | undefined>) {
   const { audioContext } = useAudioContext()
-  const { state: lipSyncNode, isReady } = useAsyncState(createWLipSyncNode(audioContext, profile as Profile), undefined)
+  const { state: lipSyncNode, isReady } = useAsyncState(createWLipSyncNode(audioContext.value, profile as Profile), undefined)
 
   // https://github.com/mrxz/wLipSync/blob/c3bc4b321dc7e1ca333d75f7aa1e9e746cbbb23a/example/index.js#L50-L66
   const RAW_KEYS = ['A', 'E', 'I', 'O', 'U', 'S'] as const

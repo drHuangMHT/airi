@@ -85,7 +85,6 @@ onMounted(async () => {
   await serverChannelStore.initialize({ possibleEvents: ['ui:configure'] }).catch(err => console.error('Failed to initialize Mods Server Channel in App.vue:', err))
   characterOrchestratorStore.initialize()
 
-  await settingsStore.initializeStageModel()
   await settingsAudioDeviceStore.initialize()
 
   // Preload local inference models (Kokoro TTS, etc.) in background after a delay

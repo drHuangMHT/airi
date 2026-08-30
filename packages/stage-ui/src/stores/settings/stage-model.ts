@@ -22,9 +22,9 @@ const registeredRenderer = [
   {
     identifier: 'plugin.airi_plugin_stage_three',
     name: 'VRM',
-    stage: defineAsyncComponent(() => import('../../../../stage-ui-three/src/components/ThreeScene.vue')),
-    modelSelector: defineAsyncComponent(() => import('../../../../stage-ui-three/src/components/ModelSelector.vue')),
-    modelSettings: defineAsyncComponent(() => import('../../../../stage-ui-three/src/components/ModelSettings.vue')),
+    stage: defineAsyncComponent(() => import('../../../../../plugins/airi-plugin-stage-three/src/components/ThreeScene.vue')),
+    modelSelector: defineAsyncComponent(() => import('../../../../../plugins/airi-plugin-stage-three/src/components/ModelSelector.vue')),
+    modelSettings: defineAsyncComponent(() => import('../../../../../plugins/airi-plugin-stage-three/src/components/ModelSettings.vue')),
   },
 ]
 

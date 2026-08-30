@@ -31,8 +31,9 @@ import { computed, nextTick, onMounted, onUnmounted, ref, shallowRef, watch } fr
 
 // From stage-ui-three package
 import { useRenderTargetRegionAtClientPoint } from '../composables/render-target'
+import { useModelsStore } from '../stores/display-models'
 // pinia store
-import { useModelStore } from '../stores/model-store'
+import { useRuntimeStateStore } from '../stores/model-store'
 import {
   getStageThreeRuntimeTraceContext,
   isStageThreeRuntimeTraceEnabled,
@@ -49,7 +50,6 @@ import { VRMModel } from './Model'
 
 const props = withDefaults(defineProps<{
   currentAudioSource?: AudioBufferSourceNode
-  modelSrc?: string
   skyBoxSrc?: string
   showAxes?: boolean
   idleAnimation?: string
@@ -82,7 +82,7 @@ type SceneTraceTransactionReason = 'component-unmount' | 'initial-load' | 'model
 
 const componentState = defineModel<'pending' | 'loading' | 'mounted'>('state', { default: 'pending' })
 
-const modelStore = useModelStore()
+const modelStore = useRuntimeStateStore()
 const {
   beginSceneBindingTransaction,
   endSceneBindingTransaction,
@@ -147,6 +147,9 @@ const pendingCommittedModelSrc = ref<string>()
 const pendingCommittedModelRevision = ref<number>()
 const pendingSceneBootstrap = shallowRef<SceneBootstrap>()
 
+const modelsStore = useModelsStore()
+const { selectedModel } = storeToRefs(modelsStore)
+
 function emitThreeSceneTrace(label: string, event: any, payload: Record<string, unknown>) {
   if (isStageThreeRuntimeTraceEnabled())
     stageThreeRuntimeTraceContext.emit(event, payload)
@@ -158,7 +161,7 @@ function emitScenePhaseTrace(cause: SceneTracePhaseCause, from: ScenePhase | und
   emitThreeSceneTrace('phase', stageThreeTraceThreeScenePhaseEvent, {
     cause,
     from,
-    modelSrc: props.modelSrc,
+    modelSrc: selectedModel.value,
     originId: stageThreeSceneTraceOriginId,
     to,
     transactionDepth: sceneTransactionDepth.value,
@@ -316,7 +319,7 @@ const isCompletingBinding = ref(false)
 
 //  === VRMModel ===
 const canvasReady = ref(false)
-const modelPhase = ref<ModelPhase>(props.modelSrc ? 'loading' : 'no-model')
+const modelPhase = ref<ModelPhase>(selectedModel.value ? 'loading' : 'no-model')
 
 function beginSceneBindingCycle(reason: SceneTraceTransactionReason) {
   latestSceneTransactionReason.value = reason
@@ -346,6 +349,7 @@ function setScenePhaseWithTrace(phase: ScenePhase, cause: SceneTracePhaseCause) 
 }
 
 function commitLastCommittedModelSrc(expectedRevision: number, nextPhase: ScenePhase) {
+  console.info(`trying to commit ${pendingCommittedModelSrc.value}, next phase ${nextPhase}, revision pending/expected/binding ${pendingCommittedModelRevision.value}/${expectedRevision}/${bindingRevision.value}`)
   if (nextPhase !== 'mounted')
     return
 
@@ -358,9 +362,7 @@ function commitLastCommittedModelSrc(expectedRevision: number, nextPhase: SceneP
   if (!activeModelSrc.value || pendingCommittedModelSrc.value !== activeModelSrc.value)
     return
 
-  if (props.modelSrc !== activeModelSrc.value)
-    return
-
+  console.info(`commiting last commited model src`)
   lastCommittedModelSrc.value = pendingCommittedModelSrc.value
   clearPendingCommittedModel()
 }
@@ -380,7 +382,7 @@ function resolveScenePhaseAfterBinding(): ScenePhase {
   if (!canvasReady.value)
     return 'pending'
 
-  if (!props.modelSrc)
+  if (!selectedModel.value)
     return 'no-model'
 
   if (modelPhase.value === 'error')
@@ -463,10 +465,10 @@ function onVRMModelLoaded(value: string) {
 function onVRMModelError(error: unknown) {
   invalidateBindingRevision()
   pendingSceneBootstrap.value = undefined
-  modelPhase.value = props.modelSrc ? 'error' : 'no-model'
+  modelPhase.value = selectedModel.value ? 'error' : 'no-model'
   resetSceneBindingTransactions()
   emitSceneTransactionTrace('reset', 'unknown')
-  setScenePhaseWithTrace(props.modelSrc ? 'error' : 'no-model', 'vrm:error')
+  setScenePhaseWithTrace(selectedModel.value ? 'error' : 'no-model', 'vrm:error')
   emit('error', error)
 }
 
@@ -512,6 +514,7 @@ onMounted(() => {
   if (envSelect.value === 'skyBox') {
     skyBoxEnvRef.value?.reload(skyBoxSrc.value)
   }
+  modelsStore.initialize()
 })
 
 onUnmounted(() => {
@@ -539,7 +542,7 @@ function applyVrmFrameRuntimeHook() {
   modelRef.value?.setVrmFrameHook(vrmFrameRuntimeHook.value)
 }
 
-watch(() => props.modelSrc, (modelSrc) => {
+watch(() => selectedModel.value, (modelSrc) => {
   modelPhase.value = modelSrc ? 'loading' : 'no-model'
 
   if (!modelSrc) {
@@ -562,8 +565,8 @@ watch(modelRef, (next, prev) => {
 
   if (prev && !next) {
     emitSceneSubtreeTrace('modelRef', 'detached')
-    modelPhase.value = props.modelSrc ? 'loading' : 'no-model'
-    setScenePhaseWithTrace(props.modelSrc ? 'loading' : 'no-model', 'model-ref:detached')
+    modelPhase.value = selectedModel.value ? 'loading' : 'no-model'
+    setScenePhaseWithTrace(selectedModel.value ? 'loading' : 'no-model', 'model-ref:detached')
   }
 }, { flush: 'sync' })
 
@@ -575,7 +578,7 @@ watch(controlsRef, (next, prev) => {
     emitSceneSubtreeTrace('controlsRef', 'detached')
     controlsReady.value = false
 
-    if (props.modelSrc && !!activeModelSrc.value)
+    if (selectedModel.value && !!activeModelSrc.value)
       beginSceneRebind()
   }
 }, { flush: 'sync' })
@@ -714,51 +717,29 @@ defineExpose({
       <SliderControls />
     </div>
     <TresCanvas
-      :width="width"
-      :height="height"
-      :camera="camera"
-      :antialias="true"
-      :dpr="renderScale"
-      :tone-mapping="ACESFilmicToneMapping"
-      :tone-mapping-exposure="1"
-      :clear-alpha="0"
-      @ready="onTresReady"
+      :width="width" :height="height" :camera="camera" :antialias="true" :dpr="renderScale"
+      :tone-mapping="ACESFilmicToneMapping" :tone-mapping-exposure="1" :clear-alpha="0" @ready="onTresReady"
       @render="onTresRender"
     >
       <OrbitControls
-        ref="controlsRef"
-        :control-enable="controlEnable"
-        :model-size="modelSize"
-        :camera-target="modelOrigin"
-        @orbit-controls-camera-changed="onOrbitControlsCameraChanged"
+        ref="controlsRef" :control-enable="controlEnable" :model-size="modelSize"
+        :camera-target="modelOrigin" @orbit-controls-camera-changed="onOrbitControlsCameraChanged"
         @orbit-controls-ready="onOrbitControlsReady"
       />
       <SkyBox
-        v-if="envSelect === 'skyBox'"
-        ref="skyBoxEnvRef"
-        :sky-box-src="skyBoxSrc"
-        :as-background="true"
+        v-if="envSelect === 'skyBox'" ref="skyBoxEnvRef" :sky-box-src="skyBoxSrc" :as-background="true"
         @sky-box-ready="onSkyBoxReady"
       />
       <TresHemisphereLight
-        v-else
-        :color="formatHex(hemisphereSkyColor)"
-        :ground-color="formatHex(hemisphereGroundColor)"
-        :position="[0, 1, 0]"
-        :intensity="hemisphereLightIntensity"
+        v-else :color="formatHex(hemisphereSkyColor)"
+        :ground-color="formatHex(hemisphereGroundColor)" :position="[0, 1, 0]" :intensity="hemisphereLightIntensity"
         cast-shadow
       />
-      <TresAmbientLight
-        :color="formatHex(ambientLightColor)"
-        :intensity="ambientLightIntensity"
-        cast-shadow
-      />
+      <TresAmbientLight :color="formatHex(ambientLightColor)" :intensity="ambientLightIntensity" cast-shadow />
       <TresDirectionalLight
-        ref="dirLightRef"
-        :color="formatHex(directionalLightColor)"
+        ref="dirLightRef" :color="formatHex(directionalLightColor)"
         :position="[directionalLightPosition.x, directionalLightPosition.y, directionalLightPosition.z]"
-        :intensity="directionalLightIntensity"
-        cast-shadow
+        :intensity="directionalLightIntensity" cast-shadow
       />
       <Suspense>
         <EffectComposerPmndrs :multisampling="multisampling">
@@ -766,28 +747,13 @@ defineExpose({
         </EffectComposerPmndrs>
       </Suspense>
       <VRMModel
-        ref="modelRef"
-        :current-audio-source="props.currentAudioSource"
-        :last-committed-model-src="lastCommittedModelSrc"
-        :model-src="props.modelSrc"
-        :idle-animation="props.idleAnimation"
-        :paused="props.paused"
-        :env-select="envSelect"
-        :sky-box-intensity="skyBoxIntensity"
-        :npr-irr-s-h="irrSHTex"
-        :model-offset="modelOffset"
-        :model-rotation-y="modelRotationY"
-        :look-at-target="lookAtTarget"
-        :tracking-mode="trackingMode"
-        :eye-height="eyeHeight"
-        :camera-position="cameraPosition"
-        :camera="camera"
-        :screen-bounding-box="getScreenBBox"
-        @loading-progress="(val: number) => emit('loadModelProgress', val)"
-        @load-start="onVRMModelLoadStart"
-        @scene-bootstrap="onVRMSceneBootstrap"
-        @look-at-target="onVRMModelLookAtTarget"
-        @error="onVRMModelError"
+        ref="modelRef" :current-audio-source="props.currentAudioSource"
+        :last-committed-model-src="lastCommittedModelSrc" :idle-animation="props.idleAnimation" :paused="props.paused"
+        :env-select="envSelect" :sky-box-intensity="skyBoxIntensity" :npr-irr-s-h="irrSHTex" :model-offset="modelOffset"
+        :model-rotation-y="modelRotationY" :look-at-target="lookAtTarget" :tracking-mode="trackingMode"
+        :eye-height="eyeHeight" :camera-position="cameraPosition" :camera="camera" :screen-bounding-box="getScreenBBox"
+        @loading-progress="(val: number) => emit('loadModelProgress', val)" @load-start="onVRMModelLoadStart"
+        @scene-bootstrap="onVRMSceneBootstrap" @look-at-target="onVRMModelLookAtTarget" @error="onVRMModelError"
         @loaded="onVRMModelLoaded"
       />
       <TresAxesHelper v-if="props.showAxes" :size="1" />

@@ -17,7 +17,6 @@ import ResizeHandler from './components/ResizeHandler.vue'
 
 import {
   electronGetServerChannelConfig,
-  electronGodotStageStatusChanged,
   electronSettingsNavigate,
   i18nGetLocale,
   i18nSetLocale,
@@ -51,16 +50,6 @@ const getMainLocale = useElectronEventaInvoke(i18nGetLocale)
 const setLocale = useElectronEventaInvoke(i18nSetLocale)
 const syncArtistryConfig = useElectronEventaInvoke(artistrySyncConfig)
 const { onMountedHooks: pluginHostMountedHooks } = useSetupPluginHost()
-
-function syncGodotStageRenderer(state: { state: 'stopped' | 'starting' | 'running' | 'stopping' | 'error' }) {
-  if (state.state === 'running') {
-    settingsStore.setStageModelRenderer('godot')
-    return
-  }
-
-  if ((state.state === 'stopped' || state.state === 'error') && settingsStore.stageModelRenderer === 'godot')
-    settingsStore.restoreBuiltInStageModelRenderer()
-}
 
 // NOTICE: Runtime tool stores must register during setup so renderer consumers can see them
 // before `onMounted()` finishes the rest of the startup flow.
@@ -96,14 +85,6 @@ context.value.on(electronSettingsNavigate, (event) => {
   void router.push(targetRoute).catch((error) => {
     console.warn('Failed to navigate settings window:', error)
   })
-})
-
-context.value.on(electronGodotStageStatusChanged, (event) => {
-  if (!event.body) {
-    return
-  }
-
-  syncGodotStageRenderer(event.body)
 })
 
 onMounted(async () => {

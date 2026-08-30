@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Live2DValidationReport } from '@proj-airi/stage-ui-live2d'
+import type { Live2DValidationReport } from '@proj-airi/airi-plugin-stage-live2d'
 
 import { Button } from '@proj-airi/ui'
 import { reactive } from 'vue'
