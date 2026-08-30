@@ -1,7 +1,6 @@
 import { createPinia, setActivePinia } from 'pinia'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { useSettingsStageModel } from '../settings/stage-model'
 import { useAiriCardStore } from './airi-card'
 
 vi.mock('./artistry', async () => {
@@ -73,9 +72,6 @@ describe('airi-card store', () => {
    * it('persists selected display model on active card', () => {})
    */
   it('persists selected display model on active card', () => {
-    const stageModelStore = useSettingsStageModel()
-    stageModelStore.stageModelSelected = 'preset-live2d-1'
-
     const cardStore = useAiriCardStore()
     cardStore.initialize()
 
@@ -83,6 +79,5 @@ describe('airi-card store', () => {
 
     expect(updated).toBe(true)
     expect(cardStore.activeCard?.extensions.airi.modules.displayModelId).toBe('display-model-iru-v2')
-    expect(stageModelStore.stageModelSelected).toBe('preset-live2d-1')
   })
 })

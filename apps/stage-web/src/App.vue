@@ -3,7 +3,6 @@ import { OnboardingDialog, OnboardingStepAnalyticsNotice, ToasterRoot } from '@p
 import { useInferencePreload } from '@proj-airi/stage-ui/composables'
 import { isPosthogAvailableInBuild, useSharedAnalyticsStore } from '@proj-airi/stage-ui/stores/analytics'
 import { useCharacterOrchestratorStore } from '@proj-airi/stage-ui/stores/character'
-import { useModelsStore } from '@proj-airi/stage-ui/stores/display-models'
 import { useModsServerChannelStore } from '@proj-airi/stage-ui/stores/mods/api/channel-server'
 import { useAiriCardStore } from '@proj-airi/stage-ui/stores/modules/airi-card'
 import { useOnboardingStore } from '@proj-airi/stage-ui/stores/onboarding'
@@ -22,7 +21,6 @@ import { usePWAStore } from './stores/pwa'
 usePWAStore()
 
 const i18n = useI18n()
-const displayModelsStore = useModelsStore()
 const settingsStore = useSettings()
 const settings = storeToRefs(settingsStore)
 const onboardingStore = useOnboardingStore()
@@ -78,7 +76,6 @@ watch(settings.themeColorsHueDynamic, () => {
 // Initialize first-time setup check when app mounts
 onMounted(async () => {
   analyticsStore.initialize()
-  await displayModelsStore.initialize()
   cardStore.initialize()
 
   if (onboardingStore.needsOnboarding) {
@@ -88,7 +85,6 @@ onMounted(async () => {
   await serverChannelStore.initialize({ possibleEvents: ['ui:configure'] }).catch(err => console.error('Failed to initialize Mods Server Channel in App.vue:', err))
   characterOrchestratorStore.initialize()
 
-  await displayModelsStore.loadDisplayModelsFromIndexedDB()
   await settingsStore.initializeStageModel()
   await settingsAudioDeviceStore.initialize()
 

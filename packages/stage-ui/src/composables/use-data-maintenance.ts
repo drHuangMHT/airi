@@ -4,7 +4,6 @@ import { isStageTamagotchi } from '@proj-airi/stage-shared'
 import { useModelStore } from '@proj-airi/stage-ui-three'
 
 import { useChatSessionStore } from '../stores/chat/session-store'
-import { useModelsStore } from '../stores/display-models'
 import { useMcpStore } from '../stores/mcp'
 import { useAiriCardStore } from '../stores/modules/airi-card'
 import { useConsciousnessStore } from '../stores/modules/consciousness'
@@ -18,7 +17,6 @@ import { useSettings, useSettingsAudioDevice } from '../stores/settings'
 
 export function useDataMaintenance() {
   const chatStore = useChatSessionStore()
-  const displayModelsStore = useModelsStore()
   const providersStore = useProvidersStore()
   const settingsStore = useSettings()
   const audioSettingsStore = useSettingsAudioDevice()
@@ -33,7 +31,6 @@ export function useDataMaintenance() {
   const airiCardStore = useAiriCardStore()
 
   async function deleteAllModels() {
-    await displayModelsStore.resetDisplayModels()
     settingsStore.stageModelSelected = 'preset-live2d-1'
     await settingsStore.updateStageModel()
   }

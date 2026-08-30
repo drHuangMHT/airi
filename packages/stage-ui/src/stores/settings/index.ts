@@ -5,7 +5,6 @@ import { useSettingsControlsIsland } from './controls-island'
 import { useSettingsDeveloper } from './developer'
 import { useSettingsGeneral } from './general'
 import { useSettingsSpine } from './spine'
-import { useSettingsStageModel } from './stage-model'
 import { useSettingsTheme } from './theme'
 
 export * from './analytics'
@@ -31,14 +30,12 @@ export { DEFAULT_THEME_COLORS_HUE } from './theme'
 export const useSettings = defineStore('settings', () => {
   const general = useSettingsGeneral()
   const analytics = useSettingsAnalytics()
-  const stageModel = useSettingsStageModel()
   const spine = useSettingsSpine()
   const theme = useSettingsTheme()
   const controlsIsland = useSettingsControlsIsland()
   const developer = useSettingsDeveloper()
 
   async function resetState() {
-    await stageModel.resetState()
     analytics.resetState()
     general.resetState()
     spine.resetState()
@@ -50,7 +47,6 @@ export const useSettings = defineStore('settings', () => {
   // Extract refs from sub-stores to maintain proper reactivity
   const generalRefs = storeToRefs(general)
   const analyticsRefs = storeToRefs(analytics)
-  const stageModelRefs = storeToRefs(stageModel)
   const spineRefs = storeToRefs(spine)
   const themeRefs = storeToRefs(theme)
   const controlsIslandRefs = storeToRefs(controlsIsland)
@@ -63,13 +59,6 @@ export const useSettings = defineStore('settings', () => {
     language: generalRefs.language,
     analyticsEnabled: analyticsRefs.analyticsEnabled,
     websocketSecureEnabled: generalRefs.websocketSecureEnabled,
-
-    // Stage model settings
-    stageModelRenderer: stageModelRefs.stageModelRenderer,
-    stageModelSelected: stageModelRefs.stageModelSelected,
-    stageModelSelectedUrl: stageModelRefs.stageModelSelectedUrl,
-    stageModelSelectedDisplayModel: stageModelRefs.stageModelSelectedDisplayModel,
-    stageViewControlsEnabled: stageModelRefs.stageViewControlsEnabled,
 
     // Spine settings
     spinePremultipliedAlpha: spineRefs.spinePremultipliedAlpha,
@@ -92,10 +81,6 @@ export const useSettings = defineStore('settings', () => {
     setThemeColorsHue: theme.setThemeColorsHue,
     applyPrimaryColorFrom: theme.applyPrimaryColorFrom,
     isColorSelectedForPrimary: theme.isColorSelectedForPrimary,
-    initializeStageModel: stageModel.initializeStageModel,
-    restoreBuiltInStageModelRenderer: stageModel.restoreBuiltInStageModelRenderer,
-    setStageModelRenderer: stageModel.setStageModelRenderer,
-    updateStageModel: stageModel.updateStageModel,
     resetState,
   }
 })

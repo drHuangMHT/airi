@@ -1,12 +1,9 @@
 <script lang="ts" setup>
 import { defaultControlConfig as threeCtrlConf, supportedControl as threeSupportedControl, useThreeViewControl } from '@proj-airi/stage-ui-three'
 import { defaultControlConfig as l2dCtrlConf, supportedControl as l2dSupportedCtrl, useL2dViewControl } from '@proj-airi/stage-ui/stores/live2d'
-import { useSettingsStageModel } from '@proj-airi/stage-ui/stores/settings/stage-model'
 import { Button } from '@proj-airi/ui'
-import { storeToRefs } from 'pinia'
 import { computed } from 'vue'
 
-const { stageModelRenderer } = storeToRefs(useSettingsStageModel())
 const { viewControlsEnabled: l2dViewCtrlEnabled, viewControlMode: l2dCtrlMode, set: l2dSet } = useL2dViewControl()
 const { viewControlsEnabled: threeSliderCtrlEnabled, viewControlMode: threeCtrlMode, set: threeSet } = useThreeViewControl()
 const controlEnabled = computed(() => {

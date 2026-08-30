@@ -6,12 +6,10 @@ import kebabcase from '@stdlib/string-base-kebabcase'
 
 import { DEFAULT_ARTISTRY_WIDGET_INSTRUCTION } from '@proj-airi/stage-ui/constants/prompts/artistry-instruction'
 import { useProvidersStore } from '@proj-airi/stage-ui/stores'
-import { useDisplayModelsStore } from '@proj-airi/stage-ui/stores/display-models'
 import { useAiriCardStore } from '@proj-airi/stage-ui/stores/modules/airi-card'
 import { useArtistryStore } from '@proj-airi/stage-ui/stores/modules/artistry'
 import { useConsciousnessStore } from '@proj-airi/stage-ui/stores/modules/consciousness'
 import { useSpeechStore } from '@proj-airi/stage-ui/stores/modules/speech'
-import { useSettingsStageModel } from '@proj-airi/stage-ui/stores/settings/stage-model'
 import { Button, FieldInput, FieldValues } from '@proj-airi/ui'
 import { ComboboxSelect } from '@proj-airi/ui/components/form'
 import { storeToRefs } from 'pinia'
@@ -60,13 +58,10 @@ const cardStore = useAiriCardStore()
 const consciousnessStore = useConsciousnessStore()
 const speechStore = useSpeechStore()
 const providersStore = useProvidersStore()
-const displayModelsStore = useDisplayModelsStore()
-const stageModelStore = useSettingsStageModel()
 const artistryStore = useArtistryStore()
 
 const { activeProvider: consciousnessProvider, activeModel: defaultConsciousnessModel } = storeToRefs(consciousnessStore)
 const { activeSpeechProvider: speechProvider, activeSpeechModel: defaultSpeechModel, activeSpeechVoiceId: defaultSpeechVoiceId } = storeToRefs(speechStore)
-const { displayModels } = storeToRefs(displayModelsStore)
 const { stageModelSelected: defaultDisplayModelId } = storeToRefs(stageModelStore)
 const { activeProvider: defaultArtistryProvider } = storeToRefs(artistryStore)
 
@@ -93,10 +88,10 @@ const selectedArtistryConfigStr = ref<string>('{\n  \n}')
 
 // Computed: available display model options
 const displayModelOptions = computed(() =>
-  displayModels.value.map(model => ({
-    value: model.id,
-    label: model.name,
-  })),
+  ({
+    value: 'undefined',
+    label: 'broken by stage registration',
+  }),
 )
 
 // Computed: available consciousness provider options

@@ -13,7 +13,6 @@ import SystemPromptV2 from '../../constants/prompts/system-v2'
 
 import { DEFAULT_ARTISTRY_WIDGET_SPAWNING_PROMPT } from '../../constants/prompts/character-defaults'
 import { capturePosthogEvent } from '../analytics/posthog'
-import { useSettingsStageModel } from '../settings/stage-model'
 import { useArtistryStore } from './artistry'
 import { useConsciousnessStore } from './consciousness'
 import { useSpeechStore } from './speech'
@@ -93,7 +92,6 @@ export const useAiriCardStore = defineStore('airi-card', () => {
   const consciousnessStore = useConsciousnessStore()
   const speechStore = useSpeechStore()
   const artistryStore = useArtistryStore()
-  const stageModelStore = useSettingsStageModel()
 
   const {
     activeProvider: activeConsciousnessProvider,
@@ -194,7 +192,7 @@ export const useAiriCardStore = defineStore('airi-card', () => {
         model: activeSpeechModel.value,
         voice_id: activeSpeechVoiceId.value,
       },
-      displayModelId: stageModelStore.stageModelSelected,
+      displayModelId: 'undefined',
       artistry: {
         enabled: false,
         provider: artistryStore.globalProvider,
@@ -323,13 +321,6 @@ export const useAiriCardStore = defineStore('airi-card', () => {
     activeSpeechModel.value = extension?.modules?.speech?.model
     activeSpeechVoiceId.value = extension?.modules?.speech?.voice_id
 
-    // Apply body model if the card has a display model configured.
-    // NOTICE: must set via store property directly (not storeToRefs .value) so Pinia's
-    // proxy correctly calls the writable computed setter → stageModelSelectedState → updateStageModel().
-    if (extension.modules?.displayModelId) {
-      stageModelStore.stageModelSelected = extension.modules.displayModelId
-    }
-
     if (extension.modules?.artistry) {
       if (extension.modules.artistry.provider)
         artistryStore.activeProvider = extension.modules.artistry.provider
@@ -370,7 +361,7 @@ export const useAiriCardStore = defineStore('airi-card', () => {
           model: activeSpeechModel.value,
           voice_id: activeSpeechVoiceId.value,
         },
-        displayModelId: stageModelStore.stageModelSelected,
+        displayModelId: 'undefined',
         activeBackgroundId: activeCard.value?.extensions?.airi?.modules?.activeBackgroundId,
       } satisfies AiriExtension['modules']
     }),

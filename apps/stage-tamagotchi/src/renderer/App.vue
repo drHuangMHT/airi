@@ -4,7 +4,6 @@ import { themeColorFromValue, useThemeColor } from '@proj-airi/stage-layouts/com
 import { artistrySyncConfig, IS_DEV } from '@proj-airi/stage-shared'
 import { ToasterRoot } from '@proj-airi/stage-ui/components'
 import { useSharedAnalyticsStore } from '@proj-airi/stage-ui/stores/analytics'
-import { useModelsStore } from '@proj-airi/stage-ui/stores/display-models'
 import { useArtistryStore } from '@proj-airi/stage-ui/stores/modules/artistry'
 import { usePerfTracerBridgeStore } from '@proj-airi/stage-ui/stores/perf-tracer-bridge'
 import { useSettings, useSettingsAudioDevice } from '@proj-airi/stage-ui/stores/settings'
@@ -24,7 +23,6 @@ import {
   i18nSetLocale,
 } from '../shared/eventa'
 // import { initializeElectronAuthCallbackBridge } from './bridges/electron-auth-callback.old.js'
-import { initializeStageThreeRuntimeTraceBridge } from './bridges/stage-three-runtime-trace'
 import { useSetupPluginHost } from './composables/setup-plugin-host'
 import { useLanguage } from './composables/use-language'
 import { useTamagotchiMcpToolsStore } from './stores/mcp-tools'
@@ -33,7 +31,6 @@ import { useServerChannelSettingsStore } from './stores/settings/server-channel'
 import { useStageWindowLifecycleStore } from './stores/stage-window-lifecycle'
 
 const { isDark: dark } = useTheme()
-const displayModelsStore = useModelsStore()
 const settingsStore = useSettings()
 const { language, themeColorsHue, themeColorsHueDynamic } = storeToRefs(settingsStore)
 const serverChannelSettingsStore = useServerChannelSettingsStore()
@@ -48,8 +45,6 @@ const artistryStore = useArtistryStore()
 const { activeProvider, artistryGlobals, activeModel, defaultPromptPrefix, providerOptions } = storeToRefs(artistryStore)
 const context = useElectronEventaContext()
 usePerfTracerBridgeStore()
-initializeStageThreeRuntimeTraceBridge()
-// initializeElectronAuthCallbackBridge()
 void stageWindowLifecycleStore.initializeWindowLifecycleBridge()
 const getServerChannelConfig = useElectronEventaInvoke(electronGetServerChannelConfig)
 const getMainLocale = useElectronEventaInvoke(i18nGetLocale)
@@ -122,11 +117,7 @@ onMounted(async () => {
 
   if (!IS_DEV)
     analyticsStore.initialize()
-  await displayModelsStore.initialize()
 
-  // await chatSessionStore.initialize()
-  await displayModelsStore.loadDisplayModelsFromIndexedDB()
-  await settingsStore.initializeStageModel()
   await settingsAudioDeviceStore.initialize()
 
   pluginHostMountedHooks(context)

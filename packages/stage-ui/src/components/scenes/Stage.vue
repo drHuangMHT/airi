@@ -1,26 +1,16 @@
 <script setup lang="ts">
-import type { Live2DLipSync, Live2DLipSyncOptions } from '@proj-airi/model-driver-lipsync'
-import type { Profile } from '@proj-airi/model-driver-lipsync/shared/wlipsync'
-
-import type { EmotionPayload } from '../../constants/emotions'
-
 import { sleep } from '@moeru/std'
-import { createLive2DLipSync } from '@proj-airi/model-driver-lipsync'
-import { wlipsyncProfile } from '@proj-airi/model-driver-lipsync/shared/wlipsync'
-import { normalizeActPayload } from '@proj-airi/pipelines-audio'
-import { createQueue } from '@proj-airi/stream-kit'
 import { useBroadcastChannel } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
-import { onUnmounted, ref, useTemplateRef, watch } from 'vue'
+import { onUnmounted, ref, useTemplateRef } from 'vue'
 
 import { initIOTracer } from '../../composables/use-io-tracer'
 import { useSpeechPipelineAnalytics } from '../../composables/use-speech-pipeline-analytics'
-import { Emotion, EMOTION_EmotionMotionName_value, EMOTION_VRMExpressionName_value, EmotionThinkMotionName } from '../../constants/emotions'
-import { useAudioContext, useSpeakingStore } from '../../stores/audio'
+import { useAudioContext } from '../../stores/audio'
 import { useBackgroundStore } from '../../stores/background'
 import { useChatOrchestrator } from '../../stores/chat-minimized'
 import { useLlmStreamingControlStore } from '../../stores/llm-streaming-control'
-import { useSettings, useSettingsStage } from '../../stores/settings'
+import { useSettingsStage } from '../../stores/settings'
 
 const props = withDefaults(defineProps<{
   paused?: boolean
@@ -34,14 +24,9 @@ const isCursorPosTransparent = defineModel<boolean>('isCursorPosTransparent', { 
 
 const { currentRenderer } = storeToRefs(useSettingsStage())
 
-const settingsStore = useSettings()
-const {
-  stageModelRenderer,
-} = storeToRefs(settingsStore)
-const { mouthOpenSize, nowSpeaking } = storeToRefs(useSpeakingStore())
 const { audioContext } = useAudioContext()
 
-const { onBeforeMessageComposed, onBeforeSend } = useChatOrchestrator()
+const { onBeforeMessageComposed } = useChatOrchestrator()
 const chatHookCleanups: Array<() => void> = []
 // WORKAROUND: clear previous handlers on unmount to avoid duplicate calls when this component remounts.
 //             We keep per-hook disposers instead of wiping the global chat hooks to play nicely with
@@ -60,85 +45,14 @@ type PresentEvent
     | { type: 'assistant-append', text: string }
 const { post: postPresent } = useBroadcastChannel<PresentEvent, PresentEvent>({ name: 'airi-chat-present' })
 
-const lipSyncStarted = ref(false)
-const lipSyncLoopId = ref<number>()
-const live2dLipSync = ref<Live2DLipSync>()
-const live2dLipSyncOptions: Live2DLipSyncOptions = { mouthUpdateIntervalMs: 50, mouthLerpWindowMs: 50 }
-
 const stageRef = useTemplateRef('stageRef')
 
 const backgroundStore = useBackgroundStore()
 const { activeBackgroundUrl } = storeToRefs(backgroundStore)
 
-const currentMotion = ref<any>(null)
-
-const emotionsQueue = createQueue<EmotionPayload>({
-  handlers: [
-    async (ctx) => {
-      if (stageModelRenderer.value === 'vrm') {
-        // console.debug('VRM emotion anime: ', ctx.data)
-        const value = EMOTION_VRMExpressionName_value[ctx.data.name]
-        if (!value)
-          return
-
-        await (stageRef.value! as any).setExpression(value, ctx.data.intensity)
-      }
-      else if (stageModelRenderer.value === 'live2d') {
-        currentMotion.value = { group: EMOTION_EmotionMotionName_value[ctx.data.name] }
-      }
-      else if (stageModelRenderer.value === 'spine') {
-        (stageRef.value! as any).setEmotion!(ctx.data.name, ctx.data.intensity)
-      }
-    },
-  ],
-})
-
 const streamingControl = useLlmStreamingControlStore()
 
-function toStageEmotionPayload(payload: { name: string, intensity: number }): EmotionPayload | undefined {
-  switch (payload.name) {
-    case 'happy':
-      return { name: Emotion.Happy, intensity: payload.intensity }
-    case 'sad':
-      return { name: Emotion.Sad, intensity: payload.intensity }
-    case 'angry':
-      return { name: Emotion.Angry, intensity: payload.intensity }
-    case 'think':
-      return { name: Emotion.Think, intensity: payload.intensity }
-    case 'surprised':
-      return { name: Emotion.Surprise, intensity: payload.intensity }
-    case 'awkward':
-      return { name: Emotion.Awkward, intensity: payload.intensity }
-    case 'question':
-      return { name: Emotion.Question, intensity: payload.intensity }
-    case 'curious':
-      return { name: Emotion.Curious, intensity: payload.intensity }
-    case 'neutral':
-      return { name: Emotion.Neutral, intensity: payload.intensity }
-    default:
-      return undefined
-  }
-}
-
 chatHookCleanups.push(streamingControl.onSignal(async (signal) => {
-  if (signal.type === 'act') {
-    const act = normalizeActPayload(signal.payload)
-    if (act.motion && stageModelRenderer.value === 'live2d') {
-      currentMotion.value = { group: act.motion }
-      return
-    }
-    if (act.emotion) {
-      const emotion = toStageEmotionPayload(act.emotion)
-      if (!emotion)
-        return
-
-      // eslint-disable-next-line no-console
-      console.debug('emotion detected', emotion)
-      emotionsQueue.enqueue(emotion)
-    }
-    return
-  }
-
   if (signal.type === 'delay') {
     // eslint-disable-next-line no-console
     console.debug('delay detected', signal.seconds)
@@ -146,86 +60,10 @@ chatHookCleanups.push(streamingControl.onSignal(async (signal) => {
   }
 }))
 
-const lipSyncNode = ref<AudioNode>()
-
 initIOTracer()
 useSpeechPipelineAnalytics()
 
-function startLipSyncLoop() {
-  if (lipSyncLoopId.value)
-    return
-
-  const tick = () => {
-    if (!nowSpeaking.value || !live2dLipSync.value) {
-      mouthOpenSize.value = 0
-    }
-    else {
-      mouthOpenSize.value = live2dLipSync.value.getMouthOpen()
-    }
-    lipSyncLoopId.value = requestAnimationFrame(tick)
-  }
-
-  lipSyncLoopId.value = requestAnimationFrame(tick)
-}
-
-function stopLipSyncLoop() {
-  if (lipSyncLoopId.value) {
-    cancelAnimationFrame(lipSyncLoopId.value)
-    lipSyncLoopId.value = undefined
-  }
-
-  mouthOpenSize.value = 0
-}
-
-function resetLive2dLipSync() {
-  stopLipSyncLoop()
-
-  try {
-    lipSyncNode.value?.disconnect()
-  }
-  catch {
-
-  }
-
-  lipSyncNode.value = undefined
-  live2dLipSync.value = undefined
-  lipSyncStarted.value = false
-}
-
-function syncLipSyncLoop() {
-  if (stageModelRenderer.value === 'live2d' && !props.paused && lipSyncStarted.value) {
-    startLipSyncLoop()
-    return
-  }
-
-  stopLipSyncLoop()
-}
-
-async function setupLipSync() {
-  if (stageModelRenderer.value !== 'live2d') {
-    resetLive2dLipSync()
-    return
-  }
-
-  if (lipSyncStarted.value)
-    return
-
-  try {
-    const lipSync = await createLive2DLipSync(audioContext.value, wlipsyncProfile as Profile, live2dLipSyncOptions)
-    live2dLipSync.value = lipSync
-    lipSyncNode.value = lipSync.node
-    await audioContext.value.resume()
-    lipSyncStarted.value = true
-    syncLipSyncLoop()
-  }
-  catch (error) {
-    resetLive2dLipSync()
-    console.error('Failed to setup Live2D lip sync', error)
-  }
-}
-
 chatHookCleanups.push(onBeforeMessageComposed(async () => {
-  await setupLipSync()
   // Reset assistant caption for a new message
   assistantCaption.value = ''
   try {
@@ -242,10 +80,6 @@ chatHookCleanups.push(onBeforeMessageComposed(async () => {
     // BroadcastChannel may be closed if user navigated away - don't break flow
     console.warn('[Stage] Failed to post present reset (channel may be closed)', { error })
   }
-}))
-
-chatHookCleanups.push(onBeforeSend(async () => {
-  currentMotion.value = { group: EmotionThinkMotionName }
 }))
 
 // Resume audio context on first user interaction (browser requirement)
@@ -265,26 +99,6 @@ if (typeof window !== 'undefined') {
   events.forEach((event) => {
     window.addEventListener(event, resumeAudioContextOnInteraction, { once: true, passive: true })
   })
-}
-
-watch([stageModelRenderer, () => props.paused], ([renderer]) => {
-  if (renderer === 'godot') {
-    componentState.value = 'mounted'
-  }
-
-  if (renderer !== 'live2d') {
-    resetLive2dLipSync()
-    return
-  }
-
-  syncLipSyncLoop()
-}, { immediate: true })
-
-function readRenderTargetRegionAtClientPoint(clientX: number, clientY: number, radius: number) {
-  if (stageModelRenderer.value !== 'vrm')
-    return null
-
-  return (stageRef.value! as any).readRenderTargetRegionAtClientPoint?.(clientX, clientY, radius) ?? null
 }
 
 async function captureFrame() {
@@ -336,7 +150,6 @@ async function captureFrame() {
 }
 
 onUnmounted(() => {
-  resetLive2dLipSync()
   chatHookCleanups.forEach(dispose => dispose?.())
   viewUpdateCleanups.forEach(dispose => dispose?.())
 })
@@ -344,7 +157,6 @@ onUnmounted(() => {
 defineExpose({
   canvasElement: () => stageRef.value?.canvasElement(),
   captureFrame,
-  readRenderTargetRegionAtClientPoint,
 })
 </script>
 
@@ -370,7 +182,7 @@ defineExpose({
         :is="currentRenderer.stage" ref="stageRef"
         v-model:state="componentState"
         v-model:is-cursor-pos-transparent="isCursorPosTransparent"
-        :paused
+        :paused="props.paused"
         @transparency-change="(v:boolean) => emit('transparencyChange', v)"
       >
       <!-- <SpineScene
