@@ -1,8 +1,8 @@
 <script setup lang="ts">
+import type { Live2DValidationReport } from '@proj-airi/airi-plugin-stage-live2d-cubism5'
 import type { ModelMetadata } from '@proj-airi/stage-shared/composables'
-import type { Live2DValidationReport } from '@proj-airi/stage-ui-live2d-c5'
 
-import { validateLive2DZip } from '@proj-airi/stage-ui-live2d-c5'
+import { validateLive2DZip } from '@proj-airi/airi-plugin-stage-live2d-cubism5'
 import { Button } from '@proj-airi/ui'
 import { useFileDialog } from '@vueuse/core'
 import { nanoid } from 'nanoid'

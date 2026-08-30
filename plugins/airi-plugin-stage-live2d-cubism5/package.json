@@ -1,5 +1,5 @@
 {
-  "name": "@proj-airi/stage-ui-live2d-c5",
+  "name": "@proj-airi/airi-plugin-stage-live2d-cubism5",
   "type": "module",
   "private": true,
   "description": "Live2D scene components and stores for Project AIRI",
@@ -12,7 +12,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/moeru-ai/airi.git",
-    "directory": "packages/stage-ui-live2d"
+    "directory": "plugins/airi-plugin-stage-live2d-cubism5"
   },
   "exports": {
     ".": "./src/index.ts",

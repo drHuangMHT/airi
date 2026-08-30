@@ -3655,82 +3655,6 @@ importers:
         specifier: 'catalog:'
         version: 8.20.0(bufferutil@4.1.0)(utf-8-validate@5.0.10)
 
-  packages/stage-ui-live2d-c5:
-    dependencies:
-      '@lemonneko/crop-empty-pixels':
-        specifier: 0.1.1
-        version: 0.1.1
-      '@proj-airi/stage-shared':
-        specifier: workspace:^
-        version: link:../stage-shared
-      '@proj-airi/ui':
-        specifier: workspace:^
-        version: link:../ui
-      '@proj-airi/unplugin-fetch':
-        specifier: 'catalog:'
-        version: 0.2.3(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.2)(jiti@2.6.1)(less@4.6.4)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))
-      '@vueuse/core':
-        specifier: ^14.2.1
-        version: 14.2.1(vue@3.5.32(typescript@5.9.3))
-      '@xsai/tool':
-        specifier: 'catalog:'
-        version: 0.5.0-beta.2(zod-to-json-schema@3.25.2(zod@4.3.6))(zod@4.3.6)
-      animejs:
-        specifier: ^4.3.6
-        version: 4.3.6
-      async-mutex:
-        specifier: 'catalog:'
-        version: 0.5.0
-      culori:
-        specifier: ^4.0.2
-        version: 4.0.2
-      es-toolkit:
-        specifier: 'catalog:'
-        version: 1.43.0
-      jszip:
-        specifier: ^3.10.1
-        version: 3.10.1
-      localforage:
-        specifier: ^1.10.0
-        version: 1.10.0
-      nanoid:
-        specifier: 'catalog:'
-        version: 5.1.6
-      pinia:
-        specifier: ^3.0.4
-        version: 3.0.4(typescript@5.9.3)(vue@3.5.32(typescript@5.9.3))
-      pixi.js:
-        specifier: ^8.13.1
-        version: 8.19.0(patch_hash=e7926c8ff4eefa626abf7987232459daa2488a3172abb7d06fce3d014c98bd92)
-      reka-ui:
-        specifier: 'catalog:'
-        version: 2.10.1(vue@3.5.32(typescript@5.9.3))
-      untitled-pixi-live2d-engine:
-        specifier: 'workspace:'
-        version: link:../../engines/untitled-pixi-live2d-engine
-      vue:
-        specifier: 'catalog:'
-        version: 3.5.32(typescript@5.9.3)
-      vue-i18n:
-        specifier: 'catalog:'
-        version: 11.3.2(vue@3.5.32(typescript@5.9.3))
-      zod:
-        specifier: 'catalog:'
-        version: 4.3.6
-    devDependencies:
-      '@types/culori':
-        specifier: ^4.0.1
-        version: 4.0.1
-      '@types/three':
-        specifier: ^0.184.0
-        version: 0.184.0
-      vitest:
-        specifier: catalog:vitest
-        version: 4.1.4(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/browser-playwright@4.1.4)(@vitest/coverage-v8@4.1.4)(jsdom@29.1.1(@noble/hashes@2.0.1)(canvas@3.2.3))(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.2)(jiti@2.6.1)(less@4.6.4)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))
-      vue-tsc:
-        specifier: ^3.2.6
-        version: 3.2.6(typescript@5.9.3)
-
   packages/stage-ui-spine:
     dependencies:
       '@esotericsoftware/spine-webgl':
@@ -4032,6 +3956,82 @@ importers:
       reka-ui:
         specifier: 'catalog:'
         version: 2.10.1(vue@3.5.32(typescript@5.9.3))
+      vue:
+        specifier: 'catalog:'
+        version: 3.5.32(typescript@5.9.3)
+      vue-i18n:
+        specifier: 'catalog:'
+        version: 11.3.2(vue@3.5.32(typescript@5.9.3))
+      zod:
+        specifier: 'catalog:'
+        version: 4.3.6
+    devDependencies:
+      '@types/culori':
+        specifier: ^4.0.1
+        version: 4.0.1
+      '@types/three':
+        specifier: ^0.184.0
+        version: 0.184.0
+      vitest:
+        specifier: catalog:vitest
+        version: 4.1.4(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/browser-playwright@4.1.4)(@vitest/coverage-v8@4.1.4)(jsdom@29.1.1(@noble/hashes@2.0.1)(canvas@3.2.3))(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.2)(jiti@2.6.1)(less@4.6.4)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))
+      vue-tsc:
+        specifier: ^3.2.6
+        version: 3.2.6(typescript@5.9.3)
+
+  plugins/airi-plugin-stage-live2d-cubism5:
+    dependencies:
+      '@lemonneko/crop-empty-pixels':
+        specifier: 0.1.1
+        version: 0.1.1
+      '@proj-airi/stage-shared':
+        specifier: workspace:^
+        version: link:../../packages/stage-shared
+      '@proj-airi/ui':
+        specifier: workspace:^
+        version: link:../../packages/ui
+      '@proj-airi/unplugin-fetch':
+        specifier: 'catalog:'
+        version: 0.2.3(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.2)(jiti@2.6.1)(less@4.6.4)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))
+      '@vueuse/core':
+        specifier: ^14.2.1
+        version: 14.2.1(vue@3.5.32(typescript@5.9.3))
+      '@xsai/tool':
+        specifier: 'catalog:'
+        version: 0.5.0-beta.2(zod-to-json-schema@3.25.2(zod@4.3.6))(zod@4.3.6)
+      animejs:
+        specifier: ^4.3.6
+        version: 4.3.6
+      async-mutex:
+        specifier: 'catalog:'
+        version: 0.5.0
+      culori:
+        specifier: ^4.0.2
+        version: 4.0.2
+      es-toolkit:
+        specifier: 'catalog:'
+        version: 1.43.0
+      jszip:
+        specifier: ^3.10.1
+        version: 3.10.1
+      localforage:
+        specifier: ^1.10.0
+        version: 1.10.0
+      nanoid:
+        specifier: 'catalog:'
+        version: 5.1.6
+      pinia:
+        specifier: ^3.0.4
+        version: 3.0.4(typescript@5.9.3)(vue@3.5.32(typescript@5.9.3))
+      pixi.js:
+        specifier: ^8.13.1
+        version: 8.19.0(patch_hash=e7926c8ff4eefa626abf7987232459daa2488a3172abb7d06fce3d014c98bd92)
+      reka-ui:
+        specifier: 'catalog:'
+        version: 2.10.1(vue@3.5.32(typescript@5.9.3))
+      untitled-pixi-live2d-engine:
+        specifier: 'workspace:'
+        version: link:../../engines/untitled-pixi-live2d-engine
       vue:
         specifier: 'catalog:'
         version: 3.5.32(typescript@5.9.3)
@@ -10519,6 +10519,7 @@ packages:
   '@xmldom/xmldom@0.8.13':
     resolution: {integrity: sha512-KRYzxepc14G/CEpEGc3Yn+JKaAeT63smlDr+vjB8jRfgTBBI9wRj/nkQEO+ucV8p8I9bfKLWp37uHgFrbntPvw==}
     engines: {node: '>=10.0.0'}
+    deprecated: this version has critical issues, please update to the latest version
 
   '@xsai-ext/providers@0.4.4':
     resolution: {integrity: sha512-PVk3IFOPzPyvss9zY6IO6pJ890F5B6LWGWuhU6DzofWMTnqcUzm0hR2Ml/Qo8kZa3Qy/DZkUT0O1T+5g/fZkWw==}

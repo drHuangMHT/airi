@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { ModelSettingsRuntimeSnapshot } from './runtime'
 
-import { useExpressionStore, useLive2dParams, useSettingsLive2d } from '@proj-airi/stage-ui-live2d'
-import { OPFSCache } from '@proj-airi/stage-ui-live2d/utils/opfs-loader'
+import { useExpressionStore, useLive2dParams, useSettingsLive2d } from '@proj-airi/airi-plugin-stage-live2d'
+import { OPFSCache } from '@proj-airi/airi-plugin-stage-live2d/utils/opfs-loader'
 import { Button, Checkbox, ColorPalette, FieldCheckbox, FieldCombobox, FieldRange, PropertyPoint, Section, SelectTab, TextTitleDescription } from '@proj-airi/ui'
 import { storeToRefs } from 'pinia'
 import { computed, onMounted, ref, watch } from 'vue'
