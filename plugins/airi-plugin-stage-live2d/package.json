@@ -1,5 +1,5 @@
 {
-  "name": "@proj-airi/stage-ui-live2d",
+  "name": "@proj-airi/airi-plugin-stage-live2d",
   "type": "module",
   "private": true,
   "description": "Live2D scene components and stores for Project AIRI",

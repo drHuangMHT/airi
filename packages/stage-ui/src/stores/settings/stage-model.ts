@@ -16,9 +16,9 @@ const registeredRenderer = [
   {
     identifier: 'plugin.airi_plugin_stage_live2d',
     name: 'Live2D - pixi6',
-    stage: defineAsyncComponent(() => import('../../../../stage-ui-live2d/src/components/scenes/Live2D.vue')),
-    modelSelector: defineAsyncComponent(() => import('../../../../stage-ui-live2d/src/components/ModelSelector.vue')),
-    modelSettings: defineAsyncComponent(() => import('../../../../stage-ui-live2d/src/components/ModelSettings.vue')),
+    stage: defineAsyncComponent(() => import('../../../../../plugins/airi-plugin-stage-live2d/src/components/scenes/Live2D.vue')),
+    modelSelector: defineAsyncComponent(() => import('../../../../../plugins/airi-plugin-stage-live2d/src/components/ModelSelector.vue')),
+    modelSettings: defineAsyncComponent(() => import('../../../../../plugins/airi-plugin-stage-live2d/src/components/ModelSettings.vue')),
   },
   {
     identifier: 'plugin.airi_plugin_stage_live2d_cubism5',

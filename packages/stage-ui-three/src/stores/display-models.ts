@@ -9,15 +9,15 @@ const builtinModels: (ModelMetadata & { modelUrl: string, previewUrl: string })[
   {
     name: 'AvatarSample_A',
     identifier: 'avatar.airi_plugin_stage_three.avatar_sample_a',
-    modelUrl: new URL('../assets/vrm/models/AvatarSample-A/AvatarSample_A.vrm', import.meta.url).href,
-    previewUrl: new URL('../assets/vrm/models/AvatarSample-A/preview.png', import.meta.url).href,
+    modelUrl: new URL('../../models/AvatarSample-A/AvatarSample_A.vrm', import.meta.url).href,
+    previewUrl: new URL('../../models/AvatarSample-A/preview.png', import.meta.url).href,
     importedAt: 1733113886840,
   },
   {
     name: 'AvatarSample_B',
     identifier: 'avatar.airi_plugin_stage_three.avatar_sample_b',
-    modelUrl: new URL('../assets/vrm/models/AvatarSample-B/AvatarSample_B.vrm', import.meta.url).href,
-    previewUrl: new URL('../assets/vrm/models/AvatarSample-B/preview.png', import.meta.url).href,
+    modelUrl: new URL('../../models/AvatarSample-B/AvatarSample_B.vrm', import.meta.url).href,
+    previewUrl: new URL('../../models/AvatarSample-B/preview.png', import.meta.url).href,
     importedAt: 1733113886840,
   },
 ]
