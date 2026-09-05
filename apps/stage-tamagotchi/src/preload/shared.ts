@@ -1,5 +1,3 @@
-import type { ElectronWindow } from '@proj-airi/stage-shared'
-
 import { contextIsolated, platform } from 'node:process'
 
 import { electronAPI } from '@electron-toolkit/preload'
@@ -26,24 +24,5 @@ export function expose() {
   else {
     window.electron = electronAPI
     window.platform = platform
-  }
-}
-
-export function exposeWithCustomAPI<CustomAPI>(customAPI: CustomAPI) {
-  expose()
-
-  // Use `contextBridge` APIs to expose Electron APIs to
-  // renderer only if context isolation is enabled, otherwise
-  // just add to the DOM global.
-  if (contextIsolated) {
-    try {
-      contextBridge.exposeInMainWorld('api', customAPI)
-    }
-    catch (error) {
-      console.error(error)
-    }
-  }
-  else {
-    (window as ElectronWindow<CustomAPI>).api = customAPI
   }
 }

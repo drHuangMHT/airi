@@ -27,15 +27,7 @@ import { join } from 'node:path'
 
 import { app } from 'electron'
 
-// ============================================================================
-// Constants
-// ============================================================================
-
 const LOG_FILE_PREFIX = 'airi-tamagotchi'
-
-// ============================================================================
-// Public Types
-// ============================================================================
 
 /**
  * Handle for the file logger, providing access to the log file and append operations.
@@ -49,7 +41,7 @@ export interface FileLoggerHandle {
    * Appends a log entry to the file.
    * @param content - The formatted log content to append
    */
-  appendLog: (content: string) => Promise<void>
+  append: (content: string) => Promise<void>
   /**
    * Closes the log file and releases resources.
    */
@@ -59,7 +51,7 @@ export interface FileLoggerHandle {
 export const nullFileLoggerHandle: FileLoggerHandle = {
   logFilePath: null,
   logFileFd: null,
-  appendLog: async () => {},
+  append: async () => {},
   close: async () => {},
 }
 
@@ -111,10 +103,6 @@ async function getLogFileSize(filePath: string): Promise<number | null> {
     return null
   }
 }
-
-// ============================================================================
-// Public API
-// ============================================================================
 
 /**
  * Sets up the file logger by creating a timestamped log file.
@@ -185,7 +173,7 @@ export async function setupFileLogger(): Promise<FileLoggerHandle> {
       console.info(`[FileLogger] Session log file: ${logFilePath}${sizeInfo}`)
     }
 
-    return { logFilePath, logFileFd, appendLog, close }
+    return { logFilePath, logFileFd, append: appendLog, close }
   }
   catch (error) {
     const message = getErrorMessage(error)

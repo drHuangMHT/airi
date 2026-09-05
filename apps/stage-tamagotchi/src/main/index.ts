@@ -17,7 +17,6 @@ import { PluginRegistry } from '@proj-airi/plugin-host'
 import { app, ipcMain, powerMonitor } from 'electron'
 import { noop } from 'es-toolkit'
 import { createLoggLogger, injeca, lifecycle } from 'injeca'
-import { isLinux } from 'std-env'
 
 import icon from '../../resources/icon.png?asset'
 
@@ -29,9 +28,9 @@ import { createGlobalAppConfig } from './configs/global'
 import { emitAppBeforeQuit, emitAppReady, emitAppWindowAllClosed } from './libs/bootkit/lifecycle'
 import { setElectronMainDirname } from './libs/electron/location'
 import { createI18n } from './libs/i18n'
+import { onLinux } from './platformSpecificSetups'
 import { createWindowAuthManagerService } from './services/airi/auth'
 import { setupServerChannel } from './services/airi/channel-server'
-import { setupGodotStageManager } from './services/airi/godot-stage'
 import { setupBuiltInServer } from './services/airi/http-server'
 import { setupMcpStdioManager } from './services/airi/mcp-servers'
 import { setupArtistryBridge } from './services/airi/widgets/artistry-bridge'
@@ -65,32 +64,8 @@ const appUserDataPath = env.APP_USER_DATA_PATH?.trim()
 if (appUserDataPath) {
   app.setPath('userData', appUserDataPath)
 }
-
-// Thanks to [@blurymind](https://github.com/blurymind),
-//
-// When running Electron on Linux, navigator.gpu.requestAdapter() fails.
-// In order to enable WebGPU and process the shaders fast enough, we need the following
-// command line switches to be set.
-//
-// https://github.com/electron/electron/issues/41763#issuecomment-2051725363
-// https://github.com/electron/electron/issues/41763#issuecomment-3143338995
-if (isLinux) {
-  app.commandLine.appendSwitch('enable-features', 'SharedArrayBuffer')
-  app.commandLine.appendSwitch('enable-unsafe-webgpu')
-  app.commandLine.appendSwitch('enable-features', 'Vulkan')
-
-  // NOTICE: we need UseOzonePlatform, WaylandWindowDecorations for working on Wayland.
-  // Partially related to https://github.com/electron/electron/issues/41551, since X11 is deprecating now,
-  // we can safely remove the feature flags for Electron once they made it default supported.
-  // Fixes: https://github.com/moeru-ai/airi/issues/757
-  // Ref: https://github.com/mmaura/poe2linuxcompanion/blob/90664607a147ea5ccea28df6139bd95fb0ebab0e/electron/main/index.ts#L28-L46
-  if (env.XDG_SESSION_TYPE === 'wayland') {
-    app.commandLine.appendSwitch('enable-features', 'GlobalShortcutsPortal')
-
-    app.commandLine.appendSwitch('enable-features', 'UseOzonePlatform')
-    app.commandLine.appendSwitch('enable-features', 'WaylandWindowDecorations')
-  }
-}
+// platform specific setups - only run when actually on the platform
+onLinux(app)
 
 app.dock?.setIcon(icon)
 electronApp.setAppUserModelId('ai.moeru.airi')
@@ -119,7 +94,7 @@ app.whenReady().then(async () => {
   setGlobalHookPostLog((_, formatted) => {
     if (skipFileLogging || fileLogger.logFileFd === null)
       return
-    void fileLogger.appendLog(formatted)
+    void fileLogger.append(formatted)
   })
 
   injeca.setLogger(createLoggLogger(useLogg('injeca').useGlobalConfig()))
@@ -153,10 +128,6 @@ app.whenReady().then(async () => {
 
   const airiHttpServer = injeca.provide('modules:airi-http-server', {
     build: async () => setupBuiltInServer({ servers: [] }),
-  })
-
-  const godotStageManager = injeca.provide('modules:godot-stage-manager', {
-    build: async () => setupGodotStageManager(),
   })
 
   const mcpStdioManager = injeca.provide('modules:mcp-stdio-manager', {
@@ -204,12 +175,12 @@ app.whenReady().then(async () => {
   })
 
   const settingsWindow = injeca.provide('windows:settings', {
-    dependsOn: { widgetsManager, autoUpdater, devtoolsWindow: devtoolsMarkdownStressWindow, serverChannel, godotStageManager, mcpStdioManager, i18n, windowAuthManager, globalShortcut },
+    dependsOn: { widgetsManager, autoUpdater, devtoolsWindow: devtoolsMarkdownStressWindow, serverChannel, mcpStdioManager, i18n, windowAuthManager, globalShortcut },
     build: async ({ dependsOn }) => setupSettingsWindowReusableFunc(dependsOn),
   })
 
   const mainWindow = injeca.provide('windows:main', {
-    dependsOn: { settingsWindow, chatWindow, widgetsManager, noticeWindow, autoUpdater, serverChannel, godotStageManager, mcpStdioManager, i18n, onboardingWindowManager, windowAuthManager },
+    dependsOn: { settingsWindow, chatWindow, widgetsManager, noticeWindow, autoUpdater, serverChannel, mcpStdioManager, i18n, onboardingWindowManager, windowAuthManager },
     build: async ({ dependsOn }) => setupMainWindow({
       ...dependsOn,
       powerMonitor,
@@ -246,7 +217,7 @@ app.whenReady().then(async () => {
   }
 
   injeca.invoke({
-    dependsOn: { mainWindow, tray, serverChannel, airiHttpServer, godotStageManager, pluginHost, mcpStdioManager, onboardingWindow: onboardingWindowManager, widgetsWindow: widgetsManager, artistryConfig },
+    dependsOn: { mainWindow, tray, serverChannel, airiHttpServer, pluginHost, mcpStdioManager, onboardingWindow: onboardingWindowManager, widgetsWindow: widgetsManager, artistryConfig },
     callback: async (deps) => {
       const { context } = createContext(ipcMain)
       await setupArtistryBridge({
